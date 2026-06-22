@@ -2,6 +2,7 @@
 
 IRC documentation
 https://modern.ircdocs.horse/
+https://beej.us/guide/bgnet/
 
 ## Server and I/O
 
