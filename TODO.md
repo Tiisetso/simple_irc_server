@@ -1,5 +1,8 @@
 # TODO Lit
 
+IRC documentation
+https://modern.ircdocs.horse/
+
 ## Server and I/O
 
 - [ ] Accept multiple simultaneous clients without hanging.
