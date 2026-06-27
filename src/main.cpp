@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include <exception>
 #include <iostream>
 
 int main(int ac, char **av)
@@ -11,9 +12,17 @@ int main(int ac, char **av)
 
 	std::string port = av[1];
 
-	Server server(port);
-	if (server.createSocket())
+	try
+	{
+		Server server(port);
+		server.createSocket();
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
 		return 1;
+	}
+
 
 	return 0;
 }

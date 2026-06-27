@@ -1,7 +1,7 @@
 #include "Server.hpp"
 #include <iostream>
-#include <cerrno>
 #include <netdb.h>
+#include <stdexcept>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -16,11 +16,11 @@ Server::~Server()
 		close(_servSockFd);
 }
 
-int Server::createSocket()
+void Server::createSocket()
 {
 	//loading up data for holding server address information
 	int					ret;
-	struct addrinfo	hints{};
+	struct addrinfo		hints{};
 	struct addrinfo*	res = nullptr;
 	struct addrinfo*	temp = nullptr;
 
@@ -30,10 +30,7 @@ int Server::createSocket()
 
 	ret = getaddrinfo(nullptr, _port.c_str(), &hints, &res);
 	if (ret)
-	{
-		std::cerr << "getaddrinfo error, status: " << ret << std::endl;
-		return 1;
-	}
+		throw std::runtime_error("Server: Failed getaddrinfo");
 
 	for (temp = res; temp != nullptr; temp = temp->ai_next)
 	{
@@ -46,13 +43,11 @@ int Server::createSocket()
 	}
 	if (_servSockFd == -1)
 	{
-		std::cerr << "socket error, errno: " << errno << std::endl;
 		freeaddrinfo(res);
-		return 1;
+		throw std::runtime_error("Server: Failed creating socket");
 	}
 
 	freeaddrinfo(res);
-	return 0;
 }
 
 
