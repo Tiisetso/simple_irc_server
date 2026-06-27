@@ -15,5 +15,5 @@ public:
 	Server& operator=(const Server& other) = delete;
 	~Server();
 
-	int createSocket();
+	void createSocket();
 };
