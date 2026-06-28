@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#define BACKLOG 20
+
 Server::Server(const std::string& port):_servSockFd(-1), _port(port)
 {
 }
@@ -38,15 +40,26 @@ void Server::createSocket()
 		if (_servSockFd == -1)
 			continue;
 		std::cout << "server socket created, socket fd: " << _servSockFd << std::endl;
-		//socket is created, now we can use the right address to bind
-		break;
+		if (bind(_servSockFd, temp->ai_addr, temp->ai_addrlen) == 0)
+			break;
 	}
 	if (_servSockFd == -1)
 	{
 		freeaddrinfo(res);
 		throw std::runtime_error("Server: Failed creating socket");
 	}
-
+	else if (temp == nullptr)
+	{
+		freeaddrinfo(res);
+		throw std::runtime_error("Server: Failed to bind");
+	}
+	std::cout << "bind " << std::endl;
+	if (listen(_servSockFd, BACKLOG))
+	{
+		freeaddrinfo(res);
+		throw std::runtime_error("Server: Failed to listen");
+	}
+	std::cout << "listening for incoming connection " << std::endl;
 	freeaddrinfo(res);
 }
 
