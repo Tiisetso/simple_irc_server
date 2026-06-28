@@ -1,6 +1,7 @@
 #include "Server.hpp"
 #include <iostream>
 #include <netdb.h>
+#include <netinet/in.h>
 #include <stdexcept>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -8,7 +9,7 @@
 
 #define BACKLOG 20
 
-Server::Server(const std::string& port):_servSockFd(-1), _port(port)
+Server::Server(const std::string& port):_servSockFd(-1), _clientFd(-1), _port(port)
 {
 }
 
@@ -25,6 +26,8 @@ void Server::createSocket()
 	struct addrinfo		hints{};
 	struct addrinfo*	res = nullptr;
 	struct addrinfo*	temp = nullptr;
+	struct sockaddr_in	client_addr{};
+	socklen_t			client_addrlen;
 
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
@@ -59,6 +62,7 @@ void Server::createSocket()
 		freeaddrinfo(res);
 		throw std::runtime_error("Server: Failed to listen");
 	}
+	_clientFd = accept(_servSockFd, reinterpret_cast<sockaddr *>(client))
 	std::cout << "listening for incoming connection " << std::endl;
 	freeaddrinfo(res);
 }

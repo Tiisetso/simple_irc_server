@@ -6,6 +6,7 @@ class Server
 {
 private:
 	int					_servSockFd;
+	int					_clientFd;
 	std::string			_port;
 
 public:
