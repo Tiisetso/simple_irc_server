@@ -1,5 +1,8 @@
 /ircserv
 /obj/
 *.o
+compile_commands.json
 
 .vscode/
+.cache/clangd/
+.DS_Store
