@@ -9,7 +9,7 @@
 
 #define BACKLOG 20
 
-Server::Server(const std::string& port):_servSockFd(-1), _clientFd(-1), _port(port)
+Server::Server(const std::string& port):_servSockFd(-1), _port(port)
 {
 }
 
@@ -26,8 +26,6 @@ void Server::createSocket()
 	struct addrinfo		hints{};
 	struct addrinfo*	res = nullptr;
 	struct addrinfo*	temp = nullptr;
-	struct sockaddr_in	client_addr{};
-	socklen_t			client_addrlen;
 
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
@@ -37,14 +35,18 @@ void Server::createSocket()
 	if (ret)
 		throw std::runtime_error("Server: Failed getaddrinfo");
 
+	// Create a socket and bind it to an address
 	for (temp = res; temp != nullptr; temp = temp->ai_next)
 	{
 		_servSockFd = socket(temp->ai_family, temp->ai_socktype, temp->ai_protocol);
 		if (_servSockFd == -1)
 			continue;
-		std::cout << "server socket created, socket fd: " << _servSockFd << std::endl;
+		std::cout << "Server: socket created, fd = " << _servSockFd << std::endl;
+
 		if (bind(_servSockFd, temp->ai_addr, temp->ai_addrlen) == 0)
 			break;
+		close(_servSockFd);
+		_servSockFd = -1;
 	}
 	if (_servSockFd == -1)
 	{
@@ -56,15 +58,15 @@ void Server::createSocket()
 		freeaddrinfo(res);
 		throw std::runtime_error("Server: Failed to bind");
 	}
-	std::cout << "bind " << std::endl;
+	std::cout << "Server: bind succeeded" << std::endl;
+
+	// Start listening for incoming connections
 	if (listen(_servSockFd, BACKLOG))
 	{
 		freeaddrinfo(res);
 		throw std::runtime_error("Server: Failed to listen");
 	}
-	_clientFd = accept(_servSockFd, reinterpret_cast<sockaddr *>(client))
-	std::cout << "listening for incoming connection " << std::endl;
+	std::cout << "Server: listening for incoming connections" << std::endl;
+
 	freeaddrinfo(res);
 }
-
-
