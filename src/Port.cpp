@@ -1,15 +1,14 @@
-
 #include "Port.hpp"
+#include <string>
 
-
-bool validPort(const std::string& portString)
+bool	validPort(const std::string &portString)
 {
-	unsigned int port = 0;
-	char c;
+	unsigned int	port;
+	char			c;
 
+	port = 0;
 	if (portString.empty())
 		return (false);
-
 	for (std::size_t i = 0; i < portString.length(); ++i)
 	{
 		c = portString[i];
