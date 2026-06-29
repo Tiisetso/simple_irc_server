@@ -1,8 +1,8 @@
 
-#include "parse_port.hpp"
+#include "Port.hpp"
 
 
-bool parsePort(const std::string& portString)
+bool validPort(const std::string& portString)
 {
 	unsigned int port = 0;
 	char c;
