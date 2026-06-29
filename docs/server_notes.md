@@ -43,3 +43,21 @@ Man page: [socket](https://man7.org/linux/man-pages/man2/socket.2.html)
 Frees the address list from getaddrinfo().
 
 Man page: [freeaddrinfo](https://man7.org/linux/man-pages/man3/freeaddrinfo.3p.html)
+
+### bind()
+
+Assigns a local address and port to a socket.
+
+Man page: [bind](https://man7.org/linux/man-pages/man2/bind.2.html)
+
+### listen()
+
+Marks a bound socket as a listening socket.
+
+Man page: [listen](https://man7.org/linux/man-pages/man2/listen.2.html)
+
+### accept()
+
+Accepts a pending connection from a listening socket and fills client's address.
+
+Man page: [accept](https://man7.org/linux/man-pages/man2/accept.2.html)
