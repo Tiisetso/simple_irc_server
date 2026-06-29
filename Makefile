@@ -2,7 +2,7 @@ NAME := ircserv
 
 CXX := c++
 CXXFLAGS := -Wall -Wextra -Werror -std=c++20
-CPPFLAGS := -Iinclude
+CPPFLAGS := -MMD -MP -Iinclude
 
 VFLAGS := -g -O0
 SFLAGS := -g -O0 -fsanitize=address -fsanitize=leak -fsanitize=undefined
@@ -26,6 +26,7 @@ $(SRC_DIR)/Server.cpp \
 $(SRC_DIR)/Port.cpp
 
 OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
+DEPS := $(OBJS:.o=.d)
 
 all: $(NAME)
 
@@ -44,4 +45,5 @@ fclean: clean
 
 re: fclean all
 
+-include $(DEPS)
 .PHONY: all clean fclean re

@@ -1,10 +1,13 @@
 #include "Server.hpp"
 #include <iostream>
 #include <netdb.h>
+#include <netinet/in.h>
 #include <stdexcept>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#define BACKLOG 20
 
 Server::Server(const std::string& port):_servSockFd(-1), _port(port)
 {
@@ -32,22 +35,38 @@ void Server::createSocket()
 	if (ret)
 		throw std::runtime_error("Server: Failed getaddrinfo");
 
+	// Create a socket and bind it to an address
 	for (temp = res; temp != nullptr; temp = temp->ai_next)
 	{
 		_servSockFd = socket(temp->ai_family, temp->ai_socktype, temp->ai_protocol);
 		if (_servSockFd == -1)
 			continue;
-		std::cout << "server socket created, socket fd: " << _servSockFd << std::endl;
-		//socket is created, now we can use the right address to bind
-		break;
+		std::cout << "Server: socket created, fd = " << _servSockFd << std::endl;
+
+		if (bind(_servSockFd, temp->ai_addr, temp->ai_addrlen) == 0)
+			break;
+		close(_servSockFd);
+		_servSockFd = -1;
 	}
 	if (_servSockFd == -1)
 	{
 		freeaddrinfo(res);
 		throw std::runtime_error("Server: Failed creating socket");
 	}
+	else if (temp == nullptr)
+	{
+		freeaddrinfo(res);
+		throw std::runtime_error("Server: Failed to bind");
+	}
+	std::cout << "Server: bind succeeded" << std::endl;
+
+	// Start listening for incoming connections
+	if (listen(_servSockFd, BACKLOG))
+	{
+		freeaddrinfo(res);
+		throw std::runtime_error("Server: Failed to listen");
+	}
+	std::cout << "Server: listening for incoming connections" << std::endl;
 
 	freeaddrinfo(res);
 }
-
-
