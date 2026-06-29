@@ -3,7 +3,7 @@
 #include <exception>
 #include <iostream>
 
-int	main(int ac, char **av)
+int main(int ac, char **av)
 {
 	if (ac != 3)
 	{
@@ -15,7 +15,7 @@ int	main(int ac, char **av)
 		std::cerr << "Invalid port.\n";
 		return (EXIT_FAILURE);
 	}
-	return (EXIT_SUCCESS);
+
 	std::string port = av[1];
 	try
 	{
@@ -27,5 +27,5 @@ int	main(int ac, char **av)
 		std::cerr << e.what() << std::endl;
 		return (1);
 	}
-	return (0);
+	return (EXIT_SUCCESS);
 }
