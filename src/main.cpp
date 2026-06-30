@@ -1,4 +1,4 @@
-#include "Port.hpp"
+#include "Validation.hpp"
 #include "Server.hpp"
 #include <exception>
 #include <iostream>
@@ -13,6 +13,11 @@ int main(int ac, char **av)
 	if (!validPort(av[1]))
 	{
 		std::cerr << "Invalid port.\n";
+		return (EXIT_FAILURE);
+	}
+	if (!validPassword(av[2]))
+	{
+		std::cerr << "Invalid password.\n";
 		return (EXIT_FAILURE);
 	}
 
