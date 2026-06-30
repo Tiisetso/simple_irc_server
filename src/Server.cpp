@@ -6,6 +6,8 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <cerrno>
+#include <cstring>
 
 #define BACKLOG 20
 
@@ -17,6 +19,21 @@ Server::~Server()
 {
 	if (_servSockFd != -1)
 		close(_servSockFd);
+}
+
+void Server::runPollLoop()
+{
+	//prepare client address struct for connect to fill in
+	struct sockaddr_in	client_addr{};
+	socklen_t			client_addrlen = sizeof(client_addr);
+
+	std::cout << "Waiting for connection..." << std::endl;
+	int client_fd;
+	client_fd = accept(_servSockFd, reinterpret_cast<sockaddr *>(&client_addr), &client_addrlen);
+	if (client_fd == -1)
+		throw std::runtime_error(std::string("Failed to accept incoming connection:") + std::strerror(errno));
+	std::cout << "Connection accepted! " << std::endl;
+	std::cout << "client fd: " << client_fd << std::endl;;
 }
 
 void Server::createSocket()
@@ -33,7 +50,7 @@ void Server::createSocket()
 
 	ret = getaddrinfo(nullptr, _port.c_str(), &hints, &res);
 	if (ret)
-		throw std::runtime_error("Server: Failed getaddrinfo");
+		throw std::runtime_error(std::string("Server: Failed getaddrinfo") + gai_strerror(ret));
 
 	// Create a socket and bind it to an address
 	for (temp = res; temp != nullptr; temp = temp->ai_next)
@@ -48,25 +65,16 @@ void Server::createSocket()
 		close(_servSockFd);
 		_servSockFd = -1;
 	}
+	freeaddrinfo(res);
+
 	if (_servSockFd == -1)
-	{
-		freeaddrinfo(res);
 		throw std::runtime_error("Server: Failed creating socket");
-	}
 	else if (temp == nullptr)
-	{
-		freeaddrinfo(res);
-		throw std::runtime_error("Server: Failed to bind");
-	}
+		throw std::runtime_error(std::string("Server: Failed to bind: ") + std::strerror(errno));
 	std::cout << "Server: bind succeeded" << std::endl;
 
 	// Start listening for incoming connections
-	if (listen(_servSockFd, BACKLOG))
-	{
-		freeaddrinfo(res);
-		throw std::runtime_error("Server: Failed to listen");
-	}
-	std::cout << "Server: listening for incoming connections" << std::endl;
-
-	freeaddrinfo(res);
+	if (listen(_servSockFd, BACKLOG) == -1)
+		throw std::runtime_error(std::string("Server: Failed to listen: ") + std::strerror(errno));
+	std::cout << "Server: listening for incoming connections on port: " << _port << std::endl;
 }

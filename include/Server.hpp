@@ -16,4 +16,5 @@ public:
 	~Server();
 
 	void createSocket();
+	void runPollLoop();
 };

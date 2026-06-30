@@ -8,7 +8,7 @@ struct addrinfo {
 	int              ai_socktype;
 	int              ai_protocol;
 	socklen_t        ai_addrlen;
-	struct sockaddr *ai_addr;
+	struct sockaddr *a6i_addr;
 	char            *ai_canonname;
 	struct addrinfo *ai_next;
 };
@@ -61,3 +61,13 @@ Man page: [listen](https://man7.org/linux/man-pages/man2/listen.2.html)
 Accepts a pending connection from a listening socket and fills client's address.
 
 Man page: [accept](https://man7.org/linux/man-pages/man2/accept.2.html)
+
+### send()
+
+Send a message on a socket
+
+Man page: [send](https://man7.org/linux/man-pages/man2/sendmsg.2.html)
+
+### recv()
+
+Man page: [recv](https://man7.org/linux/man-pages/man2/recv.2.html)
