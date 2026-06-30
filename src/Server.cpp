@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <arpa/inet.h>
 #include <unistd.h>
 #include <cerrno>
 #include <cstring>
@@ -24,16 +25,18 @@ Server::~Server()
 void Server::runPollLoop()
 {
 	//prepare client address struct for connect to fill in
-	struct sockaddr_in	client_addr{};
-	socklen_t			client_addrlen = sizeof(client_addr);
+	int 				clientFd;
+	char				clientAddrStr[INET6_ADDRSTRLEN];
+	struct sockaddr_in	clientAddr{};
+	socklen_t			clientAddrlen = sizeof(clientAddr);
 
 	std::cout << "Waiting for connection..." << std::endl;
-	int client_fd;
-	client_fd = accept(_servSockFd, reinterpret_cast<sockaddr *>(&client_addr), &client_addrlen);
-	if (client_fd == -1)
+	clientFd = accept(_servSockFd, reinterpret_cast<sockaddr *>(&clientAddr), &clientAddrlen);
+	if (clientFd == -1)
 		throw std::runtime_error(std::string("Failed to accept incoming connection:") + std::strerror(errno));
-	std::cout << "Connection accepted! " << std::endl;
-	std::cout << "client fd: " << client_fd << std::endl;;
+	inet_ntop(AF_INET, &(clientAddr.sin_addr), clientAddrStr, INET6_ADDRSTRLEN);
+	std::cout << "Connection accepted! Client fd: " << clientFd << " "
+			<< "Client address: " << clientAddrStr << std::endl;
 }
 
 void Server::createSocket()
