@@ -8,7 +8,7 @@ struct addrinfo {
 	int              ai_socktype;
 	int              ai_protocol;
 	socklen_t        ai_addrlen;
-	struct sockaddr *a6i_addr;
+	struct sockaddr *ai_addr;
 	char            *ai_canonname;
 	struct addrinfo *ai_next;
 };
