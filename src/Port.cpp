@@ -7,7 +7,7 @@ bool	validPort(const std::string &portString)
 	char			c;
 
 	port = 0;
-	if (portString.empty())
+	if (portString.empty() || portString.length() > 5)
 		return (false);
 	for (std::size_t i = 0; i < portString.length(); ++i)
 	{
