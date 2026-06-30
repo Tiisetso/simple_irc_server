@@ -12,7 +12,11 @@
 
 #define BACKLOG 20
 
-Server::Server(const std::string& port):_servSockFd(-1), _clientFd(-1), _port(port)
+Server::Server(const std::string& port, const std::string& password):
+_servSockFd(-1),
+_clientFd(-1),
+_port(port),
+_password(password)
 {
 }
 

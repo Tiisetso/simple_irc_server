@@ -17,9 +17,10 @@ int main(int ac, char **av)
 	}
 
 	std::string port = av[1];
+	std::string password = av[2];
 	try
 	{
-		Server server(port);
+		Server server(port, password);
 		server.createSocket();
 		server.acceptClient();
 	}
