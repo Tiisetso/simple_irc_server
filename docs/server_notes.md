@@ -61,3 +61,19 @@ Man page: [listen](https://man7.org/linux/man-pages/man2/listen.2.html)
 Accepts a pending connection from a listening socket and fills client's address.
 
 Man page: [accept](https://man7.org/linux/man-pages/man2/accept.2.html)
+
+### inet_ntop()
+
+Convert IPv4 and IPv6 addresses from binary to text
+
+Man page: [inet_ntop](https://man7.org/linux/man-pages/man3/inet_ntop.3.html)
+
+### send()
+
+Send a message on a socket
+
+Man page: [send](https://man7.org/linux/man-pages/man2/sendmsg.2.html)
+
+### recv()
+
+Man page: [recv](https://man7.org/linux/man-pages/man2/recv.2.html)
