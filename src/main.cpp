@@ -21,7 +21,7 @@ int main(int ac, char **av)
 	{
 		Server server(port);
 		server.createSocket();
-		server.runPollLoop();
+		server.acceptClient();
 	}
 	catch (const std::exception &e)
 	{
