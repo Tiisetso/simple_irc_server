@@ -1,4 +1,4 @@
-#include "Port.hpp"
+#include "Validation.hpp"
 #include "Server.hpp"
 #include <exception>
 #include <iostream>
@@ -15,11 +15,17 @@ int main(int ac, char **av)
 		std::cerr << "Invalid port.\n";
 		return (EXIT_FAILURE);
 	}
+	if (!validPassword(av[2]))
+	{
+		std::cerr << "Invalid password.\n";
+		return (EXIT_FAILURE);
+	}
 
 	std::string port = av[1];
+	std::string password = av[2];
 	try
 	{
-		Server server(port);
+		Server server(port, password);
 		server.createSocket();
 		server.acceptClient();
 	}
