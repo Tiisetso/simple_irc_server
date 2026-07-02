@@ -1,13 +1,14 @@
 #include "Validation.hpp"
+
 #include <cctype>
 #include <string>
 
-# define MAXLENGTH 32
+#define MAXLENGTH 32
 
-bool	validPort(const std::string &portString)
+bool validPort(const std::string &portString)
 {
-	unsigned int	port;
-	char			c;
+	unsigned int port;
+	char c;
 
 	port = 0;
 	if (portString.empty())
@@ -24,7 +25,7 @@ bool	validPort(const std::string &portString)
 	return (port > 0);
 }
 
-bool	validPassword(const std::string &password)
+bool validPassword(const std::string &password)
 {
 	if (password.empty())
 		return false;
@@ -32,8 +33,8 @@ bool	validPassword(const std::string &password)
 		return false;
 	for (std::size_t i = 0; i < password.length(); i++)
 	{
-		if (std::isspace(static_cast<unsigned char>(password[i]))
-			|| !std::isprint(static_cast<unsigned char>(password[i])))
+		if (std::isspace(static_cast<unsigned char>(password[i])) ||
+			!std::isprint(static_cast<unsigned char>(password[i])))
 			return false;
 	}
 
