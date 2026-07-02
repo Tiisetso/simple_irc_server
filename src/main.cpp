@@ -1,7 +1,8 @@
-#include "Validation.hpp"
-#include "Server.hpp"
 #include <exception>
 #include <iostream>
+
+#include "Server.hpp"
+#include "Validation.hpp"
 
 int main(int ac, char **av)
 {

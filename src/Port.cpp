@@ -1,10 +1,11 @@
 #include "Port.hpp"
+
 #include <string>
 
-bool	validPort(const std::string &portString)
+bool validPort(const std::string &portString)
 {
-	unsigned int	port;
-	char			c;
+	unsigned int port;
+	char c;
 
 	port = 0;
 	if (portString.empty() || portString.length() > 5)
