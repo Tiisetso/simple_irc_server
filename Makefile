@@ -45,5 +45,14 @@ fclean: clean
 
 re: fclean all
 
+#test: make valgrind PORT=8080 PASSWORD=my_secure_pass
+
+valgrind: 
+		@$(MAKE) re debug=1
+		valgrind --leak-check=full \
+				 --show-leak-kinds=all \
+				 --track-origins=yes \
+				 ./$(NAME) $(PORT) $(PASSWORD)
+
 -include $(DEPS)
 .PHONY: all clean fclean re
