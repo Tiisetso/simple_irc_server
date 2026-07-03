@@ -54,6 +54,7 @@ void Server::createSocket()
 {
 	// loading up data for holding server address information
 	int ret;
+	int socketyes = 0;
 	struct addrinfo hints{};
 	struct addrinfo *res = nullptr;
 	struct addrinfo *temp = nullptr;
@@ -74,6 +75,7 @@ void Server::createSocket()
 			socket(temp->ai_family, temp->ai_socktype, temp->ai_protocol);
 		if (_servSockFd == -1)
 			continue;
+		socketyes = 1;
 		std::cout << "Server: Socket created, fd = " << _servSockFd
 				  << std::endl;
 
@@ -84,7 +86,7 @@ void Server::createSocket()
 	}
 	freeaddrinfo(res);
 
-	if (_servSockFd == -1)
+	if (socketyes == 0)
 		throw std::runtime_error("Server: Failed creating socket");
 	else if (temp == nullptr)
 		throw std::runtime_error(std::string("Server: Failed to bind: ") +
