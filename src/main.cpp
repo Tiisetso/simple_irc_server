@@ -29,6 +29,7 @@ int main(int ac, char **av)
 		Server server(port, password);
 		server.createSocket();
 		server.acceptClient();
+		server.processClient();
 	}
 	catch (const std::exception &e)
 	{
