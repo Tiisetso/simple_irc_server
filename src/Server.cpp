@@ -79,6 +79,13 @@ void Server::createSocket()
 		std::cout << "Server: Socket created, fd = " << _servSockFd
 				  << std::endl;
 
+		int sockopt = 1;
+		if (setsockopt(_servSockFd, SOL_SOCKET, SO_REUSEADDR, &sockopt,
+					   sizeof(sockopt)) == -1)
+			throw std::runtime_error(
+				std::string("Server: Failed to set socket options: ") +
+				std::strerror(errno));
+
 		if (bind(_servSockFd, temp->ai_addr, temp->ai_addrlen) == 0)
 			break;
 		close(_servSockFd);
@@ -99,4 +106,28 @@ void Server::createSocket()
 								 std::strerror(errno));
 	std::cout << "Server: Listening for incoming connections on port: " << _port
 			  << std::endl;
+}
+
+void Server::processClient()
+{
+	const std::string greeting = "Moi Hej Hello 你好\r\n";
+	char buffer[1024];
+	ssize_t bytesReceived{};
+
+	if (send(_clientFd, greeting.c_str(), greeting.length(), 0) < 0)
+		throw std::runtime_error(std::string("Server: Failed to send: ") +
+								 std::strerror(errno));
+
+	bytesReceived = recv(_clientFd, buffer, sizeof(buffer) - 1, 0);
+	if (bytesReceived < 0)
+		throw std::runtime_error(std::string("Server: Failed to receive: ") +
+								 std::strerror(errno));
+	else if (bytesReceived == 0)
+		std::cout << "Server: Client disconnected" << std::endl;
+	else
+	{
+		buffer[bytesReceived] = '\0';
+		std::cout << "Server: Received: " << bytesReceived
+				  << " bytes: " << buffer << std::endl;
+	}
 }

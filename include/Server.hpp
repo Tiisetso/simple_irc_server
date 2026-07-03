@@ -19,4 +19,5 @@ class Server
 
 		void createSocket();
 		void acceptClient();
+		void processClient();
 };
