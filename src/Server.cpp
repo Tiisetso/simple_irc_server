@@ -78,8 +78,11 @@ void Server::createSocket()
 				  << std::endl;
 
 		int sockopt = 1;
-		if (setsockopt(_servSockFd, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) == -1)
-			throw std::runtime_error(std::string("Server: Failed to set socket options: ") + std::strerror(errno));
+		if (setsockopt(_servSockFd, SOL_SOCKET, SO_REUSEADDR, &sockopt,
+					   sizeof(sockopt)) == -1)
+			throw std::runtime_error(
+				std::string("Server: Failed to set socket options: ") +
+				std::strerror(errno));
 
 		if (bind(_servSockFd, temp->ai_addr, temp->ai_addrlen) == 0)
 			break;
@@ -105,20 +108,24 @@ void Server::createSocket()
 
 void Server::processClient()
 {
-	std::string greeting;
-
-	greeting = "Moi Hej Hello 你好\r\n";
-	if(send(_clientFd, greeting.c_str(), std::strlen(greeting.c_str()), 0) < 0)
-		throw std::runtime_error(std::string("Server: Failed to send: ") + std::strerror(errno));
-
+	const std::string greeting = "Moi Hej Hello 你好\r\n";
 	char buffer[1024];
-	ssize_t bytesReceived = recv(_clientFd, buffer, sizeof(buffer)-1, 0);
-	buffer[bytesReceived] = '\0';
-	if(bytesReceived < 0)
-		throw std::runtime_error(std::string("Server: Failed to receive: ") + std::strerror(errno));
-	else if(bytesReceived == 0)
+	ssize_t bytesReceived{};
+
+	if (send(_clientFd, greeting.c_str(), greeting.length(), 0) < 0)
+		throw std::runtime_error(std::string("Server: Failed to send: ") +
+								 std::strerror(errno));
+
+	bytesReceived = recv(_clientFd, buffer, sizeof(buffer) - 1, 0);
+	if (bytesReceived < 0)
+		throw std::runtime_error(std::string("Server: Failed to receive: ") +
+								 std::strerror(errno));
+	else if (bytesReceived == 0)
 		std::cout << "Server: Client disconnected" << std::endl;
 	else
-		std::cout << "Server: Received: " << bytesReceived << " bytes: " << buffer << std::endl;
-	
+	{
+		buffer[bytesReceived] = '\0';
+		std::cout << "Server: Received: " << bytesReceived
+				  << " bytes: " << buffer << std::endl;
+	}
 }
