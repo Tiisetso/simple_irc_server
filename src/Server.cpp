@@ -114,6 +114,12 @@ void Server::processClient()
 	char buffer[1024];
 	ssize_t bytesReceived{};
 
+	/*
+		Static because the bytes it receives needs to accumulate the incoming
+		bytes every time processClient is called by poll or we lose parts
+	*/
+	static std::string readBuffer;
+
 	if (send(_clientFd, greeting.c_str(), greeting.length(), 0) < 0)
 		throw std::runtime_error(std::string("Server: Failed to send: ") +
 								 std::strerror(errno));
@@ -123,11 +129,29 @@ void Server::processClient()
 		throw std::runtime_error(std::string("Server: Failed to receive: ") +
 								 std::strerror(errno));
 	else if (bytesReceived == 0)
+	{
 		std::cout << "Server: Client disconnected" << std::endl;
+		// Clear frees entire string if a d/c happens
+		readBuffer.clear();
+	}
 	else
 	{
+		// GNL stuff
 		buffer[bytesReceived] = '\0';
-		std::cout << "Server: Received: " << bytesReceived
-				  << " bytes: " << buffer << std::endl;
+		readBuffer += buffer;
+
+		size_t newlinePos = readBuffer.find('\n');
+
+		while (newlinePos < readBuffer.size())
+		{
+			std::string fullMsg = readBuffer.substr(0, newlinePos + 1);
+			// Erase can be pointed where on a str to free
+			readBuffer.erase(0, newlinePos + 1);
+
+			std::cout << "Server: Received: " << fullMsg.length()
+					  << " bytes: " << fullMsg << std::endl;
+
+			newlinePos = readBuffer.find('\n');
+		}
 	}
 }
