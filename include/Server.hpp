@@ -19,6 +19,6 @@ class Server
 		~Server();
 
 		void createSocket();
-		void acceptClient();
+		int acceptClient();
 		void processClient(User& client);
 };

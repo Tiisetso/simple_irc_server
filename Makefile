@@ -23,7 +23,8 @@ OBJ_DIR := obj
 SRCS := \
 $(SRC_DIR)/main.cpp \
 $(SRC_DIR)/Server.cpp \
-$(SRC_DIR)/Validation.cpp
+$(SRC_DIR)/Validation.cpp \
+$(SRC_DIR)/User.cpp
 
 OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)

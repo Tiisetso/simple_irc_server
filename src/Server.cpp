@@ -27,7 +27,7 @@ Server::~Server()
 		close(_clientFd);
 }
 
-void Server::acceptClient()
+int Server::acceptClient()
 {
 	// prepare client address struct for connect to fill in
 	char clientAddrStr[INET6_ADDRSTRLEN];
@@ -48,6 +48,7 @@ void Server::acceptClient()
 			std::strerror(errno));
 	std::cout << "Server: Connection accepted! Client fd: " << _clientFd << " "
 			  << "Client address: " << clientAddrStr << std::endl;
+	return _clientFd;
 }
 
 void Server::createSocket()
