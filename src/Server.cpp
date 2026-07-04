@@ -109,7 +109,7 @@ void Server::createSocket()
 			  << std::endl;
 }
 
-void Server::processClient(User& client)
+void Server::processClient(User &client)
 {
 	const std::string greeting = "Moi Hej Hello 你好\r\n";
 	char buffer[1024];

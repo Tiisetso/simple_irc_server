@@ -2,8 +2,8 @@
 #include <iostream>
 
 #include "Server.hpp"
-#include "Validation.hpp"
 #include "User.hpp"
+#include "Validation.hpp"
 
 int main(int ac, char **av)
 {
