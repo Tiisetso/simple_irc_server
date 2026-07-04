@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "User.hpp"
 
 class Server
 {
@@ -19,5 +20,5 @@ class Server
 
 		void createSocket();
 		void acceptClient();
-		void processClient();
+		void processClient(User& client);
 };

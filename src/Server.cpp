@@ -108,7 +108,7 @@ void Server::createSocket()
 			  << std::endl;
 }
 
-void Server::processClient()
+void Server::processClient(User& client)
 {
 	const std::string greeting = "Moi Hej Hello 你好\r\n";
 	char buffer[1024];
@@ -120,11 +120,11 @@ void Server::processClient()
 	*/
 	static std::string readBuffer;
 
-	if (send(_clientFd, greeting.c_str(), greeting.length(), 0) < 0)
+	if (send(client.Fd, greeting.c_str(), greeting.length(), 0) < 0)
 		throw std::runtime_error(std::string("Server: Failed to send: ") +
 								 std::strerror(errno));
 
-	bytesReceived = recv(_clientFd, buffer, sizeof(buffer) - 1, 0);
+	bytesReceived = recv(client.Fd, buffer, sizeof(buffer) - 1, 0);
 	if (bytesReceived < 0)
 		throw std::runtime_error(std::string("Server: Failed to receive: ") +
 								 std::strerror(errno));
@@ -132,26 +132,26 @@ void Server::processClient()
 	{
 		std::cout << "Server: Client disconnected" << std::endl;
 		// Clear frees entire string if a d/c happens
-		readBuffer.clear();
+		client.readBuffer.clear();
 	}
 	else
 	{
 		// GNL stuff
 		buffer[bytesReceived] = '\0';
-		readBuffer += buffer;
+		client.readBuffer += buffer;
 
-		size_t newlinePos = readBuffer.find('\n');
+		size_t newlinePos = client.readBuffer.find('\n');
 
-		while (newlinePos < readBuffer.size())
+		while (newlinePos < client.readBuffer.size())
 		{
-			std::string fullMsg = readBuffer.substr(0, newlinePos + 1);
+			std::string fullMsg = client.readBuffer.substr(0, newlinePos + 1);
 			// Erase can be pointed where on a str to free
-			readBuffer.erase(0, newlinePos + 1);
+			client.readBuffer.erase(0, newlinePos + 1);
 
 			std::cout << "Server: Received: " << fullMsg.length()
 					  << " bytes: " << fullMsg << std::endl;
 
-			newlinePos = readBuffer.find('\n');
+			newlinePos = client.readBuffer.find('\n');
 		}
 	}
 }
