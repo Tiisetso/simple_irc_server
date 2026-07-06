@@ -4,10 +4,10 @@
 
 class User
 {
-public:
-    int Fd;
-    std::string readBuffer;
+	public:
+		int Fd;
+		std::string readBuffer;
 
-    User(int fd = -1);
-    ~User();
+		User(int fd = -1);
+		~User();
 };
