@@ -115,12 +115,6 @@ void Server::processClient(User &client)
 	char buffer[1024];
 	ssize_t bytesReceived{};
 
-	/*
-		Static because the bytes it receives needs to accumulate the incoming
-		bytes every time processClient is called by poll or we lose parts
-	*/
-	static std::string readBuffer;
-
 	if (send(client.Fd, greeting.c_str(), greeting.length(), 0) < 0)
 		throw std::runtime_error(std::string("Server: Failed to send: ") +
 								 std::strerror(errno));
