@@ -32,7 +32,6 @@ int main(int ac, char **av)
 		int fd = server.acceptClient();
 		User client(fd);
 		server.processClient(client);
-		close(fd);
 	}
 	catch (const std::exception &e)
 	{

@@ -115,11 +115,11 @@ void Server::processClient(User &client)
 	char buffer[1024];
 	ssize_t bytesReceived{};
 
-	if (send(client.Fd, greeting.c_str(), greeting.length(), 0) < 0)
+	if (send(client.getFd(), greeting.c_str(), greeting.length(), 0) < 0)
 		throw std::runtime_error(std::string("Server: Failed to send: ") +
 								 std::strerror(errno));
 
-	bytesReceived = recv(client.Fd, buffer, sizeof(buffer) - 1, 0);
+	bytesReceived = recv(client.getFd(), buffer, sizeof(buffer) - 1, 0);
 	if (bytesReceived < 0)
 		throw std::runtime_error(std::string("Server: Failed to receive: ") +
 								 std::strerror(errno));
@@ -127,26 +127,26 @@ void Server::processClient(User &client)
 	{
 		std::cout << "Server: Client disconnected" << std::endl;
 		// Clear frees entire string if a d/c happens
-		client.readBuffer.clear();
+		client.getReadBuffer().clear();
 	}
 	else
 	{
 		// GNL stuff
 		buffer[bytesReceived] = '\0';
-		client.readBuffer += buffer;
+		client.getReadBuffer() += buffer;
 
-		size_t newlinePos = client.readBuffer.find('\n');
+		size_t newlinePos = client.getReadBuffer().find('\n');
 
-		while (newlinePos < client.readBuffer.size())
+		while (newlinePos < client.getReadBuffer().size())
 		{
-			std::string fullMsg = client.readBuffer.substr(0, newlinePos + 1);
+			std::string fullMsg = client.getReadBuffer().substr(0, newlinePos + 1);
 			// Erase can be pointed where on a str to free
-			client.readBuffer.erase(0, newlinePos + 1);
+			client.getReadBuffer().erase(0, newlinePos + 1);
 
 			std::cout << "Server: Received: " << fullMsg.length()
 					  << " bytes: " << fullMsg << std::endl;
 
-			newlinePos = client.readBuffer.find('\n');
+			newlinePos = client.getReadBuffer().find('\n');
 		}
 	}
 }
