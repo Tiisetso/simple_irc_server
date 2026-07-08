@@ -46,8 +46,6 @@ fclean: clean
 
 re: fclean all
 
-#test: make valgrind PORT=8080 PASSWORD=my_secure_pass
-
 valgrind: 
 		@$(MAKE) re debug=1
 		valgrind --leak-check=full \
