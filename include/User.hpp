@@ -15,6 +15,6 @@ class User
 		User &operator=(const User &other);
 		~User();
 
-		int User::getFd() const;
+		int getFd() const;
 		std::string &getReadBuffer();
 };
