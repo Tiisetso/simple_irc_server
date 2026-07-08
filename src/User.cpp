@@ -1,4 +1,5 @@
 #include "User.hpp"
+
 #include <unistd.h>
 
 User::User() : _fd(-1), _readBuffer() {}
@@ -32,5 +33,5 @@ int User::getFd() const
 
 std::string &User::getReadBuffer()
 {
-    return(_readBuffer);
+	return (_readBuffer);
 }

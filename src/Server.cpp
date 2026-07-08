@@ -139,7 +139,8 @@ void Server::processClient(User &client)
 
 		while (newlinePos < client.getReadBuffer().size())
 		{
-			std::string fullMsg = client.getReadBuffer().substr(0, newlinePos + 1);
+			std::string fullMsg =
+				client.getReadBuffer().substr(0, newlinePos + 1);
 			// Erase can be pointed where on a str to free
 			client.getReadBuffer().erase(0, newlinePos + 1);
 
