@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <unistd.h>
+#include "User.hpp"
 
 class Server
 {
@@ -18,6 +20,6 @@ class Server
 		~Server();
 
 		void createSocket();
-		void acceptClient();
-		void processClient();
+		int acceptClient();
+		void processClient(User& client);
 };

@@ -27,7 +27,7 @@ Server::~Server()
 		close(_clientFd);
 }
 
-void Server::acceptClient()
+int Server::acceptClient()
 {
 	// prepare client address struct for connect to fill in
 	char clientAddrStr[INET6_ADDRSTRLEN];
@@ -48,6 +48,7 @@ void Server::acceptClient()
 			std::strerror(errno));
 	std::cout << "Server: Connection accepted! Client fd: " << _clientFd << " "
 			  << "Client address: " << clientAddrStr << std::endl;
+	return _clientFd;
 }
 
 void Server::createSocket()
@@ -108,26 +109,45 @@ void Server::createSocket()
 			  << std::endl;
 }
 
-void Server::processClient()
+void Server::processClient(User &client)
 {
 	const std::string greeting = "Moi Hej Hello 你好\r\n";
 	char buffer[1024];
 	ssize_t bytesReceived{};
 
-	if (send(_clientFd, greeting.c_str(), greeting.length(), 0) < 0)
+	if (send(client.getFd(), greeting.c_str(), greeting.length(), 0) < 0)
 		throw std::runtime_error(std::string("Server: Failed to send: ") +
 								 std::strerror(errno));
 
-	bytesReceived = recv(_clientFd, buffer, sizeof(buffer) - 1, 0);
+	bytesReceived = recv(client.getFd(), buffer, sizeof(buffer) - 1, 0);
 	if (bytesReceived < 0)
 		throw std::runtime_error(std::string("Server: Failed to receive: ") +
 								 std::strerror(errno));
 	else if (bytesReceived == 0)
+	{
 		std::cout << "Server: Client disconnected" << std::endl;
+		// Clear frees entire string if a d/c happens
+		client.getReadBuffer().clear();
+	}
 	else
 	{
+		// GNL stuff
 		buffer[bytesReceived] = '\0';
-		std::cout << "Server: Received: " << bytesReceived
-				  << " bytes: " << buffer << std::endl;
+		client.getReadBuffer() += buffer;
+
+		size_t newlinePos = client.getReadBuffer().find('\n');
+
+		while (newlinePos < client.getReadBuffer().size())
+		{
+			std::string fullMsg =
+				client.getReadBuffer().substr(0, newlinePos + 1);
+			// Erase can be pointed where on a str to free
+			client.getReadBuffer().erase(0, newlinePos + 1);
+
+			std::cout << "Server: Received: " << fullMsg.length()
+					  << " bytes: " << fullMsg << std::endl;
+
+			newlinePos = client.getReadBuffer().find('\n');
+		}
 	}
 }

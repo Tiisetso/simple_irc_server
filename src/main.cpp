@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "Server.hpp"
+#include "User.hpp"
 #include "Validation.hpp"
 
 int main(int ac, char **av)
@@ -28,8 +29,9 @@ int main(int ac, char **av)
 	{
 		Server server(port, password);
 		server.createSocket();
-		server.acceptClient();
-		server.processClient();
+		int fd = server.acceptClient();
+		User client(fd);
+		server.processClient(client);
 	}
 	catch (const std::exception &e)
 	{
