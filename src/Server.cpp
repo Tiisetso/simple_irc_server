@@ -23,8 +23,6 @@ Server::~Server()
 {
 	if (_servSockFd != -1)
 		close(_servSockFd);
-	if (_clientFd != -1)
-		close(_clientFd);
 }
 
 int Server::acceptClient()
