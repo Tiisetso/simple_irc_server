@@ -10,11 +10,12 @@ class User
 
 	public:
 		User();
-		User(int fd);
-		User(const User &other);
-		User &operator=(const User &other);
 		~User();
+		User(int fd);
+		User(const User &other) = delete;
+		User &operator=(const User &other) = delete;
 
-		int getFd() const;
+		int getfd() const;
+		void setfd(int fd);
 		std::string &getReadBuffer();
 };

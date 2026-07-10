@@ -1,6 +1,7 @@
 #include "Server.hpp"
 
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -15,7 +16,7 @@
 #define BACKLOG 20
 
 Server::Server(const std::string &port, const std::string &password)
-	: _servSockFd(-1), _clientFd(-1), _port(port), _password(password)
+	: _servSockFd(-1), _port(port), _password(password)
 {
 }
 
@@ -25,28 +26,69 @@ Server::~Server()
 		close(_servSockFd);
 }
 
-int Server::acceptClient()
-{
-	// prepare client address struct for connect to fill in
-	char clientAddrStr[INET6_ADDRSTRLEN];
-	struct sockaddr_in clientAddr{};
-	socklen_t clientAddrlen = sizeof(clientAddr);
+// NOTE: Commented out code deliberately left behind as I modified it but don't
+// know all the stuff going on. So leaving intentionally for comparison
+// purposes.
+//  int Server::acceptClient()
+//  {
+//  	// prepare client address struct for connect to fill in
+//  	char clientAddrStr[INET6_ADDRSTRLEN];
+//  	struct sockaddr_in clientAddr{};
+//  	socklen_t clientAddrlen = sizeof(clientAddr);
 
-	std::cout << "Server: Waiting for connection..." << std::endl;
-	_clientFd = accept(_servSockFd, reinterpret_cast<sockaddr *>(&clientAddr),
-					   &clientAddrlen);
-	if (_clientFd == -1)
-		throw std::runtime_error(
-			std::string("Server: Failed to accept incoming connection: ") +
-			std::strerror(errno));
-	if (!inet_ntop(AF_INET, &(clientAddr.sin_addr), clientAddrStr,
-				   INET6_ADDRSTRLEN))
-		throw std::runtime_error(
-			std::string("Server: Failed to convert client IP. ") +
-			std::strerror(errno));
-	std::cout << "Server: Connection accepted! Client fd: " << _clientFd << " "
-			  << "Client address: " << clientAddrStr << std::endl;
-	return _clientFd;
+// 	std::cout << "Server: Waiting for connection..." << std::endl;
+// 	_clientFd = accept(_servSockFd, reinterpret_cast<sockaddr *>(&clientAddr),
+// 					   &clientAddrlen);
+// 	if (_clientFd == -1)
+// 		throw std::runtime_error(
+// 			std::string("Server: Failed to accept incoming connection: ") +
+// 			std::strerror(errno));
+// 	if (!inet_ntop(AF_INET, &(clientAddr.sin_addr), clientAddrStr,
+// 				   INET6_ADDRSTRLEN))
+// 		throw std::runtime_error(
+// 			std::string("Server: Failed to convert client IP. ") +
+// 			std::strerror(errno));
+// 	std::cout << "Server: Connection accepted! Client fd: " << _clientFd << " "
+// 			  << "Client address: " << clientAddrStr << std::endl;
+// 	return _clientFd;
+// }
+
+void Server::acceptClients()
+{
+	while (true)
+	{
+		sockaddr_in clientAddr{};
+		socklen_t clientAddrlen = sizeof(clientAddr);
+
+		int clientfd =
+			accept(_servSockFd, reinterpret_cast<sockaddr *>(&clientAddr),
+				   &clientAddrlen);
+
+		if (clientfd == -1)
+		{
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
+				return;
+
+			if (errno == EINTR)
+				continue;
+
+			throw std::runtime_error(
+				std::string("Server: Failed to accept incoming connection: ") +
+				std::strerror(errno));
+		};
+
+		setNonBlocking(clientfd);
+
+		_users[clientfd].setfd(clientfd);
+
+		pollfd clientPollfd;
+		clientPollfd.fd = clientfd;
+		clientPollfd.events = POLLIN;
+		clientPollfd.revents = 0;
+
+		_pollfds.push_back(clientPollfd);
+		std::cout << "Server: New client at fd: " << clientfd << std::endl;
+	}
 }
 
 void Server::createSocket()
@@ -99,25 +141,35 @@ void Server::createSocket()
 								 std::strerror(errno));
 	std::cout << "Server: Bind succeeded" << std::endl;
 
+	setNonBlocking(_servSockFd);
 	// Start listening for incoming connections
 	if (listen(_servSockFd, BACKLOG) == -1)
 		throw std::runtime_error(std::string("Server: Failed to listen: ") +
 								 std::strerror(errno));
 	std::cout << "Server: Listening for incoming connections on port: " << _port
 			  << std::endl;
+
+	pollfd serverPollfd;
+
+	serverPollfd.fd = _servSockFd;
+	serverPollfd.events = POLLIN;
+	serverPollfd.revents = 0;
+
+	_pollfds.push_back(serverPollfd);
 }
 
-void Server::processClient(User &client)
+int Server::processClient(User &client)
 {
-	const std::string greeting = "Moi Hej Hello 你好\r\n";
+	// const std::string greeting = "Moi Hej Hello 你好\r\n";
 	char buffer[1024];
 	ssize_t bytesReceived{};
 
-	if (send(client.getFd(), greeting.c_str(), greeting.length(), 0) < 0)
-		throw std::runtime_error(std::string("Server: Failed to send: ") +
-								 std::strerror(errno));
+	// if (send(client.getFd(), greeting.c_str(), greeting.length(), 0) < 0)
+	// 	throw std::runtime_error(std::string("Server: Failed to send: ") +
+	// 							 std::strerror(errno));
 
-	bytesReceived = recv(client.getFd(), buffer, sizeof(buffer) - 1, 0);
+	bytesReceived = recv(client.getfd(), buffer, sizeof(buffer) - 1, 0);
+
 	if (bytesReceived < 0)
 		throw std::runtime_error(std::string("Server: Failed to receive: ") +
 								 std::strerror(errno));
@@ -148,4 +200,69 @@ void Server::processClient(User &client)
 			newlinePos = client.getReadBuffer().find('\n');
 		}
 	}
+}
+
+void Server::setNonBlocking(int fd)
+{
+	int flags = fcntl(fd, F_GETFL, 0);
+	if (flags == -1)
+		throw std::runtime_error(std::string("Server: fnctl flags failed: ") +
+								 std::strerror(errno));
+	if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1)
+		throw std::runtime_error(std::string("Server: fnctl flags failed: ") +
+								 std::strerror(errno));
+}
+
+void Server::removeClient(std::size_t i)
+{
+	int fd = _pollfds[i].fd;
+
+	_pollfds[i] = _pollfds.back();
+	_pollfds.pop_back();
+
+	_users.erase(fd);
+
+	std::cout << "Server: Removed client at fd: " << fd << std::endl;
+}
+
+void Server::loop()
+{
+	while (true)
+	{
+		int ready = poll(_pollfds.data(), _pollfds.size(), -1);
+		
+		if (ready == -1)
+		{
+			if(errno = -1)
+				continue;
+				
+			throw std::runtime_error(std::string("Server: Poll failed: ") + std::strerror(errno));	
+		}
+		
+		if(_pollfds[0].revents & POLLIN)
+			acceptClients();
+		
+		for (std::size_t i = 1; i < _pollfds.size();)
+        {
+            int fd = _pollfds[i].fd;
+            short events = _pollfds[i].revents;
+            bool keepClient = true;
+
+            if (events & POLLIN)
+            {
+                User &client = _users.at(fd);
+                keepClient = processClient(client);
+            }
+
+            if (events & (POLLERR | POLLHUP | POLLNVAL))
+                keepClient = false;
+
+            if (!keepClient)
+                removeClient(i);
+            else
+                ++i;
+        }
+	}
+
+
 }
