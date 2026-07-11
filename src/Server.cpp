@@ -158,7 +158,7 @@ void Server::createSocket()
 	_pollfds.push_back(serverPollfd);
 }
 
-int Server::processClient(User &client)
+bool Server::processClient(User &client)
 {
 	// const std::string greeting = "Moi Hej Hello 你好\r\n";
 	char buffer[1024];
@@ -171,17 +171,24 @@ int Server::processClient(User &client)
 	bytesReceived = recv(client.getfd(), buffer, sizeof(buffer) - 1, 0);
 
 	if (bytesReceived < 0)
-		throw std::runtime_error(std::string("Server: Failed to receive: ") +
-								 std::strerror(errno));
+	{
+		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
+			return true;
+
+		std::cerr << "Server: Failed to receive: " << client.getfd() << " : "
+				  << std::strerror(errno) << std::endl;
+		return false;
+	}
 	else if (bytesReceived == 0)
 	{
 		std::cout << "Server: Client disconnected" << std::endl;
 		// Clear frees entire string if a d/c happens
-		client.getReadBuffer().clear();
+		// client.getReadBuffer().clear(); The  return false below will result
+		// in the client being removed.
+		return false;
 	}
 	else
 	{
-		// GNL stuff
 		buffer[bytesReceived] = '\0';
 		client.getReadBuffer() += buffer;
 
@@ -200,6 +207,7 @@ int Server::processClient(User &client)
 			newlinePos = client.getReadBuffer().find('\n');
 		}
 	}
+	return true;
 }
 
 void Server::setNonBlocking(int fd)
@@ -230,39 +238,38 @@ void Server::loop()
 	while (true)
 	{
 		int ready = poll(_pollfds.data(), _pollfds.size(), -1);
-		
+
 		if (ready == -1)
 		{
-			if(errno = -1)
+			if (errno == EINTR)
 				continue;
-				
-			throw std::runtime_error(std::string("Server: Poll failed: ") + std::strerror(errno));	
+
+			throw std::runtime_error(std::string("Server: Poll failed: ") +
+									 std::strerror(errno));
 		}
-		
-		if(_pollfds[0].revents & POLLIN)
+
+		if (_pollfds[0].revents & POLLIN)
 			acceptClients();
-		
+
 		for (std::size_t i = 1; i < _pollfds.size();)
-        {
-            int fd = _pollfds[i].fd;
-            short events = _pollfds[i].revents;
-            bool keepClient = true;
+		{
+			int fd = _pollfds[i].fd;
+			short events = _pollfds[i].revents;
+			bool keepClient = true;
 
-            if (events & POLLIN)
-            {
-                User &client = _users.at(fd);
-                keepClient = processClient(client);
-            }
+			if (events & POLLIN)
+			{
+				User &client = _users.at(fd);
+				keepClient = processClient(client);
+			}
 
-            if (events & (POLLERR | POLLHUP | POLLNVAL))
-                keepClient = false;
+			if (events & (POLLERR | POLLHUP | POLLNVAL))
+				keepClient = false;
 
-            if (!keepClient)
-                removeClient(i);
-            else
-                ++i;
-        }
+			if (!keepClient)
+				removeClient(i);
+			else
+				i++;
+		}
 	}
-
-
 }

@@ -29,9 +29,7 @@ int main(int ac, char **av)
 	{
 		Server server(port, password);
 		server.createSocket();
-		int fd = server.acceptClient();
-		User client(fd);
-		server.processClient(client);
+		server.loop();
 	}
 	catch (const std::exception &e)
 	{
