@@ -79,7 +79,7 @@ void Server::acceptClients()
 
 		setNonBlocking(clientfd);
 
-		_users[clientfd].setfd(clientfd);
+		_users[clientfd].setFd(clientfd);
 
 		pollfd clientPollfd;
 		clientPollfd.fd = clientfd;
@@ -168,14 +168,14 @@ bool Server::processClient(User &client)
 	// 	throw std::runtime_error(std::string("Server: Failed to send: ") +
 	// 							 std::strerror(errno));
 
-	bytesReceived = recv(client.getfd(), buffer, sizeof(buffer) - 1, 0);
+	bytesReceived = recv(client.getFd(), buffer, sizeof(buffer) - 1, 0);
 
 	if (bytesReceived < 0)
 	{
 		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
 			return true;
 
-		std::cerr << "Server: Failed to receive: " << client.getfd() << " : "
+		std::cerr << "Server: Failed to receive: " << client.getFd() << " : "
 				  << std::strerror(errno) << std::endl;
 		return false;
 	}

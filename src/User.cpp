@@ -12,12 +12,12 @@ User::~User()
 		close(_fd);
 }
 
-int User::getfd() const
+int User::getFd() const
 {
 	return (_fd);
 }
 
-void User::setfd(int fd)
+void User::setFd(int fd)
 {
 	_fd = fd;
 }

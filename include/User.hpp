@@ -15,7 +15,7 @@ class User
 		User(const User &other) = delete;
 		User &operator=(const User &other) = delete;
 
-		int getfd() const;
-		void setfd(int fd);
+		int getFd() const;
+		void setFd(int fd);
 		std::string &getReadBuffer();
 };
