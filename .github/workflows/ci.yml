@@ -8,7 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,3 +20,26 @@ jobs:
 
       - name: Verify binary exists
         run: test -x ./ircserv
+  
+  smoke:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential netcat-openbsd
+      - name: Build
+        run: make re
+      - name: Smoke test - server accepts clients
+        run: |
+          ./ircserv 16667 testpass > server.log 2>&1 &
+          SERVER_PID=$!
+          sleep 0.5
+          printf 'hello\n' | nc -w 2 127.0.0.1 16667
+          printf 'world\n' | nc -w 2 127.0.0.1 16667
+          sleep 0.5
+          kill $SERVER_PID
+          wait $SERVER_PID 2>/dev/null || true
+          grep -q "New client" server.log
+          grep -q "Received:" server.log
