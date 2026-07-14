@@ -1,14 +1,21 @@
 #pragma once
 
-#include <string>
+#include <poll.h>
 #include <unistd.h>
+
+#include <string>
+#include <unordered_map>
+#include <vector>
+
 #include "User.hpp"
 
 class Server
 {
 	private:
 		int _servSockFd;
-		int _clientFd;
+		std::vector<pollfd> _pollfds;
+		std::unordered_map<int, User> _users;
+
 		std::string _port;
 		std::string _password;
 
@@ -20,6 +27,11 @@ class Server
 		~Server();
 
 		void createSocket();
-		int acceptClient();
-		void processClient(User& client);
+
+		void acceptClients();
+		bool processClient(User &client);
+		void removeClient(std::size_t i);
+
+		void setNonBlocking(int fd);
+		void loop();
 };
