@@ -26,33 +26,6 @@ Server::~Server()
 		close(_servSockFd);
 }
 
-// NOTE: Commented out code deliberately left behind as I modified it but don't
-// know all the stuff going on. So leaving intentionally for comparison
-// purposes.
-//  int Server::acceptClient()
-//  {
-//  	// prepare client address struct for connect to fill in
-//  	char clientAddrStr[INET6_ADDRSTRLEN];
-//  	struct sockaddr_in clientAddr{};
-//  	socklen_t clientAddrlen = sizeof(clientAddr);
-
-// 	std::cout << "Server: Waiting for connection..." << std::endl;
-// 	_clientFd = accept(_servSockFd, reinterpret_cast<sockaddr *>(&clientAddr),
-// 					   &clientAddrlen);
-// 	if (_clientFd == -1)
-// 		throw std::runtime_error(
-// 			std::string("Server: Failed to accept incoming connection: ") +
-// 			std::strerror(errno));
-// 	if (!inet_ntop(AF_INET, &(clientAddr.sin_addr), clientAddrStr,
-// 				   INET6_ADDRSTRLEN))
-// 		throw std::runtime_error(
-// 			std::string("Server: Failed to convert client IP. ") +
-// 			std::strerror(errno));
-// 	std::cout << "Server: Connection accepted! Client fd: " << _clientFd << " "
-// 			  << "Client address: " << clientAddrStr << std::endl;
-// 	return _clientFd;
-// }
-
 void Server::acceptClients()
 {
 	while (true)
@@ -93,7 +66,6 @@ void Server::acceptClients()
 
 void Server::createSocket()
 {
-	// loading up data for holding server address information
 	int ret;
 	int socketyes = 0;
 	struct addrinfo hints{};
@@ -109,7 +81,6 @@ void Server::createSocket()
 		throw std::runtime_error(std::string("Server: Failed getaddrinfo, ") +
 								 gai_strerror(ret));
 
-	// Create a socket and bind it to an address
 	for (temp = res; temp != nullptr; temp = temp->ai_next)
 	{
 		_servSockFd =
@@ -142,7 +113,7 @@ void Server::createSocket()
 	std::cout << "Server: Bind succeeded" << std::endl;
 
 	setNonBlocking(_servSockFd);
-	// Start listening for incoming connections
+
 	if (listen(_servSockFd, BACKLOG) == -1)
 		throw std::runtime_error(std::string("Server: Failed to listen: ") +
 								 std::strerror(errno));
@@ -160,13 +131,8 @@ void Server::createSocket()
 
 bool Server::processClient(User &client)
 {
-	// const std::string greeting = "Moi Hej Hello 你好\r\n";
 	char buffer[1024];
 	ssize_t bytesReceived{};
-
-	// if (send(client.getFd(), greeting.c_str(), greeting.length(), 0) < 0)
-	// 	throw std::runtime_error(std::string("Server: Failed to send: ") +
-	// 							 std::strerror(errno));
 
 	bytesReceived = recv(client.getFd(), buffer, sizeof(buffer) - 1, 0);
 
@@ -182,9 +148,6 @@ bool Server::processClient(User &client)
 	else if (bytesReceived == 0)
 	{
 		std::cout << "Server: Client disconnected" << std::endl;
-		// Clear frees entire string if a d/c happens
-		// client.getReadBuffer().clear(); The  return false below will result
-		// in the client being removed.
 		return false;
 	}
 	else
@@ -198,7 +161,7 @@ bool Server::processClient(User &client)
 		{
 			std::string fullMsg =
 				client.getReadBuffer().substr(0, newlinePos + 1);
-			// Erase can be pointed where on a str to free
+
 			client.getReadBuffer().erase(0, newlinePos + 1);
 
 			std::cout << "Server: Received: " << fullMsg.length()
