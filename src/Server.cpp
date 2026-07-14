@@ -108,10 +108,12 @@ void Server::createSocket()
 		int sockopt = 1;
 		if (setsockopt(_servSockFd, SOL_SOCKET, SO_REUSEADDR, &sockopt,
 					   sizeof(sockopt)) == -1)
+		{
+			std::string err = std::strerror(errno);
+			freeaddrinfo(res);
 			throw std::runtime_error(
-				std::string("Server: Failed to set socket options: ") +
-				std::strerror(errno));
-
+				std::string("Server: Failed to set socket options: ") + err);
+		}
 		if (bind(_servSockFd, temp->ai_addr, temp->ai_addrlen) == 0)
 			break;
 		close(_servSockFd);
