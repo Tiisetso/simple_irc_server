@@ -48,18 +48,32 @@ void Server::acceptClients()
 			throw std::runtime_error(
 				std::string("Server: Failed to accept incoming connection: ") +
 				std::strerror(errno));
-		};
+		}
 
-		setNonBlocking(clientfd);
+		try
+		{
+			_users[clientfd].setFd(clientfd);
+		}
+		catch (...)
+		{
+			close(clientfd);
+			throw;
+		}
 
-		_users[clientfd].setFd(clientfd);
-
-		pollfd clientPollfd;
-		clientPollfd.fd = clientfd;
-		clientPollfd.events = POLLIN;
-		clientPollfd.revents = 0;
-
-		_pollfds.push_back(clientPollfd);
+		try
+		{
+			setNonBlocking(clientfd);
+			pollfd clientPollfd;
+			clientPollfd.fd = clientfd;
+			clientPollfd.events = POLLIN;
+			clientPollfd.revents = 0;
+			_pollfds.push_back(clientPollfd);
+		}
+		catch (...)
+		{
+			_users.erase(clientfd);
+			throw;
+		}
 		std::cout << "Server: New client at fd: " << clientfd << std::endl;
 	}
 }
@@ -176,8 +190,9 @@ bool Server::processClient(User &client)
 void Server::setNonBlocking(int fd)
 {
 	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
-		throw std::runtime_error(std::string("Server: non blocking flags set failed: ") +
-								 std::strerror(errno));
+		throw std::runtime_error(
+			std::string("Server: non blocking flags set failed: ") +
+			std::strerror(errno));
 }
 
 void Server::removeClient(std::size_t i)
