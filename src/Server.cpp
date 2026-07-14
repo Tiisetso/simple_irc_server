@@ -175,12 +175,8 @@ bool Server::processClient(User &client)
 
 void Server::setNonBlocking(int fd)
 {
-	int flags = fcntl(fd, F_GETFL, 0);
-	if (flags == -1)
-		throw std::runtime_error(std::string("Server: fnctl flags failed: ") +
-								 std::strerror(errno));
-	if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1)
-		throw std::runtime_error(std::string("Server: fnctl flags failed: ") +
+	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
+		throw std::runtime_error(std::string("Server: non blocking flags set failed: ") +
 								 std::strerror(errno));
 }
 
