@@ -166,13 +166,15 @@ bool Server::processClient(User &client)
 	}
 	else
 	{
-		buffer[bytesReceived] = '\0';
-		client.getReadBuffer() += buffer;
-
-		std::cout << "recv returned: " << bytesReceived << std::endl;
-		std::cout << "readBuffer size: " << client.getReadBuffer().size() << std::endl;
+		client.getReadBuffer().append(buffer, bytesReceived);
 
 		size_t newlinePos = client.getReadBuffer().find('\n');
+
+		if (newlinePos == std::string::npos &&
+			client.getReadBuffer().size() > 510)
+		{
+			return false;
+		}
 
 		while (newlinePos < client.getReadBuffer().size())
 		{
