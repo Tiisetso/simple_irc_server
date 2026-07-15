@@ -45,7 +45,7 @@ jobs:
           kill $SERVER_PID
           wait $SERVER_PID 2>/dev/null || true
           grep -q "New client" server.log
-          grep -q "Received:" server.
+          grep -q "Received:" server.log
           
       - name: Null byte - server parses the full msg
         run: |
