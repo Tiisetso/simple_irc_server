@@ -148,7 +148,7 @@ bool Server::processClient(User &client)
 	char buffer[1024];
 	ssize_t bytesReceived{};
 
-	bytesReceived = recv(client.getFd(), buffer, sizeof(buffer) - 1, 0);
+	bytesReceived = recv(client.getFd(), buffer, sizeof(buffer), 0);
 
 	if (bytesReceived < 0)
 	{
@@ -170,14 +170,15 @@ bool Server::processClient(User &client)
 
 		size_t newlinePos = client.getReadBuffer().find('\n');
 
-		if (newlinePos == std::string::npos &&
-			client.getReadBuffer().size() > 510)
+		while (newlinePos != std::string::npos)
 		{
-			return false;
-		}
+			if (newlinePos >= 512)
+			{
+				std::cerr << "Server: Message too long (512 bytes maximum)."
+						  << std::endl;
+				return false;
+			}
 
-		while (newlinePos < client.getReadBuffer().size())
-		{
 			std::string fullMsg =
 				client.getReadBuffer().substr(0, newlinePos + 1);
 
@@ -187,6 +188,13 @@ bool Server::processClient(User &client)
 					  << " bytes: " << fullMsg << std::endl;
 
 			newlinePos = client.getReadBuffer().find('\n');
+		}
+		if (client.getReadBuffer().length() >= 512)
+		{
+			std::cerr
+				<< "Server: Message max size exceeded (512 bytes maximum)."
+				<< std::endl;
+			return false;
 		}
 	}
 	return true;
