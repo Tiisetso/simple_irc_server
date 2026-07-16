@@ -6,7 +6,11 @@ class User
 {
 	private:
 		int _fd;
+		bool _passMatch;
 		std::string _readBuffer;
+		std::string _nickName;
+		std::string _userName;
+		std::string _realName;
 
 	public:
 		User();
@@ -16,6 +20,15 @@ class User
 		User &operator=(const User &other) = delete;
 
 		int getFd() const;
-		void setFd(int fd);
 		std::string &getReadBuffer();
+		bool getPassMatch() const;
+		const std::string &getNickName() const;
+		const std::string &getUserName() const;
+		const std::string &getRealName() const;
+
+		void setFd(const int fd);
+		void setPassMatch(const bool yes);
+		void setNickName(const std::string &nickName);
+		void setUserName(const std::string &userName);
+		void setRealName(const std::string &realName);
 };
