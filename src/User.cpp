@@ -3,22 +3,22 @@
 #include <unistd.h>
 
 User::User()
-	:_fd(-1),
-	_passMatch(false),
-	_readBuffer(),
-	_nickName(),
-	_userName(),
-	_realName()
+	: _fd(-1),
+	  _passMatch(false),
+	  _readBuffer(),
+	  _nickName(),
+	  _userName(),
+	  _realName()
 {
 }
 
 User::User(int fd)
-	:_fd(fd),
-	_passMatch(false),
-	_readBuffer(),
-	_nickName(),
-	_userName(),
-	_realName()
+	: _fd(fd),
+	  _passMatch(false),
+	  _readBuffer(),
+	  _nickName(),
+	  _userName(),
+	  _realName()
 {
 }
 
