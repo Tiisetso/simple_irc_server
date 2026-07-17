@@ -9,6 +9,12 @@
 
 #include "User.hpp"
 
+struct cmd
+{
+		std::string key;
+		std::vector<std::string> vals;
+};
+
 class Server
 {
 	private:
@@ -34,4 +40,6 @@ class Server
 
 		void setNonBlocking(int fd);
 		void loop();
+
+		bool parseCommand(std::string &msg, cmd &cmd);
 };

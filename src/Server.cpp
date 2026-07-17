@@ -262,3 +262,16 @@ void Server::loop()
 		}
 	}
 }
+
+bool Server::parseCommand(std::string &msg, cmd &cmd)
+{
+	if (msg.empty())
+		return false;
+
+		// remove trailing chars
+		//extract key from command, uppercase it.
+		// add command key with substring
+		// get args. How many?
+		
+
+}
