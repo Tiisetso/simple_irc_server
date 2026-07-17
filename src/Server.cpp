@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <cctype>
 #include <cerrno>
 #include <cstring>
 #include <iostream>
@@ -186,6 +187,10 @@ bool Server::processClient(User &client)
 
 			client.getReadBuffer().erase(0, newlinePos + 1);
 
+			cmd cmd;
+
+			parseCommand(fullMsg, cmd);
+
 			std::cout << "Server: Received: " << fullMsg.length()
 					  << " bytes: " << fullMsg << std::endl;
 
@@ -263,15 +268,66 @@ void Server::loop()
 	}
 }
 
-bool Server::parseCommand(std::string &msg, cmd &cmd)
+uint32_t afterSpaces(const std::string &s, uint32_t start, uint32_t end)
 {
-	if (msg.empty())
+	while (start < end && s[start] == ' ')
+		start++;
+
+	return start;
+}
+
+uint32_t nextSpace(const std::string &s, uint32_t start, uint32_t end)
+{
+	std::size_t spacePosition{};
+
+	spacePosition = s.find(' ', start);
+	if (spacePosition == std::string::npos)
+		return end;
+
+	return spacePosition;
+}
+
+bool Server::parseCommand(const std::string &msg, cmd &cmd)
+{
+	uint32_t end{};
+	uint32_t start{};
+	uint32_t tokenEnd{};
+
+	end = msg.length();
+
+	while (end > 0 && (msg[end - 1] == '\r' || msg[end - 1] == '\n'))
+		end--;
+
+	if (end == 0)
 		return false;
 
-		// remove trailing chars
-		//extract key from command, uppercase it.
-		// add command key with substring
-		// get args. How many?
-		
+	start = afterSpaces(msg, start, end);
 
+	if (start >= end)
+		return false;
+
+	tokenEnd = nextSpace(msg, start, end);
+	cmd.key = msg.substr(start, tokenEnd - start);
+	for (uint32_t i = 0; i < cmd.key.length(); i++)
+		cmd.key[i] = static_cast<char>(
+			std::toupper(static_cast<unsigned char>(cmd.key[i])));
+	start = tokenEnd;
+
+	while (true)
+	{
+		start = afterSpaces(msg, start, end);
+		if (start >= end)
+			break;
+
+		if (msg[start] == ':')
+		{
+			cmd.vals.push_back(msg.substr(start + 1, end - start - 1));
+			break;
+		}
+
+		uint32_t val = nextSpace(msg, start, end);
+		cmd.vals.push_back(msg.substr(start, val - start));
+		start = val;
+	}
+	return true;
 }

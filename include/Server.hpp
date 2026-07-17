@@ -41,5 +41,5 @@ class Server
 		void setNonBlocking(int fd);
 		void loop();
 
-		bool parseCommand(std::string &msg, cmd &cmd);
+		bool parseCommand(const std::string &msg, cmd &cmd);
 };
