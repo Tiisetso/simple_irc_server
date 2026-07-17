@@ -7,13 +7,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Parser.hpp"
 #include "User.hpp"
-
-struct cmd
-{
-		std::string key;
-		std::vector<std::string> vals;
-};
 
 class Server
 {
@@ -40,6 +35,4 @@ class Server
 
 		void setNonBlocking(int fd);
 		void loop();
-
-		bool parseCommand(const std::string &msg, cmd &cmd);
 };
