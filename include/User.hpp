@@ -30,8 +30,7 @@ class User
 
 		void setFd(const int fd);
 		void setPassMatch(const bool yes);
-		void setPassMatch(const bool yes);
-		void setIsRegistered(const bool yes);
+		void setIsRegistered(void);
 		void setNickName(const std::string &nickName);
 		void setUserName(const std::string &userName);
 		void setRealName(const std::string &realName);

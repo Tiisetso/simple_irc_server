@@ -75,9 +75,9 @@ void User::setPassMatch(const bool yes)
 	_passMatch = yes;
 }
 
-void User::setIsRegistered(const bool yes)
+void User::setIsRegistered(void)
 {
-	_isRegistered = yes;
+	_isRegistered = true;
 }
 
 void User::setNickName(const std::string &nickName)

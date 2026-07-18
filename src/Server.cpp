@@ -13,6 +13,8 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "Error.hpp"
+
 #define BACKLOG 20
 
 Server::Server(const std::string &port, const std::string &password)
@@ -270,14 +272,42 @@ void Server::loop()
 bool Server::commandHandler(const command &cmd, User &client)
 {
 	if (cmd.key == "PASS")
-		return handlePass(cmd, client);
+	{
+		handlePass(cmd, client);
+		return true;
+	}
 	return false;
 }
 
-bool Server::handlePass(const command &cmd, User &client)
+void Server::handlePass(const command &cmd, User &client)
 {
-	if (cmd.vals.size() != 1)
-		return false; //Not enough params error?
+	if (cmd.vals.empty())
+	{
+		quickSend(client, std::to_string(ERR_NEEDMOREPARAMS) +
+							  " PASS :Not enough parameters\r\n");
+		return;
+	}
 
+	if (client.getIsRegistered())
+	{
+		quickSend(client, std::to_string(ERR_ALREADYREGISTERED) +
+							  " :You may not reregister\r\n");
+		return;
+	}
 
+	if (cmd.vals[0] != _password)
+	{
+		quickSend(client, std::to_string(ERR_PASSWDMISMATCH) +
+							  " :Password incorrect\r\n");
+		client.setPassMatch(false);
+		return;
+	}
+	client.setPassMatch(true);
+}
+
+// Need to be able to send to test. This should be deleted later and it's use
+// replaced by the appropriate send that handles buffered write.
+void Server::quickSend(User &client, const std::string &message)
+{
+	send(client.getFd(), message.c_str(), message.length(), 0);
 }
