@@ -170,7 +170,7 @@ bool Server::processClient(User &client)
 	{
 		client.getReadBuffer().append(buffer, bytesReceived);
 
-		size_t newlinePos = client.getReadBuffer().find('\n');
+		std::size_t newlinePos = client.getReadBuffer().find('\n');
 
 		while (newlinePos != std::string::npos)
 		{
@@ -185,6 +185,18 @@ bool Server::processClient(User &client)
 				client.getReadBuffer().substr(0, newlinePos + 1);
 
 			client.getReadBuffer().erase(0, newlinePos + 1);
+
+			command cmd;
+			if (parseCommand(fullMsg, cmd))
+			{
+				// For the handlers that are coming.
+				// Sample test code. Maybe function pointers would be cool here?
+				if (cmd.key == "PASS")
+				{
+					std::cout << "PASS found: " << cmd.vals[0] << std::endl;
+				}
+				// end sample test code
+			}
 
 			std::cout << "Server: Received: " << fullMsg.length()
 					  << " bytes: " << fullMsg << std::endl;

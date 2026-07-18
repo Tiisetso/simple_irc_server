@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Parser.hpp"
 #include "User.hpp"
 
 class Server
