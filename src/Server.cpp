@@ -188,15 +188,7 @@ bool Server::processClient(User &client)
 
 			command cmd;
 			if (parseCommand(fullMsg, cmd))
-			{
-				// For the handlers that are coming.
-				// Sample test code. Maybe function pointers would be cool here?
-				if (cmd.key == "PASS")
-				{
-					std::cout << "PASS found: " << cmd.vals[0] << std::endl;
-				}
-				// end sample test code
-			}
+				commandHandler(cmd, client);
 
 			std::cout << "Server: Received: " << fullMsg.length()
 					  << " bytes: " << fullMsg << std::endl;
@@ -273,4 +265,19 @@ void Server::loop()
 				i++;
 		}
 	}
+}
+
+bool Server::commandHandler(const command &cmd, User &client)
+{
+	if (cmd.key == "PASS")
+		return handlePass(cmd, client);
+	return false;
+}
+
+bool Server::handlePass(const command &cmd, User &client)
+{
+	if (cmd.vals.size() != 1)
+		return false; //Not enough params error?
+
+
 }

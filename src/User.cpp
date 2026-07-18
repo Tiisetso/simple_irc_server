@@ -5,6 +5,7 @@
 User::User()
 	: _fd(-1),
 	  _passMatch(false),
+	  _isRegistered(false),
 	  _readBuffer(),
 	  _nickName(),
 	  _userName(),
@@ -15,6 +16,7 @@ User::User()
 User::User(int fd)
 	: _fd(fd),
 	  _passMatch(false),
+	  _isRegistered(false),
 	  _readBuffer(),
 	  _nickName(),
 	  _userName(),
@@ -37,9 +39,15 @@ std::string &User::getReadBuffer()
 {
 	return (_readBuffer);
 }
+
 bool User::getPassMatch() const
 {
 	return _passMatch;
+}
+
+bool User::getIsRegistered() const
+{
+	return _isRegistered;
 }
 
 const std::string &User::getNickName() const
@@ -65,6 +73,11 @@ void User::setFd(const int fd)
 void User::setPassMatch(const bool yes)
 {
 	_passMatch = yes;
+}
+
+void User::setIsRegistered(const bool yes)
+{
+	_isRegistered = yes;
 }
 
 void User::setNickName(const std::string &nickName)

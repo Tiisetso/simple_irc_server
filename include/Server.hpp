@@ -35,4 +35,7 @@ class Server
 
 		void setNonBlocking(int fd);
 		void loop();
+
+		bool commandHandler(const command &cmd, User &client);
+		bool handlePass(const command &cmd, User &client);
 };
