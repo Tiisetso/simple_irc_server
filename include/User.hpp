@@ -7,6 +7,7 @@ class User
 	private:
 		int _fd;
 		bool _passMatch;
+		bool _isRegistered;
 		std::string _readBuffer;
 		std::string _writeBuffer;
 		std::string _nickName;
@@ -24,12 +25,14 @@ class User
 		std::string &getReadBuffer();
 		std::string &getWriteBuffer();
 		bool getPassMatch() const;
+		bool getIsRegistered() const;
 		const std::string &getNickName() const;
 		const std::string &getUserName() const;
 		const std::string &getRealName() const;
 
 		void setFd(const int fd);
 		void setPassMatch(const bool yes);
+		void setIsRegistered(void);
 		void setNickName(const std::string &nickName);
 		void setUserName(const std::string &userName);
 		void setRealName(const std::string &realName);

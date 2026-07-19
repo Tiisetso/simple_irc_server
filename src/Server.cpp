@@ -13,6 +13,8 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "ReplyError.hpp"
+
 #define BACKLOG 20
 
 Server::Server(const std::string &port, const std::string &password)
@@ -170,7 +172,7 @@ bool Server::readClient(User &client)
 	{
 		client.getReadBuffer().append(buffer, bytesReceived);
 
-		size_t newlinePos = client.getReadBuffer().find('\n');
+		std::size_t newlinePos = client.getReadBuffer().find('\n');
 
 		while (newlinePos != std::string::npos)
 		{
@@ -185,6 +187,10 @@ bool Server::readClient(User &client)
 				client.getReadBuffer().substr(0, newlinePos + 1);
 
 			client.getReadBuffer().erase(0, newlinePos + 1);
+
+			command cmd;
+			if (parseCommand(fullMsg, cmd))
+				commandHandler(cmd, client);
 
 			std::cout << "Server: Received: " << fullMsg.length()
 					  << " bytes: " << fullMsg << std::endl;
@@ -312,4 +318,59 @@ void Server::loop()
 				i++;
 		}
 	}
+}
+
+bool Server::commandHandler(const command &cmd, User &client)
+{
+	if (cmd.key == "PASS")
+	{
+		handlePass(cmd, client);
+		return true;
+	}
+	return false;
+}
+
+void Server::handlePass(const command &cmd, User &client)
+{
+	if (cmd.vals.empty())
+	{
+		quickSend(client, msgFormat("*", ERR_NEEDMOREPARAMS, "PASS"));
+		return;
+	}
+
+	if (client.getIsRegistered())
+	{
+		quickSend(client, msgFormat("*", ERR_ALREADYREGISTERED));
+		return;
+	}
+
+	if (cmd.vals[0] != _password)
+	{
+		client.setPassMatch(false);
+		quickSend(client, msgFormat("*", ERR_PASSWDMISMATCH));
+		return;
+	}
+	client.setPassMatch(true);
+}
+
+std::string Server::msgFormat(const std::string &clientName,
+							  errReplyCode errorCode)
+{
+	return ":" + _serverName + " " + std::to_string(errorCode) + " " +
+		   clientName + " :" + errReplyMsg.at(errorCode) + "\r\n";
+}
+
+std::string Server::msgFormat(const std::string &clientName,
+							  errReplyCode errorCode, const std::string &prefix)
+{
+	return ":" + _serverName + " " + std::to_string(errorCode) + " " +
+		   clientName + " " + prefix + " :" + errReplyMsg.at(errorCode) +
+		   "\r\n";
+}
+
+// Need to be able to send to test. This should be deleted later and it's use
+// replaced by the appropriate send that handles buffered write.
+void Server::quickSend(User &client, const std::string &message)
+{
+	send(client.getFd(), message.c_str(), message.length(), 0);
 }
