@@ -8,6 +8,7 @@ class User
 		int _fd;
 		bool _passMatch;
 		std::string _readBuffer;
+		std::string _writeBuffer;
 		std::string _nickName;
 		std::string _userName;
 		std::string _realName;
@@ -21,6 +22,7 @@ class User
 
 		int getFd() const;
 		std::string &getReadBuffer();
+		std::string &getWriteBuffer();
 		bool getPassMatch() const;
 		const std::string &getNickName() const;
 		const std::string &getUserName() const;

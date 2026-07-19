@@ -145,7 +145,19 @@ void Server::createSocket()
 	_pollfds.push_back(serverPollfd);
 }
 
-bool Server::processClient(User &client)
+/*
+receive a message from a client
+understand what that message means
+decide whether the server should reply
+（the client sent a valid command and the server should send a reply
+the client sent an invalid command and the server should send an error
+the server is relaying a message from another client
+the server wants to send a welcome or notice）
+if yes, put that reply into the write buffer
+wait until the socket is writable, then send it
+*/
+
+bool Server::readClient(User &client, pollfd &clientPollfd)
 {
 	char buffer[1024];
 	ssize_t bytesReceived{};
@@ -190,6 +202,10 @@ bool Server::processClient(User &client)
 					  << " bytes: " << fullMsg << std::endl;
 
 			newlinePos = client.getReadBuffer().find('\n');
+
+			client.getWriteBuffer() += fullMsg;
+			clientPollfd.events |= POLLOUT;
+
 		}
 		if (client.getReadBuffer().length() >= 512)
 		{
@@ -249,9 +265,14 @@ void Server::loop()
 			if (events & POLLIN)
 			{
 				User &client = _users.at(fd);
-				keepClient = processClient(client);
+				keepClient = readClient(client, _pollfds[i]);
 			}
 
+			if (events & POLLOUT)
+			{
+				User &client = _users.at(fd);
+				keepClient = writeClient(client, _pollfds[i]);
+			}
 			if (events & (POLLERR | POLLHUP | POLLNVAL))
 				keepClient = false;
 
