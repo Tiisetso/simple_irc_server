@@ -8,11 +8,13 @@
 #include <vector>
 
 #include "Parser.hpp"
+#include "ReplyError.hpp"
 #include "User.hpp"
 
 class Server
 {
 	private:
+		const std::string _serverName = "ircserv";
 		int _servSockFd;
 		std::vector<pollfd> _pollfds;
 		std::unordered_map<int, User> _users;
@@ -35,4 +37,14 @@ class Server
 
 		void setNonBlocking(int fd);
 		void loop();
+
+		bool commandHandler(const command &cmd, User &client);
+		void handlePass(const command &cmd, User &client);
+
+		void quickSend(User &client, const std::string &message);
+		std::string msgFormat(const std::string &clientName,
+							  errReplyCode errorCode);
+		std::string msgFormat(const std::string &clientName,
+							  errReplyCode errorCode,
+							  const std::string &prefix);
 };
