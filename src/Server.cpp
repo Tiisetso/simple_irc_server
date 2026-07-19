@@ -13,7 +13,7 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "Error.hpp"
+#include "ReplyError.hpp"
 
 #define BACKLOG 20
 
@@ -283,29 +283,38 @@ void Server::handlePass(const command &cmd, User &client)
 {
 	if (cmd.vals.empty())
 	{
-		quickSend(client, ":" + _serverName + " " +
-							  std::to_string(ERR_NEEDMOREPARAMS) +
-							  " * PASS :Not enough parameters\r\n");
+		quickSend(client, msgFormat("*", ERR_NEEDMOREPARAMS, "PASS"));
 		return;
 	}
 
 	if (client.getIsRegistered())
 	{
-		quickSend(client, ":" + _serverName + " " +
-							  std::to_string(ERR_ALREADYREGISTERED) +
-							  " * :You may not reregister\r\n");
+		quickSend(client, msgFormat("*", ERR_ALREADYREGISTERED));
 		return;
 	}
 
 	if (cmd.vals[0] != _password)
 	{
-		quickSend(client, ":" + _serverName + " " +
-							  std::to_string(ERR_PASSWDMISMATCH) +
-							  " * :Password incorrect\r\n");
 		client.setPassMatch(false);
+		quickSend(client, msgFormat("*", ERR_PASSWDMISMATCH));
 		return;
 	}
 	client.setPassMatch(true);
+}
+
+std::string Server::msgFormat(const std::string &clientName,
+							  errReplyCode errorCode)
+{
+	return ":" + _serverName + " " + std::to_string(errorCode) + " " +
+		   clientName + " :" + errReplyMsg.at(errorCode) + "\r\n";
+}
+
+std::string Server::msgFormat(const std::string &clientName,
+							  errReplyCode errorCode, const std::string &prefix)
+{
+	return ":" + _serverName + " " + std::to_string(errorCode) + " " +
+		   clientName + " " + prefix + " :" + errReplyMsg.at(errorCode) +
+		   "\r\n";
 }
 
 // Need to be able to send to test. This should be deleted later and it's use
