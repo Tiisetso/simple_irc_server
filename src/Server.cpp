@@ -145,19 +145,7 @@ void Server::createSocket()
 	_pollfds.push_back(serverPollfd);
 }
 
-/*
-receive a message from a client
-understand what that message means
-decide whether the server should reply
-（the client sent a valid command and the server should send a reply
-the client sent an invalid command and the server should send an error
-the server is relaying a message from another client
-the server wants to send a welcome or notice）
-if yes, put that reply into the write buffer
-wait until the socket is writable, then send it
-*/
-
-bool Server::readClient(User &client, pollfd &clientPollfd)
+bool Server::readClient(User &client)
 {
 	char buffer[1024];
 	ssize_t bytesReceived{};
@@ -203,8 +191,7 @@ bool Server::readClient(User &client, pollfd &clientPollfd)
 
 			newlinePos = client.getReadBuffer().find('\n');
 
-			client.getWriteBuffer() += fullMsg;
-			clientPollfd.events |= POLLOUT;
+			queueMessage(client, "Server: " + fullMsg); //for testing purpose
 
 		}
 		if (client.getReadBuffer().length() >= 512)
@@ -215,6 +202,50 @@ bool Server::readClient(User &client, pollfd &clientPollfd)
 			return false;
 		}
 	}
+	return true;
+}
+
+void Server::queueMessage(User &client, const std::string &message)
+{
+	client.getWriteBuffer() += message;
+
+	for (std::size_t i = 1; i < _pollfds.size(); i++)
+	{
+		if (_pollfds[i].fd == client.getFd())
+		{
+			_pollfds[i].events |= POLLOUT;
+			return;
+		}
+	}
+}
+
+bool Server::writeToClient(User &client, pollfd &clientPollfd)
+{
+	std::string &writeBuffer = client.getWriteBuffer();
+
+	if (writeBuffer.empty() && (clientPollfd.events & POLLOUT))
+	{
+		clientPollfd.events &= ~POLLOUT;
+		return true;
+	}
+
+	ssize_t bytesSent= send(client.getFd(), writeBuffer.c_str(), writeBuffer.size(), 0);
+
+	if (bytesSent < 0)
+	{
+		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
+			return true;
+
+		std::cerr << "Server: Failed to send: " << client.getFd() << " : "
+				  << std::strerror(errno) << std::endl;
+		return false;
+	}
+
+	writeBuffer.erase(0, bytesSent);
+
+	if (writeBuffer.empty())
+		clientPollfd.events &= ~POLLOUT;
+
 	return true;
 }
 
@@ -265,13 +296,12 @@ void Server::loop()
 			if (events & POLLIN)
 			{
 				User &client = _users.at(fd);
-				keepClient = readClient(client, _pollfds[i]);
+				keepClient = readClient(client);
 			}
-
-			if (events & POLLOUT)
+			if (keepClient && (events & POLLOUT))
 			{
 				User &client = _users.at(fd);
-				keepClient = writeClient(client, _pollfds[i]);
+				keepClient = writeToClient(client, _pollfds[i]);
 			}
 			if (events & (POLLERR | POLLHUP | POLLNVAL))
 				keepClient = false;
