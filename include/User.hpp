@@ -9,6 +9,7 @@ class User
 		bool _passMatch;
 		bool _isRegistered;
 		std::string _readBuffer;
+		std::string _writeBuffer;
 		std::string _nickName;
 		std::string _userName;
 		std::string _realName;
@@ -22,6 +23,7 @@ class User
 
 		int getFd() const;
 		std::string &getReadBuffer();
+		std::string &getWriteBuffer();
 		bool getPassMatch() const;
 		bool getIsRegistered() const;
 		const std::string &getNickName() const;

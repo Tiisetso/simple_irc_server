@@ -32,7 +32,9 @@ class Server
 		void createSocket();
 
 		void acceptClients();
-		bool processClient(User &client);
+		bool readClient(User &client);
+		void queueMessage(User &client, const std::string &message);
+		bool writeToClient(User &client, pollfd &clientPollfd);
 		void removeClient(std::size_t i);
 
 		void setNonBlocking(int fd);
