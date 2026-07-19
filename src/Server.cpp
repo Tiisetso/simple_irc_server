@@ -223,7 +223,7 @@ bool Server::writeToClient(User &client, pollfd &clientPollfd)
 {
 	std::string &writeBuffer = client.getWriteBuffer();
 
-	if (writeBuffer.empty() && (clientPollfd.events & POLLOUT))
+	if (writeBuffer.empty())
 	{
 		clientPollfd.events &= ~POLLOUT;
 		return true;
