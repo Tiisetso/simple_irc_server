@@ -283,22 +283,25 @@ void Server::handlePass(const command &cmd, User &client)
 {
 	if (cmd.vals.empty())
 	{
-		quickSend(client, std::to_string(ERR_NEEDMOREPARAMS) +
-							  " PASS :Not enough parameters\r\n");
+		quickSend(client, ":" + _serverName + " " +
+							  std::to_string(ERR_NEEDMOREPARAMS) +
+							  " * PASS :Not enough parameters\r\n");
 		return;
 	}
 
 	if (client.getIsRegistered())
 	{
-		quickSend(client, std::to_string(ERR_ALREADYREGISTERED) +
-							  " :You may not reregister\r\n");
+		quickSend(client, ":" + _serverName + " " +
+							  std::to_string(ERR_ALREADYREGISTERED) +
+							  " * :You may not reregister\r\n");
 		return;
 	}
 
 	if (cmd.vals[0] != _password)
 	{
-		quickSend(client, std::to_string(ERR_PASSWDMISMATCH) +
-							  " :Password incorrect\r\n");
+		quickSend(client, ":" + _serverName + " " +
+							  std::to_string(ERR_PASSWDMISMATCH) +
+							  " * :Password incorrect\r\n");
 		client.setPassMatch(false);
 		return;
 	}

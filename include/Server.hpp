@@ -13,6 +13,7 @@
 class Server
 {
 	private:
+		const std::string _serverName = "ircserv";
 		int _servSockFd;
 		std::vector<pollfd> _pollfds;
 		std::unordered_map<int, User> _users;
