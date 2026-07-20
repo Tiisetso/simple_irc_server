@@ -47,7 +47,6 @@ jobs:
           sleep 0.5
           printf 'hello\n' | nc -w 2 127.0.0.1 16667
           printf 'world\n' | nc -w 2 127.0.0.1 16667
-          sleep 0.5
           kill $SERVER_PID
           wait $SERVER_PID 2>/dev/null || true
           grep -q "New client" server.log
@@ -72,7 +71,6 @@ jobs:
           SERVER_PID=$!
           sleep 0.5
           REPLY=$(printf 'USER guest\r\n' | nc -w 2 127.0.0.1 16668)
-          sleep 0.5
           kill $SERVER_PID
           wait $SERVER_PID 2>/dev/null || true
           echo "$REPLY" | grep -q "461"
@@ -96,7 +94,6 @@ jobs:
           SERVER_PID=$!
           sleep 0.5
           printf 'null\0byte\r\n' | nc -w 2 127.0.0.1 6000
-          sleep 0.5
           kill $SERVER_PID
           wait $SERVER_PID 2>/dev/null || true
           grep -q "Received: 11 bytes" server_null.log
