@@ -44,7 +44,6 @@ class Server
 		void handlePass(const command &cmd, User &client);
 		void handleUser(const command &cmd, User &client);
 
-		void quickSend(User &client, const std::string &message);
 		std::string msgFormat(const std::string &clientName,
 							  errReplyCode errorCode);
 		std::string msgFormat(const std::string &clientName,
