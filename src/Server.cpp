@@ -374,3 +374,26 @@ void Server::quickSend(User &client, const std::string &message)
 {
 	send(client.getFd(), message.c_str(), message.length(), 0);
 }
+
+void Server::handleUser(const command &cmd, User &client)
+{
+	if (cmd.vals.empty())
+	{
+		quickSend(client, msgFormat("*", ERR_NEEDMOREPARAMS, "PASS"));
+		return;
+	}
+
+	if (client.getIsRegistered())
+	{
+		quickSend(client, msgFormat("*", ERR_ALREADYREGISTERED));
+		return;
+	}
+
+	if (cmd.vals[0] != _password)
+	{
+		client.setPassMatch(false);
+		quickSend(client, msgFormat("*", ERR_PASSWDMISMATCH));
+		return;
+	}
+	client.setPassMatch(true);
+}

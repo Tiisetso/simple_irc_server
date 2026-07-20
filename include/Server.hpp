@@ -49,4 +49,6 @@ class Server
 		std::string msgFormat(const std::string &clientName,
 							  errReplyCode errorCode,
 							  const std::string &prefix);
+		
+		void handleUser(const command &cmd, User &client); // <<<<<<<<<<<<< wip
 };
