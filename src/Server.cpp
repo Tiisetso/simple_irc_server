@@ -197,8 +197,7 @@ bool Server::readClient(User &client)
 
 			newlinePos = client.getReadBuffer().find('\n');
 
-			queueMessage(client, "Server: " + fullMsg); //for testing purpose
-
+			queueMessage(client, "Server: " + fullMsg);	 // for testing purpose
 		}
 		if (client.getReadBuffer().length() >= 512)
 		{
@@ -235,7 +234,8 @@ bool Server::writeToClient(User &client, pollfd &clientPollfd)
 		return true;
 	}
 
-	ssize_t bytesSent= send(client.getFd(), writeBuffer.c_str(), writeBuffer.size(), 0);
+	ssize_t bytesSent =
+		send(client.getFd(), writeBuffer.c_str(), writeBuffer.size(), 0);
 
 	if (bytesSent < 0)
 	{
@@ -327,6 +327,11 @@ bool Server::commandHandler(const command &cmd, User &client)
 		handlePass(cmd, client);
 		return true;
 	}
+	if (cmd.key == "NICK")
+	{
+		handleNick(cmd, client);
+		return true;
+	}
 	return false;
 }
 
@@ -334,20 +339,20 @@ void Server::handlePass(const command &cmd, User &client)
 {
 	if (cmd.vals.empty())
 	{
-		quickSend(client, msgFormat("*", ERR_NEEDMOREPARAMS, "PASS"));
+		queueMessage(client, msgFormat("*", ERR_NEEDMOREPARAMS, "PASS"));
 		return;
 	}
 
 	if (client.getIsRegistered())
 	{
-		quickSend(client, msgFormat("*", ERR_ALREADYREGISTERED));
+		queueMessage(client, msgFormat("*", ERR_ALREADYREGISTERED));
 		return;
 	}
 
 	if (cmd.vals[0] != _password)
 	{
 		client.setPassMatch(false);
-		quickSend(client, msgFormat("*", ERR_PASSWDMISMATCH));
+		queueMessage(client, msgFormat("*", ERR_PASSWDMISMATCH));
 		return;
 	}
 	client.setPassMatch(true);
