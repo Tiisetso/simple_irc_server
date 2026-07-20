@@ -46,7 +46,18 @@ jobs:
           wait $SERVER_PID 2>/dev/null || true
           grep -q "New client" server.log
           grep -q "Received:" server.log
-          
+
+      - name: Smoke test - USER not enough params
+        run: |
+          ./ircserv 16668 testpass > server_user.log 2>&1 &
+          SERVER_PID=$!
+          sleep 0.5
+          REPLY=$(printf 'USER guest\r\n' | nc -w 2 127.0.0.1 16668)
+          sleep 0.5
+          kill $SERVER_PID
+          wait $SERVER_PID 2>/dev/null || true
+          echo "$REPLY" | grep -q "461"
+
       - name: Null byte - server parses the full msg
         run: |
           ./ircserv 6000 testpass > server_null.log 2>&1 &
