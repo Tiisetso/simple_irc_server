@@ -55,9 +55,19 @@ void Server::acceptClients()
 				std::strerror(errno));
 		}
 
+		char clientAddrStr[INET_ADDRSTRLEN] = {};
+
+		if (!inet_ntop(AF_INET, &clientAddr.sin_addr, clientAddrStr,
+					  sizeof(clientAddrStr)))
+		{
+			close(clientfd);
+			throw std::runtime_error("Server: Failed to convert client IP");
+		}
+
 		try
 		{
 			_users[clientfd].setFd(clientfd);
+			_users[clientfd].setHost(clientAddrStr);
 		}
 		catch (...)
 		{
@@ -79,7 +89,8 @@ void Server::acceptClients()
 			_users.erase(clientfd);
 			throw;
 		}
-		std::cout << "Server: New client at fd: " << clientfd << std::endl;
+		std::cout << "Server: New client at fd: " << clientfd
+				  << ", address: " << clientAddrStr << std::endl;
 	}
 }
 
@@ -332,6 +343,12 @@ bool Server::commandHandler(const command &cmd, User &client)
 		handleUser(cmd, client);
 		return true;
 	}
+	if (cmd.key == "NICK")
+	{
+		handleNick(cmd, client);
+		return true;
+	}
+
 	return false;
 }
 

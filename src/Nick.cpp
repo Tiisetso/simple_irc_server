@@ -1,37 +1,9 @@
-#include <iostream>
+#include <cctype>
 #include <string>
 
 #include "Server.hpp"
 
-/*
-ERR_NONICKNAMEGIVEN (431)
-  "<client> :No nickname given"
-Returned when a nickname parameter is expected for a command but isn’t given.
-
-ERR_ERRONEUSNICKNAME (432)
-  "<client> <nick> :Erroneus nickname"
-Returned when a NICK command cannot be successfully completed as the desired
-nickname contains characters that are disallowed by the server. See the NICK
-command for more information on characters which are allowed in various IRC
-servers. The text used in the last param of this message may vary.
-
-ERR_NICKNAMEINUSE (433)
-  "<client> <nick> :Nickname is already in use"
-*/
-/*
-MUST allow at least all alphanumerical characters,
-square and curly brackets ([]{}), backslashes (\), and pipe (|) characters in
-nicknames,
-*/
-
-/*
-16:46 -NickServ(NickServ@services.libera.chat)- This nickname is
-		  registered. Please choose a different nickname, or identify
-		  via /msg NickServ IDENTIFY yuan <password>
-16:47 -!- No nickname given
-16:47 -!- You're now known as jizn
-
-*/
+#define MAX_NICK_LEN 30
 
 static bool lowerCaseEqual(const std::string &a, const std::string &b)
 {
@@ -55,9 +27,9 @@ static bool lowerCaseEqual(const std::string &a, const std::string &b)
 	return true;
 }
 
-bool Server::isValidNickname(const std::string &val)
+bool Server::isValidNick(const std::string &val)
 {
-	if (val.empty() || val.size() > 30)
+	if (val.empty() || val.size() > MAX_NICK_LEN)
 		return false;
 
 	for (size_t i = 0; i < val.size(); i++)
@@ -72,13 +44,13 @@ bool Server::isValidNickname(const std::string &val)
 	return true;
 }
 
-bool Server::nickNameInUse(const std::string &val, User &client)
+bool Server::nickInUse(const std::string &val, User &client)
 {
 	for (std::unordered_map<int, User>::const_iterator it = _users.begin();
 		 it != _users.end(); it++)
 	{
-		if (lowerCaseEqual(it->second.getNickName(), val) &&
-			it->second.getFd() != client.getFd())
+		if (it->second.getFd() != client.getFd() &&
+			lowerCaseEqual(it->second.getNickName(), val))
 			return true;
 	}
 
@@ -87,26 +59,42 @@ bool Server::nickNameInUse(const std::string &val, User &client)
 
 void Server::handleNick(const command &cmd, User &client)
 {
+	std::string target{};
+
+	if (client.getNickName().empty())
+		target = "*";
+	else
+		target = client.getNickName();
+
 	if (cmd.vals.empty() || cmd.vals[0].empty())
 	{
-		queueMessage(client, msgFormat("*", ERR_NONICKNAMEGIVEN));
+		queueMessage(client, msgFormat(target, ERR_NONICKNAMEGIVEN));
 		return;
 	}
-	if (!isValidNickname(cmd.vals[0]))
+	if (!isValidNick(cmd.vals[0]))
 	{
-		queueMessage(client, msgFormat("*", ERR_ERRONEUSNICKNAME, cmd.vals[0]));
+		queueMessage(client,
+					 msgFormat(target, ERR_ERRONEUSNICKNAME, cmd.vals[0]));
 		return;
 	}
-	if (nickNameInUse(cmd.vals[0], client))
+	if (client.getNickName() == cmd.vals[0])
+		return;
+	if (nickInUse(cmd.vals[0], client))
 	{
-		queueMessage(client, msgFormat("*", ERR_NICKNAMEINUSE, cmd.vals[0]));
+		queueMessage(client, msgFormat(target, ERR_NICKNAMEINUSE, cmd.vals[0]));
 		return;
 	}
-	std::cout << "nick key: " << cmd.key << std::endl;
+	if (!client.getIsRegistered())
+	{
+		client.setNickName(cmd.vals[0]);
+		// TODO: try to register
+		return;
+	}
 
-	for (size_t i = 0; i < cmd.vals.size(); i++)
-	{
-		std::cout << "nick val: " << cmd.vals[i] << std::endl;
-	}
+	const std::string nickMessage = ":" + target + "!" + client.getUserName() +
+									"@" + client.getHost() + " NICK " + cmd.vals[0] +
+									"\r\n";
+	client.setNickName(cmd.vals[0]);
+	queueMessage(client, nickMessage);
+	// TODO: inform others sharing channels with this client about the change
 }
-
