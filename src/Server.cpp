@@ -17,7 +17,8 @@
 #include "ReplyError.hpp"
 
 #define BACKLOG 20
-#define USERLEN 12
+#define MAX_USERNAME_LEN 12
+#define MAX_MSG_LEN 512
 
 Server::Server(const std::string &port, const std::string &password)
 	: _servSockFd(-1), _port(port), _password(password)
@@ -178,10 +179,10 @@ bool Server::readClient(User &client)
 
 		while (newlinePos != std::string::npos)
 		{
-			if (newlinePos >= 512)
+			if (newlinePos >= MAX_MSG_LEN)
 			{
-				std::cerr << "Server: Message too long (512 bytes maximum)."
-						  << std::endl;
+				std::cerr << "Server: Message too long (" << MAX_MSG_LEN
+						  << " bytes maximum)." << std::endl;
 				return false;
 			}
 
@@ -199,11 +200,10 @@ bool Server::readClient(User &client)
 
 			newlinePos = client.getReadBuffer().find('\n');
 		}
-		if (client.getReadBuffer().length() >= 512)
+		if (client.getReadBuffer().length() >= MAX_MSG_LEN)
 		{
-			std::cerr
-				<< "Server: Message max size exceeded (512 bytes maximum)."
-				<< std::endl;
+			std::cerr << "Server: Message max size exceeded (" << MAX_MSG_LEN
+					  << " bytes maximum)." << std::endl;
 			return false;
 		}
 	}
@@ -375,8 +375,8 @@ void Server::handleUser(const command &cmd, User &client)
 	std::string username = cmd.vals[0];
 	std::replace(username.begin(), username.end(), '@', '_');
 
-	if (username.size() > USERLEN)
-		username.resize(USERLEN);
+	if (username.size() > MAX_USERNAME_LEN)
+		username.resize(MAX_USERNAME_LEN);
 
 	client.setUserName(username);
 	client.setRealName(cmd.vals[3]);
