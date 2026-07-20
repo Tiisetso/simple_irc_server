@@ -360,15 +360,15 @@ void Server::handlePass(const command &cmd, User &client)
 
 void Server::handleUser(const command &cmd, User &client)
 {
-	if (cmd.vals.size() < 4 || cmd.vals[0].empty())
+	if (cmd.vals.size() < 4)
 	{
-		quickSend(client, msgFormat("*", ERR_NEEDMOREPARAMS, "USER"));
+		queueMessage(client, msgFormat("*", ERR_NEEDMOREPARAMS, "USER"));
 		return;
 	}
 
 	if (client.getIsRegistered())
 	{
-		quickSend(client, msgFormat("*", ERR_ALREADYREGISTERED));
+		queueMessage(client, msgFormat("*", ERR_ALREADYREGISTERED));
 		return;
 	}
 
