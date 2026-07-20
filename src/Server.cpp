@@ -197,8 +197,7 @@ bool Server::readClient(User &client)
 
 			newlinePos = client.getReadBuffer().find('\n');
 
-			queueMessage(client, "Server: " + fullMsg); //for testing purpose
-
+			queueMessage(client, "Server: " + fullMsg);	 // for testing purpose
 		}
 		if (client.getReadBuffer().length() >= 512)
 		{
@@ -235,7 +234,8 @@ bool Server::writeToClient(User &client, pollfd &clientPollfd)
 		return true;
 	}
 
-	ssize_t bytesSent= send(client.getFd(), writeBuffer.c_str(), writeBuffer.size(), 0);
+	ssize_t bytesSent =
+		send(client.getFd(), writeBuffer.c_str(), writeBuffer.size(), 0);
 
 	if (bytesSent < 0)
 	{
@@ -327,7 +327,7 @@ bool Server::commandHandler(const command &cmd, User &client)
 		handlePass(cmd, client);
 		return true;
 	}
-	if(cmd.key == "USER")
+	if (cmd.key == "USER")
 	{
 		handleUser(cmd, client);
 		return true;

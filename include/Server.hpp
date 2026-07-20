@@ -50,5 +50,4 @@ class Server
 		std::string msgFormat(const std::string &clientName,
 							  errReplyCode errorCode,
 							  const std::string &prefix);
-		
 };
