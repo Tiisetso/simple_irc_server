@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <algorithm>
 #include <cerrno>
 #include <cstring>
 #include <iostream>
@@ -16,6 +17,7 @@
 #include "ReplyError.hpp"
 
 #define BACKLOG 20
+#define USERLEN 12
 
 Server::Server(const std::string &port, const std::string &password)
 	: _servSockFd(-1), _port(port), _password(password)
@@ -197,8 +199,7 @@ bool Server::readClient(User &client)
 
 			newlinePos = client.getReadBuffer().find('\n');
 
-			queueMessage(client, "Server: " + fullMsg); //for testing purpose
-
+			queueMessage(client, "Server: " + fullMsg);	 // for testing purpose
 		}
 		if (client.getReadBuffer().length() >= 512)
 		{
@@ -235,7 +236,8 @@ bool Server::writeToClient(User &client, pollfd &clientPollfd)
 		return true;
 	}
 
-	ssize_t bytesSent= send(client.getFd(), writeBuffer.c_str(), writeBuffer.size(), 0);
+	ssize_t bytesSent =
+		send(client.getFd(), writeBuffer.c_str(), writeBuffer.size(), 0);
 
 	if (bytesSent < 0)
 	{
@@ -327,6 +329,11 @@ bool Server::commandHandler(const command &cmd, User &client)
 		handlePass(cmd, client);
 		return true;
 	}
+	if (cmd.key == "USER")
+	{
+		handleUser(cmd, client);
+		return true;
+	}
 	return false;
 }
 
@@ -351,6 +358,30 @@ void Server::handlePass(const command &cmd, User &client)
 		return;
 	}
 	client.setPassMatch(true);
+}
+
+void Server::handleUser(const command &cmd, User &client)
+{
+	if (cmd.vals.size() < 4)
+	{
+		queueMessage(client, msgFormat("*", ERR_NEEDMOREPARAMS, "USER"));
+		return;
+	}
+
+	if (client.getIsRegistered())
+	{
+		queueMessage(client, msgFormat("*", ERR_ALREADYREGISTERED));
+		return;
+	}
+
+	std::string username = cmd.vals[0];
+	std::replace(username.begin(), username.end(), '@', '_');
+
+	if (username.size() > USERLEN)
+		username.resize(USERLEN);
+
+	client.setUserName(username);
+	client.setRealName(cmd.vals[3]);
 }
 
 std::string Server::msgFormat(const std::string &clientName,
