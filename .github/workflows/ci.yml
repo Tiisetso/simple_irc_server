@@ -9,52 +9,92 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - name: Checkout repository
+        uses: actions/checkout@v7
 
       - name: Install build tools
         run: sudo apt-get update && sudo apt-get install -y build-essential
 
-      - name: Build
-        run: make re
+      - name: Build binary
+        run: make
 
       - name: Verify binary exists
         run: test -x ./ircserv
-  
-  smoke:
+
+      - name: Upload compiled binary
+        uses: actions/upload-artifact@v7
+        with:
+          name: ircserv-binary
+          path: ./ircserv
+
+  smoke_test_1:
+    name: "Smoke Test 1: Accept Clients"
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - name: Download compiled binary
+        uses: actions/download-artifact@v7
+        with:
+          name: ircserv-binary
 
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y build-essential netcat-openbsd
+      - name: Fix binary permissions
+        run: chmod +x ./ircserv
 
-      - name: Build
-        run: make re
-        
-      - name: Smoke test - server accepts clients
+      - name: Run test
         run: |
           ./ircserv 16667 testpass > server.log 2>&1 &
           SERVER_PID=$!
           sleep 0.5
           printf 'hello\n' | nc -w 2 127.0.0.1 16667
           printf 'world\n' | nc -w 2 127.0.0.1 16667
-          sleep 0.5
           kill $SERVER_PID
           wait $SERVER_PID 2>/dev/null || true
           grep -q "New client" server.log
           grep -q "Received:" server.log
-          
-      - name: Null byte - server parses the full msg
+
+  smoke_test_2:
+    name: "Smoke Test 2: USER missing params"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download compiled binary
+        uses: actions/download-artifact@v7
+        with:
+          name: ircserv-binary
+
+      - name: Fix binary permissions
+        run: chmod +x ./ircserv
+
+      - name: Run test
+        run: |
+          ./ircserv 16668 testpass > server_user.log 2>&1 &
+          SERVER_PID=$!
+          sleep 0.5
+          REPLY=$(printf 'USER guest\r\n' | nc -w 2 127.0.0.1 16668)
+          kill $SERVER_PID
+          wait $SERVER_PID 2>/dev/null || true
+          echo "$REPLY" | grep -q "461"
+
+  smoke_test_3:
+    name: "Smoke Test 3: Null Byte Parsing"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download compiled binary
+        uses: actions/download-artifact@v7
+        with:
+          name: ircserv-binary
+
+      - name: Fix binary permissions
+        run: chmod +x ./ircserv
+
+      - name: Run test
         run: |
           ./ircserv 6000 testpass > server_null.log 2>&1 &
           SERVER_PID=$!
           sleep 0.5
           printf 'null\0byte\r\n' | nc -w 2 127.0.0.1 6000
-          sleep 0.5
           kill $SERVER_PID
           wait $SERVER_PID 2>/dev/null || true
           grep -q "Received: 11 bytes" server_null.log
-        
+          

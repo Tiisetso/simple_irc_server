@@ -42,11 +42,11 @@ class Server
 
 		bool commandHandler(const command &cmd, User &client);
 		void handlePass(const command &cmd, User &client);
+		void handleUser(const command &cmd, User &client);
 		void handleNick(const command &cmd, User &client);
 		bool isValidNickname(const std::string &val);
 		bool nickNameInUse(const std::string &val, User &client);
 
-		void quickSend(User &client, const std::string &message);
 		std::string msgFormat(const std::string &clientName,
 							  errReplyCode errorCode);
 		std::string msgFormat(const std::string &clientName,

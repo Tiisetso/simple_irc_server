@@ -37,6 +37,12 @@ bool parseCommand(const std::string &msg, command &cmd)
 	if (end == 0)
 		return false;
 
+	for (std::size_t i = 0; i < end; i++)
+	{
+		if (msg[i] == '\r' || msg[i] == '\0')
+			return false;
+	}
+
 	start = afterSpaces(msg, start, end);
 
 	if (start >= end)
