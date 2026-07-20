@@ -372,7 +372,17 @@ void Server::handleUser(const command &cmd, User &client)
 		return;
 	}
 
-	client.setUserName(cmd.vals[0]);
+	if(cmd.vals[0].find('@') != std::string::npos)
+	{
+		queueMessage(client, msgFormat("*", ERR_NEEDMOREPARAMS, "USER"));
+		return;
+	}
+	std::string username = cmd.vals[0];
+	const std::size_t userLen = 12;
+	if(username.size() > userLen)
+		username.resize(userLen);
+
+	client.setUserName(username);
 	client.setRealName(cmd.vals[3]);
 }
 
