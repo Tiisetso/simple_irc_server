@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <algorithm>
 #include <cerrno>
 #include <cstring>
 #include <iostream>
@@ -16,6 +17,7 @@
 #include "ReplyError.hpp"
 
 #define BACKLOG 20
+#define USERLEN 12
 
 Server::Server(const std::string &port, const std::string &password)
 	: _servSockFd(-1), _port(port), _password(password)
@@ -372,15 +374,11 @@ void Server::handleUser(const command &cmd, User &client)
 		return;
 	}
 
-	if(cmd.vals[0].find('@') != std::string::npos)
-	{
-		queueMessage(client, msgFormat("*", ERR_NEEDMOREPARAMS, "USER"));
-		return;
-	}
 	std::string username = cmd.vals[0];
-	const std::size_t userLen = 12;
-	if(username.size() > userLen)
-		username.resize(userLen);
+	std::replace(username.begin(), username.end(), '@', '_');
+
+	if (username.size() > USERLEN)
+		username.resize(USERLEN);
 
 	client.setUserName(username);
 	client.setRealName(cmd.vals[3]);
