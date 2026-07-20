@@ -327,6 +327,11 @@ bool Server::commandHandler(const command &cmd, User &client)
 		handlePass(cmd, client);
 		return true;
 	}
+	if(cmd.key == "USER")
+	{
+		handleUser(cmd, client);
+		return true;
+	}
 	return false;
 }
 

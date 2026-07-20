@@ -42,6 +42,7 @@ class Server
 
 		bool commandHandler(const command &cmd, User &client);
 		void handlePass(const command &cmd, User &client);
+		void handleUser(const command &cmd, User &client);
 
 		void quickSend(User &client, const std::string &message);
 		std::string msgFormat(const std::string &clientName,
@@ -50,5 +51,4 @@ class Server
 							  errReplyCode errorCode,
 							  const std::string &prefix);
 		
-		void handleUser(const command &cmd, User &client); // <<<<<<<<<<<<< wip
 };
