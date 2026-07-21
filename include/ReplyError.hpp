@@ -5,6 +5,7 @@
 
 enum errReplyCode
 {
+	ERR_NOORIGIN = 409,
 	ERR_NONICKNAMEGIVEN = 431,
 	ERR_ERRONEUSNICKNAME = 432,
 	ERR_NICKNAMEINUSE = 433,
@@ -14,6 +15,7 @@ enum errReplyCode
 };
 
 const std::unordered_map<int, std::string> errReplyMsg = {
+	{ERR_NOORIGIN, "No origin specified"},
 	{ERR_NONICKNAMEGIVEN, "No nickname given"},
 	{ERR_ERRONEUSNICKNAME, "Erroneus nickname"},
 	{ERR_NICKNAMEINUSE, "Nickname is already in use"},
