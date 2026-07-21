@@ -35,8 +35,7 @@ bool Server::isValidNick(const std::string &val)
 	char c0 = val[0];
 	bool firstOk = (c0 >= 'a' && c0 <= 'z') || (c0 >= 'A' && c0 <= 'Z') ||
 				   c0 == '[' || c0 == ']' || c0 == '{' || c0 == '}' ||
-				   c0 == '\\' || c0 == '|' || c0 == '_' || c0 == '`' ||
-				   c0 == '^';
+				   c0 == '\\' || c0 == '|' || c0 == '_';
 	if (!firstOk)
 		return false;
 
