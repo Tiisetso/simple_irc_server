@@ -32,7 +32,15 @@ bool Server::isValidNick(const std::string &val)
 	if (val.empty() || val.size() > MAX_NICK_LEN)
 		return false;
 
-	for (size_t i = 0; i < val.size(); i++)
+	char c0 = val[0];
+	bool firstOk = (c0 >= 'a' && c0 <= 'z') || (c0 >= 'A' && c0 <= 'Z') ||
+				   c0 == '[' || c0 == ']' || c0 == '{' || c0 == '}' ||
+				   c0 == '\\' || c0 == '|' || c0 == '_' || c0 == '`' ||
+				   c0 == '^';
+	if (!firstOk)
+		return false;
+
+	for (size_t i = 1; i < val.size(); i++)
 	{
 		if (!(std::isalnum(static_cast<unsigned char>(val[i])) ||
 			  val[i] == '-' || val[i] == '_' || val[i] == '[' ||
@@ -92,8 +100,8 @@ void Server::handleNick(const command &cmd, User &client)
 	}
 
 	const std::string nickMessage = ":" + target + "!" + client.getUserName() +
-									"@" + client.getHost() + " NICK " + cmd.vals[0] +
-									"\r\n";
+									"@" + client.getHost() + " NICK " +
+									cmd.vals[0] + "\r\n";
 	client.setNickName(cmd.vals[0]);
 	queueMessage(client, nickMessage);
 	// TODO: inform others sharing channels with this client about the change
