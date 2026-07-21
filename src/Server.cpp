@@ -19,6 +19,7 @@
 #define BACKLOG 20
 #define MAX_USERNAME_LEN 12
 #define MAX_MSG_LEN 512
+#define MAX_WRITE_BUFFER (200 * 1024)
 
 Server::Server(const std::string &port, const std::string &password)
 	: _servSockFd(-1), _port(port), _password(password)
@@ -58,7 +59,7 @@ void Server::acceptClients()
 		char clientAddrStr[INET_ADDRSTRLEN] = {};
 
 		if (!inet_ntop(AF_INET, &clientAddr.sin_addr, clientAddrStr,
-					  sizeof(clientAddrStr)))
+					   sizeof(clientAddrStr)))
 		{
 			close(clientfd);
 			throw std::runtime_error("Server: Failed to convert client IP");
@@ -223,6 +224,16 @@ bool Server::readClient(User &client)
 
 void Server::queueMessage(User &client, const std::string &message)
 {
+	if (client.getWriteBuffer().size() > MAX_WRITE_BUFFER ||
+		message.size() > MAX_WRITE_BUFFER ||
+		client.getWriteBuffer().size() + message.size() > MAX_WRITE_BUFFER)
+	{
+		client.setShouldDisconnect();
+		std::cerr << "Server: write buffer max size exceeded ("
+				  << MAX_WRITE_BUFFER << " bytes maximum)." << std::endl;
+		return;
+	}
+
 	client.getWriteBuffer() += message;
 
 	for (std::size_t i = 1; i < _pollfds.size(); i++)
@@ -320,6 +331,10 @@ void Server::loop()
 				User &client = _users.at(fd);
 				keepClient = writeToClient(client, _pollfds[i]);
 			}
+
+			if (_users.at(fd).getShouldDisconnect())
+				keepClient = false;
+
 			if (events & (POLLERR | POLLHUP | POLLNVAL))
 				keepClient = false;
 
