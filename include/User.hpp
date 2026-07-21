@@ -13,6 +13,7 @@ class User
 		std::string _nickName;
 		std::string _userName;
 		std::string _realName;
+		std::string _host;
 
 	public:
 		User();
@@ -29,6 +30,7 @@ class User
 		const std::string &getNickName() const;
 		const std::string &getUserName() const;
 		const std::string &getRealName() const;
+		const std::string &getHost() const;
 
 		void setFd(const int fd);
 		void setPassMatch(const bool yes);
@@ -36,4 +38,5 @@ class User
 		void setNickName(const std::string &nickName);
 		void setUserName(const std::string &userName);
 		void setRealName(const std::string &realName);
+		void setHost(const std::string &host);
 };

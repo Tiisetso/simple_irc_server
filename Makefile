@@ -25,7 +25,8 @@ $(SRC_DIR)/main.cpp \
 $(SRC_DIR)/Server.cpp \
 $(SRC_DIR)/Parser.cpp \
 $(SRC_DIR)/Validation.cpp \
-$(SRC_DIR)/User.cpp
+$(SRC_DIR)/User.cpp \
+$(SRC_DIR)/Nick.cpp
 
 OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
@@ -47,7 +48,7 @@ fclean: clean
 
 re: fclean all
 
-valgrind: 
+valgrind:
 		@$(MAKE) re debug=1
 		valgrind --leak-check=full \
 				 --show-leak-kinds=all \

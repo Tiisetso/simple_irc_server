@@ -10,7 +10,8 @@ User::User()
 	  _writeBuffer(),
 	  _nickName(),
 	  _userName(),
-	  _realName()
+	  _realName(),
+	  _host()
 {
 }
 
@@ -22,7 +23,8 @@ User::User(int fd)
 	  _writeBuffer(),
 	  _nickName(),
 	  _userName(),
-	  _realName()
+	  _realName(),
+	  _host()
 {
 }
 
@@ -72,6 +74,11 @@ const std::string &User::getRealName() const
 	return _realName;
 }
 
+const std::string &User::getHost() const
+{
+	return _host;
+}
+
 void User::setFd(const int fd)
 {
 	_fd = fd;
@@ -101,3 +108,9 @@ void User::setRealName(const std::string &realName)
 {
 	_realName = realName;
 }
+
+void User::setHost(const std::string &host)
+{
+	_host = host;
+}
+

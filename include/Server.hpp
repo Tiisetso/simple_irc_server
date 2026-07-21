@@ -43,6 +43,9 @@ class Server
 		bool commandHandler(const command &cmd, User &client);
 		void handlePass(const command &cmd, User &client);
 		void handleUser(const command &cmd, User &client);
+		void handleNick(const command &cmd, User &client);
+		bool isValidNick(const std::string &val);
+		bool nickInUse(const std::string &val, User &client);
 
 		std::string msgFormat(const std::string &clientName,
 							  errReplyCode errorCode);
