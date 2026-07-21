@@ -98,3 +98,109 @@ jobs:
           wait $SERVER_PID 2>/dev/null || true
           grep -q "Received: 11 bytes" server_null.log
           
+  smoke_test_4:
+    name: "Smoke Test 4: NICK missing params"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download compiled binary
+        uses: actions/download-artifact@v7
+        with:
+          name: ircserv-binary
+
+      - name: Fix binary permissions
+        run: chmod +x ./ircserv
+
+      - name: Run test
+        run: |
+          ./ircserv 16669 testpass > server_nick_empty.log 2>&1 &
+          SERVER_PID=$!
+          sleep 0.5
+          REPLY=$(printf 'NICK\r\n' | nc -w 2 127.0.0.1 16669)
+          kill $SERVER_PID
+          wait $SERVER_PID 2>/dev/null || true
+          echo "$REPLY" | grep -q "431"
+
+  smoke_test_5:
+    name: "Smoke Test 5: NICK erroneous (bad first char)"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download compiled binary
+        uses: actions/download-artifact@v7
+        with:
+          name: ircserv-binary
+
+      - name: Fix binary permissions
+        run: chmod +x ./ircserv
+
+      - name: Run test
+        run: |
+          ./ircserv 16670 testpass > server_nick_bad.log 2>&1 &
+          SERVER_PID=$!
+          sleep 0.5
+          REPLY=$(printf 'NICK 1bob\r\n' | nc -w 2 127.0.0.1 16670)
+          kill $SERVER_PID
+          wait $SERVER_PID 2>/dev/null || true
+          echo "$REPLY" | grep -q "432"
+
+  smoke_test_6:
+    name: "Smoke Test 6: NICK in use"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download compiled binary
+        uses: actions/download-artifact@v7
+        with:
+          name: ircserv-binary
+
+      - name: Fix binary permissions
+        run: chmod +x ./ircserv
+
+      - name: Run test
+        run: |
+          ./ircserv 16671 testpass > server_nick_inuse.log 2>&1 &
+          SERVER_PID=$!
+          sleep 0.5
+          # hold first client open so nick stays taken
+          mkfifo /tmp/irc_c1_in
+          nc 127.0.0.1 16671 < /tmp/irc_c1_in > /tmp/irc_c1_out &
+          NC1_PID=$!
+          printf 'PASS testpass\r\nNICK alice\r\nUSER alice 0 * :Alice\r\n' > /tmp/irc_c1_in
+          sleep 0.5
+          REPLY=$(printf 'PASS testpass\r\nNICK alice\r\n' | nc -w 2 127.0.0.1 16671)
+          kill $NC1_PID $SERVER_PID
+          wait $NC1_PID 2>/dev/null || true
+          wait $SERVER_PID 2>/dev/null || true
+          rm -f /tmp/irc_c1_in
+          echo "$REPLY" | grep -q "433"
+
+  smoke_test_7:
+    name: "Smoke Test 7: NICK case-insensitive collision"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download compiled binary
+        uses: actions/download-artifact@v7
+        with:
+          name: ircserv-binary
+
+      - name: Fix binary permissions
+        run: chmod +x ./ircserv
+
+      - name: Run test
+        run: |
+          ./ircserv 16672 testpass > server_nick_case.log 2>&1 &
+          SERVER_PID=$!
+          sleep 0.5
+          mkfifo /tmp/irc_c1_case
+          nc 127.0.0.1 16672 < /tmp/irc_c1_case > /tmp/irc_c1_case_out &
+          NC1_PID=$!
+          printf 'PASS testpass\r\nNICK Alice\r\nUSER alice 0 * :Alice\r\n' > /tmp/irc_c1_case
+          sleep 0.5
+          REPLY=$(printf 'PASS testpass\r\nNICK ALICE\r\n' | nc -w 2 127.0.0.1 16672)
+          kill $NC1_PID $SERVER_PID
+          wait $NC1_PID 2>/dev/null || true
+          wait $SERVER_PID 2>/dev/null || true
+          rm -f /tmp/irc_c1_case
+          echo "$REPLY" | grep -q "433"
