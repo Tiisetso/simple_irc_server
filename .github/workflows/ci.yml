@@ -227,7 +227,7 @@ jobs:
             printf 'PASS testpass\r\nNICK flooder\r\nUSER flooder 0 * :Flood\r\n'
             sleep 0.3
             for i in $(seq 1 10000); do
-              printf 'PRIVMSG nosuchnick :pad pad pad pad pad pad pad pad\r\n'
+              printf "USER user$i 0 * :pad pad pad pad pad pad pad pad\r\n"
             done
             sleep 1
           ) | nc -w 3 127.0.0.1 16680 > /dev/null || true
