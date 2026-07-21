@@ -224,9 +224,8 @@ bool Server::readClient(User &client)
 
 void Server::queueMessage(User &client, const std::string &message)
 {
-	if (client.getWriteBuffer().size() > MAX_WRITE_BUFFER ||
-		message.size() > MAX_WRITE_BUFFER ||
-		client.getWriteBuffer().size() + message.size() > MAX_WRITE_BUFFER)
+	if (message.size() > MAX_WRITE_BUFFER ||
+		client.getWriteBuffer().size() > MAX_WRITE_BUFFER - message.size())
 	{
 		client.setShouldDisconnect();
 		std::cerr << "Server: write buffer max size exceeded ("
