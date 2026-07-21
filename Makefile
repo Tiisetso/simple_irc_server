@@ -26,7 +26,8 @@ $(SRC_DIR)/Server.cpp \
 $(SRC_DIR)/Parser.cpp \
 $(SRC_DIR)/Validation.cpp \
 $(SRC_DIR)/User.cpp \
-$(SRC_DIR)/Nick.cpp
+$(SRC_DIR)/Nick.cpp \
+$(SRC_DIR)/Registration.cpp
 
 OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
