@@ -6,6 +6,7 @@ User::User()
 	: _fd(-1),
 	  _passMatch(false),
 	  _isRegistered(false),
+	  _shouldDisconnect(false),
 	  _readBuffer(),
 	  _writeBuffer(),
 	  _nickName(),
@@ -19,6 +20,7 @@ User::User(int fd)
 	: _fd(fd),
 	  _passMatch(false),
 	  _isRegistered(false),
+	  _shouldDisconnect(false),
 	  _readBuffer(),
 	  _writeBuffer(),
 	  _nickName(),
@@ -59,6 +61,11 @@ bool User::getIsRegistered() const
 	return _isRegistered;
 }
 
+bool User::getShouldDisconnect() const
+{
+	return _shouldDisconnect;
+}
+
 const std::string &User::getNickName() const
 {
 	return _nickName;
@@ -94,6 +101,11 @@ void User::setIsRegistered(void)
 	_isRegistered = true;
 }
 
+void User::setShouldDisconnect()
+{
+	_shouldDisconnect = true;
+}
+
 void User::setNickName(const std::string &nickName)
 {
 	_nickName = nickName;
@@ -113,4 +125,3 @@ void User::setHost(const std::string &host)
 {
 	_host = host;
 }
-
