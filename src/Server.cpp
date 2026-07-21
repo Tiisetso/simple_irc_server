@@ -8,16 +8,12 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <algorithm>
 #include <cerrno>
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
 
-#include "ReplyError.hpp"
-
 #define BACKLOG 20
-#define MAX_USERNAME_LEN 12
 #define MAX_MSG_LEN 512
 
 Server::Server(const std::string &port, const std::string &password)
@@ -58,7 +54,7 @@ void Server::acceptClients()
 		char clientAddrStr[INET_ADDRSTRLEN] = {};
 
 		if (!inet_ntop(AF_INET, &clientAddr.sin_addr, clientAddrStr,
-					  sizeof(clientAddrStr)))
+					   sizeof(clientAddrStr)))
 		{
 			close(clientfd);
 			throw std::runtime_error("Server: Failed to convert client IP");
@@ -350,66 +346,4 @@ bool Server::commandHandler(const command &cmd, User &client)
 	}
 
 	return false;
-}
-
-void Server::handlePass(const command &cmd, User &client)
-{
-	if (cmd.vals.empty())
-	{
-		queueMessage(client, msgFormat("*", ERR_NEEDMOREPARAMS, "PASS"));
-		return;
-	}
-
-	if (client.getIsRegistered())
-	{
-		queueMessage(client, msgFormat("*", ERR_ALREADYREGISTERED));
-		return;
-	}
-
-	if (cmd.vals[0] != _password)
-	{
-		client.setPassMatch(false);
-		queueMessage(client, msgFormat("*", ERR_PASSWDMISMATCH));
-		return;
-	}
-	client.setPassMatch(true);
-}
-
-void Server::handleUser(const command &cmd, User &client)
-{
-	if (cmd.vals.size() < 4)
-	{
-		queueMessage(client, msgFormat("*", ERR_NEEDMOREPARAMS, "USER"));
-		return;
-	}
-
-	if (client.getIsRegistered())
-	{
-		queueMessage(client, msgFormat("*", ERR_ALREADYREGISTERED));
-		return;
-	}
-
-	std::string username = cmd.vals[0];
-	std::replace(username.begin(), username.end(), '@', '_');
-
-	if (username.size() > MAX_USERNAME_LEN)
-		username.resize(MAX_USERNAME_LEN);
-
-	client.setUserName(username);
-	client.setRealName(cmd.vals[3]);
-}
-
-std::string Server::msgFormat(const std::string &clientName,
-							  errReplyCode errorCode)
-{
-	return ":" + _serverName + " " + std::to_string(errorCode) + " " +
-		   clientName + " :" + errReplyMsg.at(errorCode) + "\r\n";
-}
-
-std::string Server::msgFormat(const std::string &clientName,
-							  errReplyCode errorCode, const std::string &prefix)
-{
-	return ":" + _serverName + " " + std::to_string(errorCode) + " " +
-		   clientName + " " + prefix + " :" + errReplyMsg.at(errorCode) +
-		   "\r\n";
 }
