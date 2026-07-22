@@ -230,7 +230,7 @@ jobs:
               printf "USER user$i 0 * :pad pad pad pad pad pad pad pad\r\n"
             done
             sleep 1
-          ) | nc -w 8 127.0.0.1 16680 > /dev/null || true
+          ) | nc -w 8 127.0.0.1 16680 | sleep 8 || true
           kill $SERVER_PID
           wait $SERVER_PID 2>/dev/null || true
           grep -q "write buffer max size exceeded" server_buf.log
