@@ -358,6 +358,11 @@ bool Server::commandHandler(const command &cmd, User &client)
 		handleNick(cmd, client);
 		return true;
 	}
+	if (cmd.key == "PING")
+	{
+		handlePing(cmd, client);
+		return true;
+	}
 
 	return false;
 }

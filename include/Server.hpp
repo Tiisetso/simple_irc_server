@@ -44,6 +44,7 @@ class Server
 		void handlePass(const command &cmd, User &client);
 		void handleUser(const command &cmd, User &client);
 		void handleNick(const command &cmd, User &client);
+		void handlePing(const command &cmd, User &client);
 		bool isValidNick(const std::string &val);
 		bool nickInUse(const std::string &val, User &client);
 
