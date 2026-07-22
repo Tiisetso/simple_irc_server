@@ -5,12 +5,12 @@ void Server::handlePing(const command &cmd, User &client)
 {
 	if (cmd.vals.empty())
 	{
-		queueMessage(client, msgFormat(client, ERR_NEEDMOREPARAMS, "PING"));
+		queueMessage(client, msgReply(client, ERR_NEEDMOREPARAMS, "PING"));
 		return;
 	}
 	if (cmd.vals[0].empty())
 	{
-		queueMessage(client, msgFormat(client, ERR_NOORIGIN));
+		queueMessage(client, msgReply(client, ERR_NOORIGIN));
 		return;
 	}
 

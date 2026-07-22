@@ -68,20 +68,20 @@ void Server::handleNick(const command &cmd, User &client)
 {
 	if (cmd.vals.empty() || cmd.vals[0].empty())
 	{
-		queueMessage(client, msgFormat(client, ERR_NONICKNAMEGIVEN));
+		queueMessage(client, msgReply(client, ERR_NONICKNAMEGIVEN));
 		return;
 	}
 	if (!isValidNick(cmd.vals[0]))
 	{
 		queueMessage(client,
-					 msgFormat(client, ERR_ERRONEUSNICKNAME, cmd.vals[0]));
+					 msgReply(client, ERR_ERRONEUSNICKNAME, cmd.vals[0]));
 		return;
 	}
 	if (client.getNickName() == cmd.vals[0])
 		return;
 	if (nickInUse(cmd.vals[0], client))
 	{
-		queueMessage(client, msgFormat(client, ERR_NICKNAMEINUSE, cmd.vals[0]));
+		queueMessage(client, msgReply(client, ERR_NICKNAMEINUSE, cmd.vals[0]));
 		return;
 	}
 	if (!client.getIsRegistered())
@@ -91,7 +91,6 @@ void Server::handleNick(const command &cmd, User &client)
 		return;
 	}
 
-	//TODO: needs old nickname I think.
 	const std::string nickMessage = msgFromClient(client, "NICK", cmd.vals[0]);
 	client.setNickName(cmd.vals[0]);
 	queueMessage(client, nickMessage);

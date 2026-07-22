@@ -1,43 +1,58 @@
 #include "ReplyError.hpp"
 #include "Server.hpp"
 
-std::string Server::msgTarget(const User &client)
+static std::string msgTarget(const User &client)
 {
 	if (client.getNickName().empty())
 		return "*";
 	return client.getNickName();
 }
 
-std::string Server::msgFormat(const User &client, errReplyCode errorCode)
-{
-	return ":" + _serverName + " " + std::to_string(errorCode) + " " +
-		   msgTarget(client) + " :" + errReplyMsg.at(errorCode) + "\r\n";
-}
-
-std::string Server::msgFormat(const User &client, errReplyCode errorCode,
-							  const std::string &prefix)
-{
-	return ":" + _serverName + " " + std::to_string(errorCode) + " " +
-		   msgTarget(client) + " " + prefix + " :" + errReplyMsg.at(errorCode) +
-		   "\r\n";
-}
-
-std::string Server::msgPrefix(const User &client)
+static std::string msgPrefix(const User &client)
 {
 	return msgTarget(client) + "!" + client.getUserName() + "@" +
 		   client.getHost();
 }
 
-std::string Server::msgFromClient(const User &client,
-								  const std::string &command,
-								  const std::string &params)
+static std::string msgBase(const std::string &prefix,
+						   const std::string &command,
+						   const std::string &params,
+						   const std::string &trailing)
 {
-	return ":" + msgPrefix(client) + " " + command + " " + params + "\r\n";
+	std::string trail;
+
+	if (trailing.empty())
+		trail = "";
+	else
+		trail = " :" + trailing;
+
+	return ":" + prefix + " " + command + " " + params + trail + "\r\n";
+}
+
+std::string Server::msgReply(const User &client, errReplyCode codeReply,
+							 const std::string &prefix)
+{
+	std::string params;
+
+	if (prefix.empty())
+		params = msgTarget(client);
+	else
+		params = msgTarget(client) + " " + prefix;
+
+	return msgBase(_serverName, std::to_string(codeReply), params,
+				   errReplyMsg.at(codeReply));
 }
 
 std::string Server::msgFromServer(const std::string &command,
 								  const std::string &trailing)
 {
-	return ":" + _serverName + " " + command + " " + _serverName + " :" +
-		   trailing + "\r\n";
+	return msgBase(_serverName, command, _serverName, trailing);
+}
+
+std::string Server::msgFromClient(const User &client,
+								  const std::string &command,
+								  const std::string &params,
+								  const std::string &trailing)
+{
+	return msgBase(msgPrefix(client), command, params, trailing);
 }
