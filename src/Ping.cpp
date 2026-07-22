@@ -14,7 +14,6 @@ void Server::handlePing(const command &cmd, User &client)
 		return;
 	}
 
-	std::string pongReply = ":" + _serverName + " PONG " + _serverName + " :" +
-							cmd.vals[0] + "\r\n";
+	std::string pongReply = msgFromServer("PONG", cmd.vals[0]);
 	queueMessage(client, pongReply);
 }

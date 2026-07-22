@@ -28,6 +28,7 @@ $(SRC_DIR)/Validation.cpp \
 $(SRC_DIR)/User.cpp \
 $(SRC_DIR)/Nick.cpp \
 $(SRC_DIR)/Ping.cpp \
+$(SRC_DIR)/Message.cpp \
 $(SRC_DIR)/Registration.cpp
 
 OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)

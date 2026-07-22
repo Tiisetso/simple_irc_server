@@ -7,13 +7,6 @@
 
 #define MAX_USERNAME_LEN 12
 
-std::string Server::msgTarget(const User &client)
-{
-	if (client.getNickName().empty())
-		return "*";
-	return client.getNickName();
-}
-
 void Server::handlePass(const command &cmd, User &client)
 {
 	if (cmd.vals.empty())
@@ -77,16 +70,3 @@ void Server::registerClient(User &client)
 	std::cout << "Client is registered!" << std::endl;
 }
 
-std::string Server::msgFormat(const User &client, errReplyCode errorCode)
-{
-	return ":" + _serverName + " " + std::to_string(errorCode) + " " +
-		   msgTarget(client) + " :" + errReplyMsg.at(errorCode) + "\r\n";
-}
-
-std::string Server::msgFormat(const User &client, errReplyCode errorCode,
-							  const std::string &prefix)
-{
-	return ":" + _serverName + " " + std::to_string(errorCode) + " " +
-		   msgTarget(client) + " " + prefix + " :" + errReplyMsg.at(errorCode) +
-		   "\r\n";
-}

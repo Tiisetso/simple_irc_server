@@ -51,9 +51,9 @@ class Server
 		void registerClient(User &client);
 
 		std::string msgTarget(const User &client);
-		std::string msgFormat(const User &client,
-							  errReplyCode errorCode);
-		std::string msgFormat(const User &client,
-							  errReplyCode errorCode,
-							  const std::string &prefix);
+		std::string msgPrefix(const User &client);
+		std::string msgFormat(const User &client, errReplyCode errorCode);
+		std::string msgFormat(const User &client, errReplyCode errorCode, const std::string &prefix);
+		std::string msgFromClient(const User &client, const std::string &command, const std::string &params);
+		std::string msgFromServer(const std::string &command, const std::string &params);
 };
