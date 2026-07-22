@@ -47,9 +47,12 @@ class Server
 		bool isValidNick(const std::string &val);
 		bool nickInUse(const std::string &val, User &client);
 
-		std::string msgFormat(const std::string &clientName,
+		void registerClient(User &client);
+
+		std::string msgTarget(const User &client);
+		std::string msgFormat(const User &client,
 							  errReplyCode errorCode);
-		std::string msgFormat(const std::string &clientName,
+		std::string msgFormat(const User &client,
 							  errReplyCode errorCode,
 							  const std::string &prefix);
 };

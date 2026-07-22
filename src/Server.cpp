@@ -8,17 +8,14 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <algorithm>
 #include <cerrno>
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
 
-#include "ReplyError.hpp"
-
 #define BACKLOG 20
-#define MAX_USERNAME_LEN 12
 #define MAX_MSG_LEN 512
+#define MAX_WRITE_BUFFER (200 * 1024)
 
 Server::Server(const std::string &port, const std::string &password)
 	: _servSockFd(-1), _port(port), _password(password)
@@ -58,7 +55,7 @@ void Server::acceptClients()
 		char clientAddrStr[INET_ADDRSTRLEN] = {};
 
 		if (!inet_ntop(AF_INET, &clientAddr.sin_addr, clientAddrStr,
-					  sizeof(clientAddrStr)))
+					   sizeof(clientAddrStr)))
 		{
 			close(clientfd);
 			throw std::runtime_error("Server: Failed to convert client IP");
@@ -223,6 +220,15 @@ bool Server::readClient(User &client)
 
 void Server::queueMessage(User &client, const std::string &message)
 {
+	if (message.size() > MAX_WRITE_BUFFER ||
+		client.getWriteBuffer().size() > MAX_WRITE_BUFFER - message.size())
+	{
+		client.setShouldDisconnect();
+		std::cerr << "Server: write buffer max size exceeded ("
+				  << MAX_WRITE_BUFFER << " bytes maximum)." << std::endl;
+		return;
+	}
+
 	client.getWriteBuffer() += message;
 
 	for (std::size_t i = 1; i < _pollfds.size(); i++)
@@ -320,6 +326,10 @@ void Server::loop()
 				User &client = _users.at(fd);
 				keepClient = writeToClient(client, _pollfds[i]);
 			}
+
+			if (_users.at(fd).getShouldDisconnect())
+				keepClient = false;
+
 			if (events & (POLLERR | POLLHUP | POLLNVAL))
 				keepClient = false;
 
@@ -350,66 +360,4 @@ bool Server::commandHandler(const command &cmd, User &client)
 	}
 
 	return false;
-}
-
-void Server::handlePass(const command &cmd, User &client)
-{
-	if (cmd.vals.empty())
-	{
-		queueMessage(client, msgFormat("*", ERR_NEEDMOREPARAMS, "PASS"));
-		return;
-	}
-
-	if (client.getIsRegistered())
-	{
-		queueMessage(client, msgFormat("*", ERR_ALREADYREGISTERED));
-		return;
-	}
-
-	if (cmd.vals[0] != _password)
-	{
-		client.setPassMatch(false);
-		queueMessage(client, msgFormat("*", ERR_PASSWDMISMATCH));
-		return;
-	}
-	client.setPassMatch(true);
-}
-
-void Server::handleUser(const command &cmd, User &client)
-{
-	if (cmd.vals.size() < 4)
-	{
-		queueMessage(client, msgFormat("*", ERR_NEEDMOREPARAMS, "USER"));
-		return;
-	}
-
-	if (client.getIsRegistered())
-	{
-		queueMessage(client, msgFormat("*", ERR_ALREADYREGISTERED));
-		return;
-	}
-
-	std::string username = cmd.vals[0];
-	std::replace(username.begin(), username.end(), '@', '_');
-
-	if (username.size() > MAX_USERNAME_LEN)
-		username.resize(MAX_USERNAME_LEN);
-
-	client.setUserName(username);
-	client.setRealName(cmd.vals[3]);
-}
-
-std::string Server::msgFormat(const std::string &clientName,
-							  errReplyCode errorCode)
-{
-	return ":" + _serverName + " " + std::to_string(errorCode) + " " +
-		   clientName + " :" + errReplyMsg.at(errorCode) + "\r\n";
-}
-
-std::string Server::msgFormat(const std::string &clientName,
-							  errReplyCode errorCode, const std::string &prefix)
-{
-	return ":" + _serverName + " " + std::to_string(errorCode) + " " +
-		   clientName + " " + prefix + " :" + errReplyMsg.at(errorCode) +
-		   "\r\n";
 }

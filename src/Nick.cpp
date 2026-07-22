@@ -66,35 +66,30 @@ bool Server::nickInUse(const std::string &val, User &client)
 
 void Server::handleNick(const command &cmd, User &client)
 {
-	std::string target{};
-
-	if (client.getNickName().empty())
-		target = "*";
-	else
-		target = client.getNickName();
+	std::string target = msgTarget(client);
 
 	if (cmd.vals.empty() || cmd.vals[0].empty())
 	{
-		queueMessage(client, msgFormat(target, ERR_NONICKNAMEGIVEN));
+		queueMessage(client, msgFormat(client, ERR_NONICKNAMEGIVEN));
 		return;
 	}
 	if (!isValidNick(cmd.vals[0]))
 	{
 		queueMessage(client,
-					 msgFormat(target, ERR_ERRONEUSNICKNAME, cmd.vals[0]));
+					 msgFormat(client, ERR_ERRONEUSNICKNAME, cmd.vals[0]));
 		return;
 	}
 	if (client.getNickName() == cmd.vals[0])
 		return;
 	if (nickInUse(cmd.vals[0], client))
 	{
-		queueMessage(client, msgFormat(target, ERR_NICKNAMEINUSE, cmd.vals[0]));
+		queueMessage(client, msgFormat(client, ERR_NICKNAMEINUSE, cmd.vals[0]));
 		return;
 	}
 	if (!client.getIsRegistered())
 	{
 		client.setNickName(cmd.vals[0]);
-		// TODO: try to register
+		registerClient(client);
 		return;
 	}
 

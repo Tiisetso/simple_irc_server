@@ -6,17 +6,17 @@ https://beej.us/guide/bgnet/
 
 ## Server and I/O
 
-- [ ] Accept multiple simultaneous clients without hanging.
-- [ ] Use TCP/IP (IPv4 or IPv6) for client-server communication.
-- [ ] Make every I/O operation non-blocking.
-- [ ] Use one `poll()` (or equivalent) event loop for listening, reading, and writing.
-- [ ] Handle partial reads/writes, disconnects, and malformed input safely.
+- [x] Accept multiple simultaneous clients without hanging.
+- [x] Use TCP/IP (IPv4 or IPv6) for client-server communication.
+- [x] Make every I/O operation non-blocking.
+- [x] Use one `poll()` (or equivalent) event loop for listening, reading, and writing.
+- [x] Handle partial reads/writes, disconnects, and malformed input safely.
 
 ## Client registration and messaging
 
-- [ ] Authenticate clients with the server password.
-- [ ] Implement nickname registration (`NICK`).
-- [ ] Implement username registration (`USER`).
+- [x] Authenticate clients with the server password.
+- [x] Implement nickname registration (`NICK`).
+- [x] Implement username registration (`USER`).
 - [ ] Ensure the selected reference client can connect without errors.
 - [ ] Support joining channels (`JOIN`).
 - [ ] Support private messages between clients (`PRIVMSG`).
