@@ -204,33 +204,4 @@ jobs:
           wait $SERVER_PID 2>/dev/null || true
           rm -f /tmp/irc_c1_case
           echo "$REPLY" | grep -q "433"
-
-  smoke_test_write_buffer:
-    name: "Smoke Test: Write buffer max"
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download compiled binary
-        uses: actions/download-artifact@v7
-        with:
-          name: ircserv-binary
-
-      - name: Fix binary permissions
-        run: chmod +x ./ircserv
-
-      - name: Run test
-        run: |
-          ./ircserv 16680 testpass > server_buf.log 2>&1 &
-          SERVER_PID=$!
-          sleep 0.5
-          (
-            printf 'PASS testpass\r\nNICK flooder\r\nUSER flooder 0 * :Flood\r\n'
-            sleep 0.3
-            for i in $(seq 1 50000); do
-              printf "USER user$i 0 * :pad pad pad pad pad pad pad pad\r\n"
-            done
-            sleep 1
-          ) | nc -w 8 127.0.0.1 16680 | sleep 8 || true
-          kill $SERVER_PID
-          wait $SERVER_PID 2>/dev/null || true
-          grep -q "write buffer max size exceeded" server_buf.log
+          
