@@ -90,4 +90,9 @@ void Server::sendWelcome(User &client)
 	// 003
 	queueMessage(client, msgNumeric(client, 3, "",
 									"This server was created " + _createdAt));
+
+	// 004
+	queueMessage(
+		client,
+		msgNumeric(client, 4, _serverName + " " + _version + " o itkol", ""));
 }
