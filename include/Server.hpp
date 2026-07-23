@@ -21,6 +21,9 @@ class Server
 
 		std::string _port;
 		std::string _password;
+		std::string _version = "ircserv-0.1";
+		std::string _createdAt = "2056-07-23";
+
 
 	public:
 		Server() = delete;
@@ -50,7 +53,9 @@ class Server
 		bool nickInUse(const std::string &val, User &client);
 
 		void registerClient(User &client);
+		void sendWelcome(User &client);
 
+		std::string msgPrefix(const User &client);
 		std::string msgReply(const User &client, errReplyCode codeReply,
 							 const std::string &prefix = "");
 		std::string msgFromClient(const User &client,
@@ -59,4 +64,8 @@ class Server
 								  const std::string &trailing = "");
 		std::string msgFromServer(const std::string &command,
 								  const std::string &trailing = "");
+
+		std::string msgNumeric(const User &client, int code,
+							   const std::string &middle,
+							   const std::string &trailing);
 };
