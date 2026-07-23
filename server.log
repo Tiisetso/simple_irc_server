@@ -1,0 +1,13 @@
+Server: Socket created, fd = 3
+Server: Bind succeeded
+Server: Listening for incoming connections on port: 16667
+Server: New client at fd: 4, address: 127.0.0.1
+Server: Received: 6 bytes: hello
+
+Server: Client disconnected
+Server: Removed client at fd: 4
+Server: New client at fd: 4, address: 127.0.0.1
+Server: Received: 6 bytes: world
+
+Server: Client disconnected
+Server: Removed client at fd: 4

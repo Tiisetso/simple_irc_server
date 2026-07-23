@@ -8,12 +8,6 @@ static std::string msgTarget(const User &client)
 	return client.getNickName();
 }
 
-static std::string msgPrefix(const User &client)
-{
-	return msgTarget(client) + "!" + client.getUserName() + "@" +
-		   client.getHost();
-}
-
 static std::string msgBase(const std::string &prefix,
 						   const std::string &command,
 						   const std::string &params,
@@ -26,6 +20,12 @@ static std::string msgBase(const std::string &prefix,
 	paramsPiece = params.empty() ? "" : " " + params;
 
 	return ":" + prefix + " " + command + paramsPiece + trailingPiece + "\r\n";
+}
+
+std::string Server::msgPrefix(const User &client)
+{
+	return msgTarget(client) + "!" + client.getUserName() + "@" +
+		   client.getHost();
 }
 
 std::string Server::msgReply(const User &client, errReplyCode codeReply,

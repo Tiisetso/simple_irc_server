@@ -72,12 +72,9 @@ void Server::registerClient(User &client)
 
 void Server::sendWelcome(User &client)
 {
-	std::string _version = "ircserv-0.1";
 	std::string _createdAt = "2056-07-23";
-	const std::string &nick = client.getNickName();
 
-	std::string prefix =
-		nick + "!" + client.getUserName() + "@" + client.getHost();
+	std::string prefix = msgPrefix(client);
 
 	// 001
 	queueMessage(client, msgNumeric(client, 1, "",
