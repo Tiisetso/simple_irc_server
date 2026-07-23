@@ -72,7 +72,7 @@ void Server::registerClient(User &client)
 
 void Server::sendWelcome(User &client)
 {
-	std::string _createdAt = "2056-07-23";
+	std::string createdAt = "2056-07-23";
 
 	std::string prefix = msgPrefix(client);
 
@@ -86,7 +86,7 @@ void Server::sendWelcome(User &client)
 										", running version " + _version));
 	// 003
 	queueMessage(client, msgNumeric(client, 3, "",
-									"This server was created " + _createdAt));
+									"This server was created " + createdAt));
 
 	// 004
 	queueMessage(
