@@ -66,24 +66,22 @@ bool Server::nickInUse(const std::string &val, User &client)
 
 void Server::handleNick(const command &cmd, User &client)
 {
-	std::string target = msgTarget(client);
-
 	if (cmd.vals.empty() || cmd.vals[0].empty())
 	{
-		queueMessage(client, msgFormat(client, ERR_NONICKNAMEGIVEN));
+		queueMessage(client, msgReply(client, ERR_NONICKNAMEGIVEN));
 		return;
 	}
 	if (!isValidNick(cmd.vals[0]))
 	{
 		queueMessage(client,
-					 msgFormat(client, ERR_ERRONEUSNICKNAME, cmd.vals[0]));
+					 msgReply(client, ERR_ERRONEUSNICKNAME, cmd.vals[0]));
 		return;
 	}
 	if (client.getNickName() == cmd.vals[0])
 		return;
 	if (nickInUse(cmd.vals[0], client))
 	{
-		queueMessage(client, msgFormat(client, ERR_NICKNAMEINUSE, cmd.vals[0]));
+		queueMessage(client, msgReply(client, ERR_NICKNAMEINUSE, cmd.vals[0]));
 		return;
 	}
 	if (!client.getIsRegistered())
@@ -93,9 +91,7 @@ void Server::handleNick(const command &cmd, User &client)
 		return;
 	}
 
-	const std::string nickMessage = ":" + target + "!" + client.getUserName() +
-									"@" + client.getHost() + " NICK " +
-									cmd.vals[0] + "\r\n";
+	const std::string nickMessage = msgFromClient(client, "NICK", cmd.vals[0]);
 	client.setNickName(cmd.vals[0]);
 	queueMessage(client, nickMessage);
 	// TODO: inform others sharing channels with this client about the change
