@@ -21,12 +21,17 @@
 static std::string getCurrentDate()
 {
 	std::time_t now = std::time(NULL);
+	if (now == static_cast<std::time_t>(-1))
+		return "1970-01-01";
+
 	std::tm *timeinfo = std::localtime(&now);
 
-	char buffer[11];  // YYYY-MM-DD(10) + null terminator
-	std::strftime(buffer, sizeof(buffer), "%Y-%m-%d", timeinfo);
+	char buffer[11];
+	if (timeinfo &&
+		std::strftime(buffer, sizeof(buffer), "%Y-%m-%d", timeinfo) > 0)
+		return buffer;
 
-	return std::string(buffer);
+	return "1970-01-01";
 }
 
 Server::Server(const std::string &port, const std::string &password)
