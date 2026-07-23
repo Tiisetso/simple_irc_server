@@ -22,7 +22,7 @@ class Server
 		std::string _port;
 		std::string _password;
 		std::string _version = "ircserv-0.1";
-		std::string _createdAt = "2056-07-23";
+		std::string _createdAt;
 
 
 	public:
