@@ -20,12 +20,12 @@ class Channel
 
 		std::set<User *> _users;
 		std::set<User *> _invitedUsers;
-		// TODO: operators
+		std::set<User *> _operators;
 
 	public:
+		~Channel();
 		Channel() = delete;
 		Channel(const std::string &name);
-		~Channel();
 
 		const std::string &getName() const;
 
@@ -44,7 +44,6 @@ class Channel
 		void inviteUser(User &user);
 		bool isUserInvited(User &user) const;
 
-
 		void setLimit(std::size_t limitMax);
 		void removeLimit();
 		bool isLimitReached() const;
@@ -54,5 +53,7 @@ class Channel
 		bool isUserInChannel(User &user) const;
 		const std::set<User *> &getUsers() const;
 
-		// TODO: operators
+		void addOperator(User &user);
+		void removeOperator(User &user);
+		bool isOperator(User &user) const;
 };

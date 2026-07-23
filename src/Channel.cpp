@@ -107,11 +107,13 @@ bool Channel::isLimitReached() const
 void Channel::addUser(User &user)
 {
 	_users.insert(&user);
+	_invitedUsers.erase(&user);
 }
 
 void Channel::removeUser(User &user)
 {
 	_users.erase(&user);
+	_operators.erase(&user);
 }
 
 bool Channel::isUserInChannel(User &user) const
@@ -124,4 +126,21 @@ bool Channel::isUserInChannel(User &user) const
 const std::set<User *> &Channel::getUsers() const
 {
 	return _users;
+}
+
+void Channel::addOperator(User &user)
+{
+	_operators.insert(&user);
+}
+
+void Channel::removeOperator(User &user)
+{
+	_operators.erase(&user);
+}
+
+bool Channel::isOperator(User &user) const
+{
+	if (_operators.count(&user) == 0)
+		return false;
+	return true;
 }
