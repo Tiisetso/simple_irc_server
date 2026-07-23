@@ -51,9 +51,11 @@ class Server
 		void registerClient(User &client);
 
 		std::string msgTarget(const User &client);
-		std::string msgFormat(const User &client,
-							  errReplyCode errorCode);
-		std::string msgFormat(const User &client,
-							  errReplyCode errorCode,
+		std::string msgFormat(const User &client, errReplyCode errorCode);
+		std::string msgFormat(const User &client, errReplyCode errorCode,
 							  const std::string &prefix);
+
+		std::string msgNumeric(const User &client, int code,
+							   const std::string &middle,
+							   const std::string &trailing);
 };
