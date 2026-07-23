@@ -2,6 +2,18 @@
 
 Channel::~Channel() {}
 
+Channel::Channel()
+	: _name(""),
+	  _topic(""),
+	  _key(""),
+	  _limit(0),
+	  _inviteOnly(false),
+	  _topicRestricted(false),
+	  _hasKey(false),
+	  _hasLimit(false)
+{
+}
+
 Channel::Channel(const std::string &name)
 	: _name(name),
 	  _topic(""),
@@ -17,6 +29,11 @@ Channel::Channel(const std::string &name)
 const std::string &Channel::getName() const
 {
 	return _name;
+}
+
+void Channel::setName(const std::string &name)
+{
+	_name = name;
 }
 
 const std::string &Channel::getTopic() const
@@ -85,8 +102,6 @@ bool Channel::isUserInvited(User &user) const
 
 void Channel::setLimit(std::size_t limitMax)
 {
-	// TODO: when this is called later the function calling it needs to check
-	// for overflow.
 	_limit = limitMax;
 	_hasLimit = true;
 }

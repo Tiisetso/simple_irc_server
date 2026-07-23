@@ -13,6 +13,8 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "Utilities.hpp"
+
 #define BACKLOG 20
 #define MAX_MSG_LEN 512
 #define MAX_WRITE_BUFFER (200 * 1024)
@@ -365,4 +367,33 @@ bool Server::commandHandler(const command &cmd, User &client)
 	}
 
 	return false;
+}
+
+Channel *Server::getChannel(const std::string &name)
+{
+	for (std::unordered_map<std::string, Channel>::iterator it =
+			 _channels.begin();
+		 it != _channels.end(); it++)
+	{
+		if (lowerCaseEqual(it->second.getName(), name))
+		{
+			Channel &channel = it->second;
+			return &channel;
+		}
+	}
+	return nullptr;
+}
+
+Channel &Server::addChannel(const std::string &name)
+{
+	Channel &newChannel = _channels[name];
+	newChannel.setName(name);
+	return newChannel;
+}
+
+void Server::removeChannel(const std::string &name)
+{
+	Channel *deadChannel = getChannel(name);
+	if (deadChannel)
+		_channels.erase(deadChannel->getName());
 }

@@ -24,10 +24,11 @@ class Channel
 
 	public:
 		~Channel();
-		Channel() = delete;
+		Channel();
 		Channel(const std::string &name);
 
 		const std::string &getName() const;
+		void setName(const std::string &name);
 
 		const std::string &getTopic() const;
 		void setTopic(const std::string &topic);
