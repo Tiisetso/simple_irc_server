@@ -41,6 +41,7 @@ class Server
 		void loop();
 
 		bool commandHandler(const command &cmd, User &client);
+		void handleCap(const command &cmd, User &client);
 		void handlePass(const command &cmd, User &client);
 		void handleUser(const command &cmd, User &client);
 		void handleNick(const command &cmd, User &client);

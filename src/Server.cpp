@@ -292,6 +292,26 @@ void Server::removeClient(std::size_t i)
 	std::cout << "Server: Removed client at fd: " << fd << std::endl;
 }
 
+void Server::handleCap(const command &cmd, User &client)
+{
+	std::cout << "CAP KEY =" << cmd.key << std::endl;
+
+	for (size_t i = 0; i < cmd.vals.size(); i++)
+	{
+		std::cout << "CAP Value: " << cmd.vals[i] << std::endl;
+	}
+
+	std::string target = "*";
+	if (!client.getNickName().empty())
+		target = client.getNickName();
+
+	queueMessage(
+		client,
+		":" + _serverName + " CAP " + target + " LS :\r\n"
+	);
+}
+
+
 void Server::loop()
 {
 	while (true)
@@ -343,6 +363,11 @@ void Server::loop()
 
 bool Server::commandHandler(const command &cmd, User &client)
 {
+	if (cmd.key == "CAP")
+	{
+		handleCap(cmd, client);
+		return true;
+	}
 	if (cmd.key == "PASS")
 	{
 		handlePass(cmd, client);
