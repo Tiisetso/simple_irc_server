@@ -50,10 +50,12 @@ class Server
 
 		void registerClient(User &client);
 
-		std::string msgTarget(const User &client);
-		std::string msgFormat(const User &client,
-							  errReplyCode errorCode);
-		std::string msgFormat(const User &client,
-							  errReplyCode errorCode,
-							  const std::string &prefix);
+		std::string msgReply(const User &client, errReplyCode codeReply,
+							 const std::string &prefix = "");
+		std::string msgFromClient(const User &client,
+								  const std::string &command,
+								  const std::string &params,
+								  const std::string &trailing = "");
+		std::string msgFromServer(const std::string &command,
+								  const std::string &trailing = "");
 };
