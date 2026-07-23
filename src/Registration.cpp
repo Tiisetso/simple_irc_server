@@ -72,7 +72,10 @@ void Server::registerClient(User &client)
 
 void Server::sendWelcome(User &client)
 {
+	std::string _version = "ircserv-0.1";
+	std::string _createdAt = "2056-07-23";
 	const std::string &nick = client.getNickName();
+
 	std::string prefix =
 		nick + "!" + client.getUserName() + "@" + client.getHost();
 
@@ -80,4 +83,11 @@ void Server::sendWelcome(User &client)
 	queueMessage(client, msgNumeric(client, 1, "",
 									"Welcome to the " + _serverName +
 										" Network, " + prefix));
+	// 002
+	queueMessage(client, msgNumeric(client, 2, "",
+									"Your host is " + _serverName +
+										", running version " + _version));
+	// 003
+	queueMessage(client, msgNumeric(client, 3, "",
+									"This server was created " + _createdAt));
 }
