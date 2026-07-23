@@ -19,14 +19,13 @@ static std::string msgBase(const std::string &prefix,
 						   const std::string &params,
 						   const std::string &trailing)
 {
-	std::string trail;
+	std::string trailingPiece;
+	std::string paramsPiece;
 
-	if (trailing.empty())
-		trail = "";
-	else
-		trail = " :" + trailing;
+	trailingPiece = trailing.empty() ? "" : " :" + trailing;
+	paramsPiece = params.empty() ? "" : " " + params;
 
-	return ":" + prefix + " " + command + " " + params + trail + "\r\n";
+	return ":" + prefix + " " + command + paramsPiece + trailingPiece + "\r\n";
 }
 
 std::string Server::msgReply(const User &client, errReplyCode codeReply,
