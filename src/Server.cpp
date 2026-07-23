@@ -319,6 +319,7 @@ void Server::loop()
 	while (true)
 	{
 		int ready = poll(_pollfds.data(), _pollfds.size(), -1);
+
 		if (ready == -1)
 		{
 			if (errno == EINTR)
