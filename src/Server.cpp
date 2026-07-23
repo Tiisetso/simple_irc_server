@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <ctime>
 
 #include <cerrno>
 #include <cstring>
@@ -17,8 +18,19 @@
 #define MAX_MSG_LEN 512
 #define MAX_WRITE_BUFFER (200 * 1024)
 
+static std::string getCurrentDate()
+{
+    std::time_t now = std::time(NULL);
+    std::tm *timeinfo = std::localtime(&now);
+
+    char buffer[11]; // YYYY-MM-DD(10) + null terminator
+    std::strftime(buffer, sizeof(buffer), "%Y-%m-%d", timeinfo);
+
+    return std::string(buffer);
+}
+
 Server::Server(const std::string &port, const std::string &password)
-	: _servSockFd(-1), _port(port), _password(password)
+	: _servSockFd(-1), _port(port), _password(password), _createdAt(getCurrentDate())
 {
 }
 
