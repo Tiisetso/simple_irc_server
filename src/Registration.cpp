@@ -66,5 +66,28 @@ void Server::registerClient(User &client)
 	if (client.getUserName().empty())
 		return;
 	client.setIsRegistered();
+	sendWelcome(client);
 	std::cout << "Client is registered!" << std::endl;
+}
+
+void Server::sendWelcome(User &client)
+{
+	std::string prefix = msgPrefix(client);
+
+	// 001
+	queueMessage(client, msgNumeric(client, 1, "",
+									"Welcome to the " + _serverName +
+										" Network, " + prefix));
+	// 002
+	queueMessage(client, msgNumeric(client, 2, "",
+									"Your host is " + _serverName +
+										", running version " + _version));
+	// 003
+	queueMessage(client, msgNumeric(client, 3, "",
+									"This server was created " + _createdAt));
+
+	// 004
+	queueMessage(
+		client,
+		msgNumeric(client, 4, _serverName + " " + _version + " o itkol", ""));
 }
