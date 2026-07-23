@@ -301,14 +301,11 @@ void Server::handleCap(const command &cmd, User &client)
 		std::cout << "CAP Value: " << cmd.vals[i] << std::endl;
 	}
 
-	std::string target = "*";
-	if (!client.getNickName().empty())
-		target = client.getNickName();
-
-	queueMessage(
-		client,
-		":" + _serverName + " CAP " + target + " LS :\r\n"
-	);
+	std::string target = msgPrefix(client);
+	if (cmd.vals[0] == "LS")
+	{
+		
+	}
 }
 
 
