@@ -72,7 +72,7 @@ std::string Server::msgFromClient(const User &client,
 }
 
 // Builds a numeric server reply.
-//Returns:  :ircserv 1 yuan :Welcome\r\n
+// Returns:  :ircserv 1 yuan :Welcome\r\n
 std::string Server::msgNumeric(const User &client, int code,
 							   const std::string &middle,
 							   const std::string &trailing)
@@ -80,5 +80,7 @@ std::string Server::msgNumeric(const User &client, int code,
 	std::string params = msgTarget(client);
 	if (!middle.empty())
 		params += " " + middle;
-	return msgBase(_serverName, std::to_string(code), params, trailing);
+	std::string codeStr =
+		code < 10 ? "00" + std::to_string(code) : std::to_string(code);
+	return msgBase(_serverName, codeStr, params, trailing);
 }
