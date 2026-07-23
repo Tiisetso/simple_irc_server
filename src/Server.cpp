@@ -294,20 +294,25 @@ void Server::removeClient(std::size_t i)
 
 void Server::handleCap(const command &cmd, User &client)
 {
-	std::cout << "CAP KEY =" << cmd.key << std::endl;
+	std::string target = "*";
+	if (!client.getNickName().empty())
+		target = client.getNickName();
 
-	for (size_t i = 0; i < cmd.vals.size(); i++)
+	std::cout << "target:" << target << std::endl;
+	if (!cmd.vals.empty() && cmd.vals[0] == "LS")
 	{
-		std::cout << "CAP Value: " << cmd.vals[i] << std::endl;
+		client.setCapInProgress(true);
+		queueMessage(client,
+					 ":" + _serverName + " CAP " + target + " LS :\r\n");
+		return;
 	}
-
-	std::string target = msgPrefix(client);
-	if (cmd.vals[0] == "LS")
+	if (!cmd.vals.empty() && cmd.vals[0] == "END")
 	{
-		
+		client.setCapInProgress(false);
+		registerClient(client);
+		return;
 	}
 }
-
 
 void Server::loop()
 {

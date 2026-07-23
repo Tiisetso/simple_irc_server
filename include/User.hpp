@@ -9,6 +9,7 @@ class User
 		bool _passMatch;
 		bool _isRegistered;
 		bool _shouldDisconnect;
+		bool _capInProgress;
 		std::string _readBuffer;
 		std::string _writeBuffer;
 		std::string _nickName;
@@ -29,6 +30,7 @@ class User
 		bool getPassMatch() const;
 		bool getIsRegistered() const;
 		bool getShouldDisconnect() const;
+		bool getCapInProgress() const;
 		const std::string &getNickName() const;
 		const std::string &getUserName() const;
 		const std::string &getRealName() const;
@@ -37,7 +39,8 @@ class User
 		void setFd(const int fd);
 		void setPassMatch(const bool yes);
 		void setIsRegistered(void);
-		void setShouldDisconnect();
+		void setShouldDisconnect(void);
+		void setCapInProgress(bool value);
 		void setNickName(const std::string &nickName);
 		void setUserName(const std::string &userName);
 		void setRealName(const std::string &realName);
