@@ -49,6 +49,7 @@ class Server
 		bool nickInUse(const std::string &val, User &client);
 
 		void registerClient(User &client);
+		void sendWelcome(User &client);
 
 		std::string msgReply(const User &client, errReplyCode codeReply,
 							 const std::string &prefix = "");

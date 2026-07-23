@@ -66,5 +66,18 @@ void Server::registerClient(User &client)
 	if (client.getUserName().empty())
 		return;
 	client.setIsRegistered();
+	sendWelcome(client);
 	std::cout << "Client is registered!" << std::endl;
+}
+
+void Server::sendWelcome(User &client)
+{
+	const std::string &nick = client.getNickName();
+	std::string prefix =
+		nick + "!" + client.getUserName() + "@" + client.getHost();
+
+	// 001
+	queueMessage(client, msgNumeric(client, 1, "",
+									"Welcome to the " + _serverName +
+										" Network, " + prefix));
 }
