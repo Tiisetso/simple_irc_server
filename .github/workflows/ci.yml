@@ -3,9 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches:
-     - main
-     - 101-smoke-test-8-successful-registration-sends-welcome-001
+    branches: [main]
 
 jobs:
   build:
@@ -99,7 +97,7 @@ jobs:
           kill $SERVER_PID
           wait $SERVER_PID 2>/dev/null || true
           grep -q "Received: 11 bytes" server_null.log
-          
+
   smoke_test_4:
     name: "Smoke Test 4: NICK missing params"
     needs: build
