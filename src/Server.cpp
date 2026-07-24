@@ -310,8 +310,8 @@ void Server::removeClient(std::size_t i)
 	_pollfds[i] = _pollfds.back();
 	_pollfds.pop_back();
 
-	_users.erase(fd);
 	removeUserFromAllChannels(user);
+	_users.erase(fd);
 
 	std::cout << "Server: Removed client at fd: " << fd << std::endl;
 }
