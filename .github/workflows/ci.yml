@@ -269,5 +269,5 @@ jobs:
           echo "Server reply:"
           echo "$REPLY"
 
-          echo "$REPLY" | grep -q " CAP * LS : "
+          echo "$REPLY" | grep -Fq " CAP * LS :"
           echo "$REPLY" | grep -q " 001 alice "
