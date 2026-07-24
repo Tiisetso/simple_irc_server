@@ -305,13 +305,12 @@ void Server::setNonBlocking(int fd)
 void Server::removeClient(std::size_t i)
 {
 	int fd = _pollfds[i].fd;
-	
+	User &user = _users.at(fd);
+
 	_pollfds[i] = _pollfds.back();
 	_pollfds.pop_back();
-	
-	_users.erase(fd);
 
-	User &user = _users.at(fd);
+	_users.erase(fd);
 	removeUserFromAllChannels(user);
 
 	std::cout << "Server: Removed client at fd: " << fd << std::endl;
