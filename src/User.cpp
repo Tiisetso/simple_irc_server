@@ -7,6 +7,7 @@ User::User()
 	  _passMatch(false),
 	  _isRegistered(false),
 	  _shouldDisconnect(false),
+	  _capInProgress(false),
 	  _readBuffer(),
 	  _writeBuffer(),
 	  _nickName(),
@@ -21,6 +22,7 @@ User::User(int fd)
 	  _passMatch(false),
 	  _isRegistered(false),
 	  _shouldDisconnect(false),
+	  _capInProgress(false),
 	  _readBuffer(),
 	  _writeBuffer(),
 	  _nickName(),
@@ -66,6 +68,11 @@ bool User::getShouldDisconnect() const
 	return _shouldDisconnect;
 }
 
+bool User::getCapInProgress() const
+{
+	return _capInProgress;
+}
+
 const std::string &User::getNickName() const
 {
 	return _nickName;
@@ -101,9 +108,14 @@ void User::setIsRegistered(void)
 	_isRegistered = true;
 }
 
-void User::setShouldDisconnect()
+void User::setShouldDisconnect(void)
 {
 	_shouldDisconnect = true;
+}
+
+void User::setCapInProgress(bool value)
+{
+	_capInProgress = value;
 }
 
 void User::setNickName(const std::string &nickName)

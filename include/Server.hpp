@@ -44,6 +44,7 @@ class Server
 		void loop();
 
 		bool commandHandler(const command &cmd, User &client);
+		void handleCap(const command &cmd, User &client);
 		void handlePass(const command &cmd, User &client);
 		void handleUser(const command &cmd, User &client);
 		void handleNick(const command &cmd, User &client);
@@ -63,8 +64,9 @@ class Server
 								  const std::string &trailing = "");
 		std::string msgFromServer(const std::string &command,
 								  const std::string &trailing = "");
-
 		std::string msgNumeric(const User &client, int code,
 							   const std::string &middle,
 							   const std::string &trailing);
+		std::string msgCap(const User &client);
+
 };
