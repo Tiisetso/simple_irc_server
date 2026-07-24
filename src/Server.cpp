@@ -14,6 +14,8 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "Utilities.hpp"
+
 #define BACKLOG 20
 #define MAX_MSG_LEN 512
 #define MAX_WRITE_BUFFER (200 * 1024)
@@ -303,10 +305,12 @@ void Server::setNonBlocking(int fd)
 void Server::removeClient(std::size_t i)
 {
 	int fd = _pollfds[i].fd;
+	User &user = _users.at(fd);
 
 	_pollfds[i] = _pollfds.back();
 	_pollfds.pop_back();
 
+	removeUserFromAllChannels(user);
 	_users.erase(fd);
 
 	std::cout << "Server: Removed client at fd: " << fd << std::endl;
@@ -409,4 +413,48 @@ bool Server::commandHandler(const command &cmd, User &client)
 	}
 
 	return false;
+}
+
+Channel *Server::getChannel(const std::string &name)
+{
+	for (std::unordered_map<std::string, Channel>::iterator it =
+			 _channels.begin();
+		 it != _channels.end(); it++)
+	{
+		if (lowerCaseEqual(it->second.getName(), name))
+		{
+			Channel &channel = it->second;
+			return &channel;
+		}
+	}
+	return nullptr;
+}
+
+void Server::removeUserFromAllChannels(User &user)
+{
+	for (std::unordered_map<std::string, Channel>::iterator it =
+			 _channels.begin();
+		 it != _channels.end();)
+	{
+		Channel &channel = it->second;
+		channel.removeUser(user);
+		if (channel.getUsers().empty())
+			it = _channels.erase(it);
+		else
+			it++;
+	}
+}
+
+Channel &Server::addChannel(const std::string &name)
+{
+	Channel &newChannel = _channels[name];
+	newChannel.setName(name);
+	return newChannel;
+}
+
+void Server::removeChannel(const std::string &name)
+{
+	Channel *deadChannel = getChannel(name);
+	if (deadChannel)
+		_channels.erase(deadChannel->getName());
 }
