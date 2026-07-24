@@ -3,7 +3,9 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches:
+      - main
+      - 102-smoke-test-9-cap-ls-cap-end-registration-flow
 
 jobs:
   build:
@@ -239,3 +241,33 @@ jobs:
 
           echo "$REPLY_ALICE" | grep -q " 001 alice "
           echo "$REPLY_BOB" | grep -q " 001 bob "
+
+  smoke_test_9:
+    name: "Smoke Test 9: CAP response registration flow"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download compiled binary
+        uses: actions/download-artifact@v7
+        with:
+          name: ircserv-binary
+
+      - name: Fix binary permissions
+        run: chmod +x ./ircserv
+
+      - name: Run test
+        run: |
+          ./ircserv 16674 testpass > server_cap.log 2>&1 &
+          SERVER_PID=$!
+          sleep 0.5
+
+          REPLY=$(printf 'CAP LS 302\r\nPASS testpass\r\nNICK alice\r\nUSER alice 0 * :Alice\r\nCAP END\r\n' | nc -w 2 127.0.0.1 16674)
+
+          kill "$SERVER_PID"
+          wait "$SERVER_PID" 2>/dev/null || true
+
+          echo "Server reply:"
+          echo "$REPLY"
+
+          echo "$REPLY" | grep -q " CAP * LS : "
+          echo "$REPLY" | grep -q " 001 alice "
