@@ -3,7 +3,9 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches:
+     - main
+     - 101-smoke-test-8-successful-registration-sends-welcome-001
 
 jobs:
   build:
