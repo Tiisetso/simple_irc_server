@@ -59,6 +59,8 @@ void Server::registerClient(User &client)
 {
 	if (client.getIsRegistered())
 		return;
+	if (client.getCapInProgress())
+		return;
 	if (!client.getPassMatch())
 		return;
 	if (client.getNickName().empty())
