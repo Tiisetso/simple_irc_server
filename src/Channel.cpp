@@ -145,7 +145,7 @@ const std::set<User *> &Channel::getUsers() const
 
 void Channel::addOperator(User &user)
 {
-	if(isUserInChannel(user))
+	if (isUserInChannel(user))
 		_operators.insert(&user);
 }
 
