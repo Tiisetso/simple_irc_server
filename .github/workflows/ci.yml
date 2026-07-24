@@ -225,9 +225,19 @@ jobs:
           ./ircserv 16673 testpass > server_registration.log 2>&1 &
           SERVER_PID=$!
           sleep 0.5
-          REPLY=$(printf 'PASS testpass\r\nNICK alice\r\nUSER alice 0 * :Alice\r\n' | nc -w 2 127.0.0.1 16673)
+
+          REPLY_ALICE=$(printf 'PASS testpass\r\nNICK alice\r\nUSER alice 0 * :Alice\r\n' | nc -w 2 127.0.0.1 16673)
+
+          REPLY_BOB=$(printf 'PASS testpass\r\nNICK bob\r\nUSER bob 0 * :Bob\r\n' | nc -w 2 127.0.0.1 16673)
+
           kill "$SERVER_PID"
           wait "$SERVER_PID" 2>/dev/null || true
-          echo "Server reply:"
-          echo "$REPLY"
-          echo "$REPLY" | grep -q " 001 "
+
+          echo "Alice's reply:"
+          echo "$REPLY_ALICE"
+
+          echo "Bob's reply:"
+          echo "$REPLY_BOB"
+
+          echo "$REPLY_ALICE" | grep -q " 001 alice "
+          echo "$REPLY_BOB" | grep -q " 001 bob "
