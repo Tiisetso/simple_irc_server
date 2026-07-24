@@ -64,8 +64,9 @@ class Server
 								  const std::string &trailing = "");
 		std::string msgFromServer(const std::string &command,
 								  const std::string &trailing = "");
-
 		std::string msgNumeric(const User &client, int code,
 							   const std::string &middle,
 							   const std::string &trailing);
+		std::string msgCap(const User &client);
+
 };
