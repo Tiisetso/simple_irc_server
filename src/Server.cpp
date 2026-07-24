@@ -305,11 +305,14 @@ void Server::setNonBlocking(int fd)
 void Server::removeClient(std::size_t i)
 {
 	int fd = _pollfds[i].fd;
-
+	
 	_pollfds[i] = _pollfds.back();
 	_pollfds.pop_back();
-
+	
 	_users.erase(fd);
+
+	User &user = _users.at(fd);
+	removeUserFromAllChannels(user);
 
 	std::cout << "Server: Removed client at fd: " << fd << std::endl;
 }
@@ -402,6 +405,21 @@ Channel *Server::getChannel(const std::string &name)
 		}
 	}
 	return nullptr;
+}
+
+void Server::removeUserFromAllChannels(User &user)
+{
+	for (std::unordered_map<std::string, Channel>::iterator it =
+			 _channels.begin();
+		 it != _channels.end();)
+	{
+		Channel &channel = it->second;
+		channel.removeUser(user);
+		if (channel.getUsers().empty())
+			it = _channels.erase(it);
+		else
+			it++;
+	}
 }
 
 Channel &Server::addChannel(const std::string &name)
