@@ -146,7 +146,5 @@ std::string Server::msgNumeric(const User &client, int code,
 
 std::string Server::msgCap(const User &client)
 {
-	std::string params = msgTarget(client);
-
 	return ":" + _serverName + " CAP " + msgTarget(client) + " LS :\r\n";
 }
