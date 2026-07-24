@@ -297,11 +297,6 @@ void Server::handleCap(const command &cmd, User &client)
 	if(client.getIsRegistered())
       return;
 
-	std::string target = "*";
-
-	if (!client.getNickName().empty())
-		target = client.getNickName();
-
 	if (!cmd.vals.empty() && cmd.vals[0] == "LS")
 	{
 		client.setCapInProgress(true);
