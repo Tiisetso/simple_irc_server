@@ -68,7 +68,7 @@ void Channel::removeKey()
 	_hasKey = false;
 }
 
-std::string Channel::getKey() const
+const std::string &Channel::getKey() const
 {
 	return _key;
 }

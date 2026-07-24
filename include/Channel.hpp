@@ -37,7 +37,7 @@ class Channel
 
 		void setKey(const std::string &key);
 		void removeKey();
-		std::string getKey() const;
+		const std::string &getKey() const;
 		bool hasKey() const;
 
 		bool isInviteOnly() const;
