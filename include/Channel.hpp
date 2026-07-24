@@ -46,8 +46,8 @@ class Channel
 		bool isUserInvited(User &user) const;
 
 		void setLimit(std::size_t limitMax);
-		void removeLimit();
 		bool isLimitReached() const;
+		void removeLimit();
 
 		void addUser(User &user);
 		void removeUser(User &user);
