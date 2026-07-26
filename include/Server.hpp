@@ -27,7 +27,6 @@ class Server
 		std::string _version = "ircserv-0.1";
 		std::string _createdAt;
 
-
 	public:
 		Server() = delete;
 		Server(const std::string &port, const std::string &password);
@@ -43,6 +42,7 @@ class Server
 		bool writeToClient(User &client, pollfd &clientPollfd);
 		void removeClient(std::size_t i);
 		void registerClient(User &client);
+		void sendWelcome(User &client);
 
 		Channel *getChannel(const std::string &name);
 		Channel &addChannel(const std::string &name);
@@ -60,7 +60,7 @@ class Server
 		bool isValidNick(const std::string &val);
 		bool nickInUse(const std::string &val, User &client);
 		void handlePing(const command &cmd, User &client);
-		void sendWelcome(User &client);
+		void handlePart(const command &cmd, User &client);
 
 		std::string msgPrefix(const User &client);
 		std::string msgReply(const User &client, errReplyCode codeReply,
@@ -75,5 +75,4 @@ class Server
 							   const std::string &middle,
 							   const std::string &trailing);
 		std::string msgCap(const User &client);
-
 };

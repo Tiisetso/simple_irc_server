@@ -318,8 +318,8 @@ void Server::removeClient(std::size_t i)
 
 void Server::handleCap(const command &cmd, User &client)
 {
-	if(client.getIsRegistered())
-      return;
+	if (client.getIsRegistered())
+		return;
 
 	if (!cmd.vals.empty() && cmd.vals[0] == "LS")
 	{
@@ -410,6 +410,18 @@ bool Server::commandHandler(const command &cmd, User &client)
 	{
 		handlePing(cmd, client);
 		return true;
+	}
+
+	if (!client.getIsRegistered())
+	{
+		queueMessage(client, msgReply(client, ERR_NOTREGISTERED));
+		return false;
+	}
+
+	if (cmd.key == "PART")
+	{
+		handlePart(cmd, client);
+		return false;
 	}
 
 	return false;
