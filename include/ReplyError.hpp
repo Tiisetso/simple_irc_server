@@ -11,6 +11,7 @@ enum errReplyCode
 	ERR_ERRONEUSNICKNAME = 432,
 	ERR_NICKNAMEINUSE = 433,
 	ERR_NOTONCHANNEL = 442,
+	ERR_NOTREGISTERED = 451, 
 	ERR_NEEDMOREPARAMS = 461,
 	ERR_ALREADYREGISTERED = 462,
 	ERR_PASSWDMISMATCH = 464,
@@ -26,4 +27,5 @@ const std::unordered_map<int, std::string> errReplyMsg = {
 	{ERR_NEEDMOREPARAMS, "Not enough parameters"},
 	{ERR_ALREADYREGISTERED, "You may not reregister"},
 	{ERR_PASSWDMISMATCH, "Password incorrect"},
+	{ERR_NOTREGISTERED, "You have not registered"},
 };
