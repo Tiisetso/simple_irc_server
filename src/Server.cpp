@@ -384,6 +384,15 @@ void Server::loop()
 	}
 }
 
+ //"<client> :No recipient given (<command>)"
+//       Command: PRIVMSG
+//   Parameters: <target>{,<target>} <text to be sent>
+void Server::handlePrivMsg(const command &cmd, User &client)
+{
+	
+
+}
+
 bool Server::commandHandler(const command &cmd, User &client)
 {
 	if (cmd.key == "CAP")
@@ -409,6 +418,11 @@ bool Server::commandHandler(const command &cmd, User &client)
 	if (cmd.key == "PING")
 	{
 		handlePing(cmd, client);
+		return true;
+	}
+	if(cmd.key == "PRIVMSG")
+	{
+		handlePrivMsg(cmd, client);
 		return true;
 	}
 
