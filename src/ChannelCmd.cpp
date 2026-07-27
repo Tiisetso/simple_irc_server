@@ -31,10 +31,9 @@ void Server::handlePart(const command &cmd, User &client)
 		{
 			if (channel->isUserInChannel(client))
 			{
-				// TODO: this queueMessage will be replaced by broadcast
-				// message.
-				queueMessage(
-					client, msgFromClient(client, "PART", channelName, reason));
+				std::string partMsg =
+					msgFromClient(client, "PART", channelName, reason);
+				broadcastToChannel(*channel, partMsg, NULL);
 				channel->removeUser(client);
 				if (channel->getUsers().empty())
 					removeChannel(*channel);

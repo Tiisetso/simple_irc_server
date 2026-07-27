@@ -73,5 +73,5 @@ void Server::handleNick(const command &cmd, User &client)
 	const std::string nickMessage = msgFromClient(client, "NICK", cmd.vals[0]);
 	client.setNickName(cmd.vals[0]);
 	queueMessage(client, nickMessage);
-	// TODO: inform others sharing channels with this client about the change
+	broadcastToUserChannels(client, nickMessage, &client);
 }
