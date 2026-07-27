@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 
 bool lowerCaseEqual(const std::string &a, const std::string &b)
 {
@@ -20,4 +21,22 @@ bool lowerCaseEqual(const std::string &a, const std::string &b)
 	}
 
 	return true;
+}
+
+std::vector<std::string> splitStrToVec(const std::string &s, char delimiter)
+{
+	std::vector<std::string> stringVec;
+	std::size_t pos;
+	std::size_t start;
+
+	start = 0;
+	pos = s.find(delimiter, start);
+	while (pos != std::string::npos)
+	{
+		stringVec.push_back(s.substr(start, pos - start));
+		start = pos + 1;
+		pos = s.find(delimiter, start);
+	}
+	stringVec.push_back(s.substr(start));
+	return stringVec;
 }
