@@ -37,7 +37,7 @@ void Server::handlePart(const command &cmd, User &client)
 					client, msgFromClient(client, "PART", channelName, reason));
 				channel->removeUser(client);
 				if (channel->getUsers().empty())
-					_channels.erase(channel->getName());
+					removeChannel(*channel);
 			}
 			else
 				queueMessage(client,

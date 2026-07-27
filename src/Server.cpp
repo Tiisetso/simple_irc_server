@@ -464,9 +464,7 @@ Channel &Server::addChannel(const std::string &name)
 	return newChannel;
 }
 
-void Server::removeChannel(const std::string &name)
+void Server::removeChannel(const Channel &channel)
 {
-	Channel *deadChannel = getChannel(name);
-	if (deadChannel)
-		_channels.erase(deadChannel->getName());
+	_channels.erase(channel.getName());
 }

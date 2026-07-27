@@ -46,7 +46,7 @@ class Server
 
 		Channel *getChannel(const std::string &name);
 		Channel &addChannel(const std::string &name);
-		void removeChannel(const std::string &name);
+		void removeChannel(const Channel &channel);
 		void removeUserFromAllChannels(User &client);
 
 		void setNonBlocking(int fd);
