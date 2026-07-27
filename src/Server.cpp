@@ -384,15 +384,6 @@ void Server::loop()
 	}
 }
 
- //"<client> :No recipient given (<command>)"
-//       Command: PRIVMSG
-//   Parameters: <target>{,<target>} <text to be sent>
-void Server::handlePrivMsg(const command &cmd, User &client)
-{
-	
-
-}
-
 bool Server::commandHandler(const command &cmd, User &client)
 {
 	if (cmd.key == "CAP")
@@ -420,11 +411,6 @@ bool Server::commandHandler(const command &cmd, User &client)
 		handlePing(cmd, client);
 		return true;
 	}
-	if(cmd.key == "PRIVMSG")
-	{
-		handlePrivMsg(cmd, client);
-		return true;
-	}
 
 	if (!client.getIsRegistered())
 	{
@@ -435,7 +421,12 @@ bool Server::commandHandler(const command &cmd, User &client)
 	if (cmd.key == "PART")
 	{
 		handlePart(cmd, client);
-		return false;
+		return true;
+	}
+	if (cmd.key == "PRIVMSG")
+	{
+		handlePrivMsg(cmd, client);
+		return true;
 	}
 
 	return false;
@@ -481,4 +472,15 @@ Channel &Server::addChannel(const std::string &name)
 void Server::removeChannel(const Channel &channel)
 {
 	_channels.erase(channel.getName());
+}
+
+User *Server::getUser(const std::string &nickName)
+{
+	for (std::unordered_map<int, User>::iterator it = _users.begin();
+		 it != _users.end(); it++)
+	{
+		if (lowerCaseEqual(it->second.getNickName(), nickName))
+			return &it->second;
+	}
+	return nullptr;
 }

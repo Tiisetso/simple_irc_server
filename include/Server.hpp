@@ -44,6 +44,8 @@ class Server
 		void registerClient(User &client);
 		void sendWelcome(User &client);
 
+		User *getUser(const std::string &nickName);
+
 		Channel *getChannel(const std::string &name);
 		Channel &addChannel(const std::string &name);
 		void removeChannel(const Channel &channel);
