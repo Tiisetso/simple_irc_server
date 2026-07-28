@@ -195,12 +195,14 @@ bool Server::readClient(User &client)
 		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
 			return true;
 
+		client.setShouldDisconnect("Recieve failure."); //TODO: improve message.
 		std::cerr << "Server: Failed to receive: " << client.getFd() << " : "
 				  << std::strerror(errno) << std::endl;
 		return false;
 	}
 	else if (bytesReceived == 0)
 	{
+		client.setShouldDisconnect("Recieved zero bytes."); //TODO: improve message.
 		std::cout << "Server: Client disconnected" << std::endl;
 		return false;
 	}
@@ -214,6 +216,7 @@ bool Server::readClient(User &client)
 		{
 			if (newlinePos >= MAX_MSG_LEN)
 			{
+				client.setShouldDisconnect("Message too long."); //TODO: improve message.
 				std::cerr << "Server: Message too long (" << MAX_MSG_LEN
 						  << " bytes maximum)." << std::endl;
 				return false;
@@ -235,6 +238,7 @@ bool Server::readClient(User &client)
 		}
 		if (client.getReadBuffer().length() >= MAX_MSG_LEN)
 		{
+			client.setShouldDisconnect("Message too long."); //TODO: improve message.
 			std::cerr << "Server: Message max size exceeded (" << MAX_MSG_LEN
 					  << " bytes maximum)." << std::endl;
 			return false;
@@ -248,9 +252,9 @@ void Server::queueMessage(User &client, const std::string &message)
 	if (message.size() > MAX_WRITE_BUFFER ||
 		client.getWriteBuffer().size() > MAX_WRITE_BUFFER - message.size())
 	{
-		client.setShouldDisconnect();
+		client.setShouldDisconnect("Write buffer limit reached"); //TODO: find correct error message.
 		std::cerr << "Server: write buffer max size exceeded ("
-				  << MAX_WRITE_BUFFER << " bytes maximum)." << std::endl;
+				  << MAX_WRITE_BUFFER << " bytes maximum)." << std::endl; //TODO: should add client info.
 		return;
 	}
 
@@ -327,6 +331,7 @@ bool Server::writeToClient(User &client, pollfd &clientPollfd)
 		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
 			return true;
 
+		client.setShouldDisconnect("Failed to send."); //TODO: improve message.
 		std::cerr << "Server: Failed to send: " << client.getFd() << " : "
 				  << std::strerror(errno) << std::endl;
 		return false;
@@ -353,6 +358,9 @@ void Server::removeClient(std::size_t i)
 	int fd = _pollfds[i].fd;
 	User &user = _users.at(fd);
 
+	std::string disconnectReason;
+	disconnectReason = user.getDisconnectReason();
+	//TODO: broadcast message about disconnection using disconnectReason.
 	_pollfds[i] = _pollfds.back();
 	_pollfds.pop_back();
 
@@ -410,6 +418,7 @@ void Server::loop()
 				User &client = _users.at(fd);
 				keepClient = readClient(client);
 			}
+			
 			if (keepClient && (events & POLLOUT))
 			{
 				User &client = _users.at(fd);
@@ -420,7 +429,11 @@ void Server::loop()
 				keepClient = false;
 
 			if (events & (POLLERR | POLLHUP | POLLNVAL))
+			{
+				User &client = _users.at(fd); //TODO: these are called repeatedly, fix.
+				client.setShouldDisconnect("Connection error"); //TODO: improve message.
 				keepClient = false;
+			}
 
 			if (!keepClient)
 				removeClient(i);

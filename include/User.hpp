@@ -16,6 +16,7 @@ class User
 		std::string _userName;
 		std::string _realName;
 		std::string _host;
+		std::string _disconnectReason;
 
 	public:
 		User();
@@ -30,6 +31,7 @@ class User
 		bool getPassMatch() const;
 		bool getIsRegistered() const;
 		bool getShouldDisconnect() const;
+		const std::string &getDisconnectReason() const;
 		bool getCapInProgress() const;
 		const std::string &getNickName() const;
 		const std::string &getUserName() const;
@@ -39,7 +41,7 @@ class User
 		void setFd(const int fd);
 		void setPassMatch(const bool yes);
 		void setIsRegistered(void);
-		void setShouldDisconnect(void);
+		void setShouldDisconnect(const std::string &disconnectReason);
 		void setCapInProgress(bool value);
 		void setNickName(const std::string &nickName);
 		void setUserName(const std::string &userName);
