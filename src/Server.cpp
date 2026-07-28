@@ -243,8 +243,7 @@ bool Server::readClient(User &client)
 		}
 		if (client.getReadBuffer().length() >= MAX_MSG_LEN)
 		{
-			client.setShouldDisconnect(
-				"Max message size exceeded.");
+			client.setShouldDisconnect("Max message size exceeded.");
 			std::cerr << "Server: Message max size exceeded (" << MAX_MSG_LEN
 					  << " bytes maximum)." << std::endl;
 			return false;
@@ -258,11 +257,9 @@ void Server::queueMessage(User &client, const std::string &message)
 	if (message.size() > MAX_WRITE_BUFFER ||
 		client.getWriteBuffer().size() > MAX_WRITE_BUFFER - message.size())
 	{
-		client.setShouldDisconnect(
-			"Write limit reached");
+		client.setShouldDisconnect("Write limit reached");
 		std::cerr << "Server: write buffer max size exceeded ("
-				  << MAX_WRITE_BUFFER << " bytes maximum)."
-				  << std::endl;
+				  << MAX_WRITE_BUFFER << " bytes maximum)." << std::endl;
 		return;
 	}
 
@@ -385,25 +382,6 @@ void Server::removeClient(std::size_t i)
 	std::cout << "Server: Removed client at fd: " << fd << std::endl;
 }
 
-void Server::handleCap(const command &cmd, User &client)
-{
-	if (client.getIsRegistered())
-		return;
-
-	if (!cmd.vals.empty() && cmd.vals[0] == "LS")
-	{
-		client.setCapInProgress(true);
-		queueMessage(client, msgCap(client));
-		return;
-	}
-	if (!cmd.vals.empty() && cmd.vals[0] == "END")
-	{
-		client.setCapInProgress(false);
-		registerClient(client);
-		return;
-	}
-}
-
 void Server::loop()
 {
 	while (true)
@@ -427,30 +405,22 @@ void Server::loop()
 			int fd = _pollfds[i].fd;
 			short events = _pollfds[i].revents;
 			bool keepClient = true;
+			User &client = _users.at(fd);
 
 			if (events & POLLIN)
-			{
-				User &client = _users.at(fd);
 				keepClient = readClient(client);
-			}
 
 			if (keepClient && (events & POLLOUT))
-			{
-				User &client = _users.at(fd);
 				keepClient = writeToClient(client, _pollfds[i]);
-			}
-
-			if (_users.at(fd).getShouldDisconnect())
-				keepClient = false;
 
 			if (events & (POLLERR | POLLHUP | POLLNVAL))
 			{
-				User &client =
-					_users.at(fd);	// TODO: these are called repeatedly, fix.
-				client.setShouldDisconnect(
-					"Connection error");  // TODO: improve message.
+				client.setShouldDisconnect("Connection closed");
 				keepClient = false;
 			}
+
+			if (client.getShouldDisconnect())
+				keepClient = false;
 
 			if (!keepClient)
 				removeClient(i);
