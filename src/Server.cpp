@@ -266,20 +266,20 @@ void Server::queueMessage(User &client, const std::string &message)
 	}
 }
 
-void Server::broadcastToChannel(Channel &channel, std::string &message, User *excludeUser)
+void Server::broadcastToChannel(const Channel &channel, const std::string &message, const User *excludeUser)
 {
 	const std::set<User *> &users = channel.getUsers();
 
 	for (std::set<User *>::const_iterator it = users.begin(); it != users.end(); it++)
 	{
-		if (excludeUser != NULL && *it == excludeUser)
+		if (excludeUser != nullptr && *it == excludeUser)
 			continue;
 		queueMessage(
 					**it, message);
 	}
 }
 
-void Server::broadcastToUserChannels(User &client, const std::string &message, User *excludeUser)
+void Server::broadcastToUserChannels(User &client, const std::string &message, const User *excludeUser)
 {
 	std::set<User *> alreadySent;
 
@@ -296,7 +296,7 @@ void Server::broadcastToUserChannels(User &client, const std::string &message, U
 		{
 			User &user = **userIt;
 
-			if (excludeUser != NULL && &user == excludeUser)
+			if (excludeUser != nullptr && &user == excludeUser)
 				continue;
 			if (alreadySent.count(&user))
 				continue;
