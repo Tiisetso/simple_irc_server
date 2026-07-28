@@ -23,11 +23,6 @@ void Server::handlePart(const command &cmd, User &client)
 		std::string channelName = channelList[i];
 		if (channelName.empty())
 			continue;
-		if (!isValidChannelName(channelName))
-		{
-			queueMessage(client, msgReply(client, ERR_NOSUCHCHANNEL, channelName));
-			continue;
-		}
 
 		Channel *channel = getChannel(channelName);
 		if (!channel)

@@ -20,6 +20,7 @@ enum errReplyCode
 	ERR_NEEDMOREPARAMS = 461,
 	ERR_ALREADYREGISTERED = 462,
 	ERR_PASSWDMISMATCH = 464,
+	ERR_BADCHANMASK = 476
 };
 
 const std::unordered_map<int, std::string> errReplyMsg = {
@@ -38,4 +39,4 @@ const std::unordered_map<int, std::string> errReplyMsg = {
 	{ERR_ALREADYREGISTERED, "You may not reregister"},
 	{ERR_PASSWDMISMATCH, "Password incorrect"},
 	{ERR_NOTREGISTERED, "You have not registered"},
-};
+	{ERR_BADCHANMASK, "Bad Channel Mask"}};
