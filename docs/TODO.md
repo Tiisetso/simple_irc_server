@@ -18,7 +18,7 @@ https://beej.us/guide/bgnet/
 - [x] Implement nickname registration (`NICK`).
 - [x] Implement username registration (`USER`).
 - [ ] Ensure the selected reference client can connect without errors.
-- [ ] Support joining channels (`JOIN`).
+- [x] Support joining channels (`JOIN`).
 - [x] Support private messages between clients (`PRIVMSG`).
 - [ ] Broadcast channel messages to every client currently in that channel.
 
