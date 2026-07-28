@@ -183,7 +183,7 @@ void Server::createSocket()
 	_pollfds.push_back(serverPollfd);
 }
 
-bool Server::readClient(User &client)
+void Server::readClient(User &client)
 {
 	char buffer[1024];
 	ssize_t bytesReceived{};
@@ -193,18 +193,18 @@ bool Server::readClient(User &client)
 	if (bytesReceived < 0)
 	{
 		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
-			return true;
+			return;
 
 		client.setShouldDisconnect("Receive error.");
 		std::cerr << "Server: Failed to receive: " << client.getFd() << " : "
 				  << std::strerror(errno) << std::endl;
-		return false;
+		return;
 	}
 	else if (bytesReceived == 0)
 	{
 		client.setShouldDisconnect("Client closed connection.");
 		std::cout << "Server: Client disconnected" << std::endl;
-		return false;
+		return;
 	}
 	else
 	{
@@ -221,7 +221,7 @@ bool Server::readClient(User &client)
 										   " bytes maximum)");
 				std::cerr << "Server: Message too long (" << MAX_MSG_LEN
 						  << " bytes maximum)." << std::endl;
-				return false;
+				return;
 			}
 
 			std::string fullMsg =
@@ -237,7 +237,7 @@ bool Server::readClient(User &client)
 					  << " bytes: " << fullMsg << std::endl;
 
 			if (client.getShouldDisconnect())
-				return false;
+				return;
 
 			newlinePos = client.getReadBuffer().find('\n');
 		}
@@ -246,10 +246,8 @@ bool Server::readClient(User &client)
 			client.setShouldDisconnect("Max message size exceeded.");
 			std::cerr << "Server: Message max size exceeded (" << MAX_MSG_LEN
 					  << " bytes maximum)." << std::endl;
-			return false;
 		}
 	}
-	return true;
 }
 
 void Server::queueMessage(User &client, const std::string &message)
@@ -322,14 +320,14 @@ void Server::broadcastToUserChannels(User &client, const std::string &message,
 	}
 }
 
-bool Server::writeToClient(User &client, pollfd &clientPollfd)
+void Server::writeToClient(User &client, pollfd &clientPollfd)
 {
 	std::string &writeBuffer = client.getWriteBuffer();
 
 	if (writeBuffer.empty())
 	{
 		clientPollfd.events &= ~POLLOUT;
-		return true;
+		return;
 	}
 
 	ssize_t bytesSent =
@@ -338,21 +336,18 @@ bool Server::writeToClient(User &client, pollfd &clientPollfd)
 	if (bytesSent < 0)
 	{
 		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
-			return true;
+			return;
 
-		client.setShouldDisconnect("Failed to send.");	// TODO: improve
-														// message.
+		client.setShouldDisconnect("Failed to send.");
 		std::cerr << "Server: Failed to send: " << client.getFd() << " : "
 				  << std::strerror(errno) << std::endl;
-		return false;
+		return;
 	}
 
 	writeBuffer.erase(0, bytesSent);
 
 	if (writeBuffer.empty())
 		clientPollfd.events &= ~POLLOUT;
-
-	return true;
 }
 
 void Server::setNonBlocking(int fd)
@@ -387,12 +382,10 @@ void Server::loop()
 	while (true)
 	{
 		int ready = poll(_pollfds.data(), _pollfds.size(), -1);
-
 		if (ready == -1)
 		{
 			if (errno == EINTR)
 				continue;
-
 			throw std::runtime_error(std::string("Server: Poll failed: ") +
 									 std::strerror(errno));
 		}
@@ -403,26 +396,20 @@ void Server::loop()
 		for (std::size_t i = 1; i < _pollfds.size();)
 		{
 			int fd = _pollfds[i].fd;
-			short events = _pollfds[i].revents;
-			bool keepClient = true;
+			short reventsClient = _pollfds[i].revents;
 			User &client = _users.at(fd);
 
-			if (events & POLLIN)
-				keepClient = readClient(client);
+			if (reventsClient & POLLIN)
+				readClient(client);
 
-			if (keepClient && (events & POLLOUT))
-				keepClient = writeToClient(client, _pollfds[i]);
+			if (!client.getShouldDisconnect() && (reventsClient & POLLOUT))
+				writeToClient(client, _pollfds[i]);
 
-			if (events & (POLLERR | POLLHUP | POLLNVAL))
-			{
+			if ((reventsClient & (POLLERR | POLLHUP | POLLNVAL)) &&
+				!(reventsClient & POLLIN))
 				client.setShouldDisconnect("Connection closed");
-				keepClient = false;
-			}
 
 			if (client.getShouldDisconnect())
-				keepClient = false;
-
-			if (!keepClient)
 				removeClient(i);
 			else
 				i++;
