@@ -3,7 +3,8 @@
 #include <cctype>
 #include <string>
 
-#define MAXLENGTH 32
+#define MAX_PASS_LEN 32
+#define MAX_CHANNELNAME_LEN 32
 
 bool validPort(const std::string &portString)
 {
@@ -29,7 +30,7 @@ bool validPassword(const std::string &password)
 {
 	if (password.empty())
 		return false;
-	if (password.length() > MAXLENGTH)
+	if (password.length() > MAX_PASS_LEN)
 		return false;
 	for (std::size_t i = 0; i < password.length(); i++)
 	{
@@ -38,5 +39,18 @@ bool validPassword(const std::string &password)
 			return false;
 	}
 
+	return true;
+}
+
+bool isValidChannelName(const std::string &name)
+{
+	if (name.size() < 2 || name.size() > MAX_CHANNELNAME_LEN || name[0] != '#')
+		return false;
+
+	for (std::size_t i = 1; i < name.size(); ++i)
+	{
+		if (name[i] == ' ' || name[i] == '\a' || name[i] == ',')
+			return false;
+	}
 	return true;
 }
