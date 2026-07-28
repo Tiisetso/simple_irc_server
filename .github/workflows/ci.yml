@@ -272,8 +272,8 @@ jobs:
           echo "$REPLY" | grep -Fq " CAP * LS :"
           echo "$REPLY" | grep -q " 001 alice "
 
-  smoke_test_10:
-    name: "Smoke Test 10: JOIN channel returns JOIN and 353"
+  test_10:
+    name: "Test 10: JOIN channel returns JOIN and 353"
     needs: build
     runs-on: ubuntu-latest
     steps:
