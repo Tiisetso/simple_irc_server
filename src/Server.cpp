@@ -15,9 +15,9 @@
 #include <stdexcept>
 #include <unordered_map>
 
+#include "Channel.hpp"
 #include "User.hpp"
 #include "Utilities.hpp"
-#include "Channel.hpp"
 
 #define BACKLOG 20
 #define MAX_MSG_LEN 512
@@ -195,14 +195,16 @@ bool Server::readClient(User &client)
 		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
 			return true;
 
-		client.setShouldDisconnect("Recieve failure."); //TODO: improve message.
+		client.setShouldDisconnect(
+			"Recieve failure.");  // TODO: improve message.
 		std::cerr << "Server: Failed to receive: " << client.getFd() << " : "
 				  << std::strerror(errno) << std::endl;
 		return false;
 	}
 	else if (bytesReceived == 0)
 	{
-		client.setShouldDisconnect("Recieved zero bytes."); //TODO: improve message.
+		client.setShouldDisconnect(
+			"Recieved zero bytes.");  // TODO: improve message.
 		std::cout << "Server: Client disconnected" << std::endl;
 		return false;
 	}
@@ -216,7 +218,8 @@ bool Server::readClient(User &client)
 		{
 			if (newlinePos >= MAX_MSG_LEN)
 			{
-				client.setShouldDisconnect("Message too long."); //TODO: improve message.
+				client.setShouldDisconnect(
+					"Message too long.");  // TODO: improve message.
 				std::cerr << "Server: Message too long (" << MAX_MSG_LEN
 						  << " bytes maximum)." << std::endl;
 				return false;
@@ -238,7 +241,8 @@ bool Server::readClient(User &client)
 		}
 		if (client.getReadBuffer().length() >= MAX_MSG_LEN)
 		{
-			client.setShouldDisconnect("Message too long."); //TODO: improve message.
+			client.setShouldDisconnect(
+				"Message too long.");  // TODO: improve message.
 			std::cerr << "Server: Message max size exceeded (" << MAX_MSG_LEN
 					  << " bytes maximum)." << std::endl;
 			return false;
@@ -252,9 +256,11 @@ void Server::queueMessage(User &client, const std::string &message)
 	if (message.size() > MAX_WRITE_BUFFER ||
 		client.getWriteBuffer().size() > MAX_WRITE_BUFFER - message.size())
 	{
-		client.setShouldDisconnect("Write buffer limit reached"); //TODO: find correct error message.
+		client.setShouldDisconnect(
+			"Write buffer limit reached");	// TODO: find correct error message.
 		std::cerr << "Server: write buffer max size exceeded ("
-				  << MAX_WRITE_BUFFER << " bytes maximum)." << std::endl; //TODO: should add client info.
+				  << MAX_WRITE_BUFFER << " bytes maximum)."
+				  << std::endl;	 // TODO: should add client info.
 		return;
 	}
 
@@ -270,24 +276,29 @@ void Server::queueMessage(User &client, const std::string &message)
 	}
 }
 
-void Server::broadcastToChannel(const Channel &channel, const std::string &message, const User *excludeUser)
+void Server::broadcastToChannel(const Channel &channel,
+								const std::string &message,
+								const User *excludeUser)
 {
 	const std::set<User *> &users = channel.getUsers();
 
-	for (std::set<User *>::const_iterator it = users.begin(); it != users.end(); it++)
+	for (std::set<User *>::const_iterator it = users.begin(); it != users.end();
+		 it++)
 	{
 		if (excludeUser != nullptr && *it == excludeUser)
 			continue;
-		queueMessage(
-					**it, message);
+		queueMessage(**it, message);
 	}
 }
 
-void Server::broadcastToUserChannels(User &client, const std::string &message, const User *excludeUser)
+void Server::broadcastToUserChannels(User &client, const std::string &message,
+									 const User *excludeUser)
 {
 	std::set<User *> alreadySent;
 
-	for (std::unordered_map<std::string, Channel>::iterator channelIt = _channels.begin(); channelIt != _channels.end(); channelIt++)
+	for (std::unordered_map<std::string, Channel>::iterator channelIt =
+			 _channels.begin();
+		 channelIt != _channels.end(); channelIt++)
 	{
 		Channel &channel = channelIt->second;
 
@@ -296,7 +307,8 @@ void Server::broadcastToUserChannels(User &client, const std::string &message, c
 
 		const std::set<User *> &users = channel.getUsers();
 
-		for (std::set<User *>::const_iterator userIt = users.begin(); userIt != users.end(); userIt++)
+		for (std::set<User *>::const_iterator userIt = users.begin();
+			 userIt != users.end(); userIt++)
 		{
 			User &user = **userIt;
 
@@ -309,9 +321,7 @@ void Server::broadcastToUserChannels(User &client, const std::string &message, c
 			alreadySent.insert(&user);
 		}
 	}
-
 }
-
 
 bool Server::writeToClient(User &client, pollfd &clientPollfd)
 {
@@ -331,7 +341,8 @@ bool Server::writeToClient(User &client, pollfd &clientPollfd)
 		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
 			return true;
 
-		client.setShouldDisconnect("Failed to send."); //TODO: improve message.
+		client.setShouldDisconnect("Failed to send.");	// TODO: improve
+														// message.
 		std::cerr << "Server: Failed to send: " << client.getFd() << " : "
 				  << std::strerror(errno) << std::endl;
 		return false;
@@ -360,7 +371,7 @@ void Server::removeClient(std::size_t i)
 
 	std::string disconnectReason;
 	disconnectReason = user.getDisconnectReason();
-	//TODO: broadcast message about disconnection using disconnectReason.
+	// TODO: broadcast message about disconnection using disconnectReason.
 	_pollfds[i] = _pollfds.back();
 	_pollfds.pop_back();
 
@@ -418,7 +429,7 @@ void Server::loop()
 				User &client = _users.at(fd);
 				keepClient = readClient(client);
 			}
-			
+
 			if (keepClient && (events & POLLOUT))
 			{
 				User &client = _users.at(fd);
@@ -430,8 +441,10 @@ void Server::loop()
 
 			if (events & (POLLERR | POLLHUP | POLLNVAL))
 			{
-				User &client = _users.at(fd); //TODO: these are called repeatedly, fix.
-				client.setShouldDisconnect("Connection error"); //TODO: improve message.
+				User &client =
+					_users.at(fd);	// TODO: these are called repeatedly, fix.
+				client.setShouldDisconnect(
+					"Connection error");  // TODO: improve message.
 				keepClient = false;
 			}
 
