@@ -44,6 +44,8 @@ class Server
 		void registerClient(User &client);
 		void sendWelcome(User &client);
 
+		User *getUser(const std::string &nickName);
+
 		Channel *getChannel(const std::string &name);
 		Channel &addChannel(const std::string &name);
 		void removeChannel(const Channel &channel);
@@ -61,6 +63,7 @@ class Server
 		bool nickInUse(const std::string &val, User &client);
 		void handlePing(const command &cmd, User &client);
 		void handlePart(const command &cmd, User &client);
+		void handlePrivMsg(const command &cmd, User &client);
 
 		std::string msgPrefix(const User &client);
 		std::string msgReply(const User &client, errReplyCode codeReply,
