@@ -45,4 +45,3 @@ void Server::handlePart(const command &cmd, User &client)
 		}
 	}
 }
-
