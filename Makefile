@@ -22,17 +22,18 @@ OBJ_DIR := obj
 
 SRCS := \
 $(SRC_DIR)/main.cpp \
-$(SRC_DIR)/Server.cpp \
-$(SRC_DIR)/Parser.cpp \
-$(SRC_DIR)/Validation.cpp \
-$(SRC_DIR)/User.cpp \
-$(SRC_DIR)/Nick.cpp \
-$(SRC_DIR)/Ping.cpp \
-$(SRC_DIR)/Message.cpp \
 $(SRC_DIR)/Channel.cpp \
-$(SRC_DIR)/ChannelCmd.cpp \
+$(SRC_DIR)/Message.cpp \
+$(SRC_DIR)/Nick.cpp \
+$(SRC_DIR)/Parser.cpp \
+$(SRC_DIR)/Part.cpp \
+$(SRC_DIR)/Ping.cpp \
+$(SRC_DIR)/PrivMsg.cpp \
+$(SRC_DIR)/Registration.cpp \
+$(SRC_DIR)/Server.cpp \
+$(SRC_DIR)/User.cpp \
 $(SRC_DIR)/Utilities.cpp \
-$(SRC_DIR)/Registration.cpp
+$(SRC_DIR)/Validation.cpp
 
 OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
