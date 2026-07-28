@@ -464,6 +464,11 @@ bool Server::commandHandler(const command &cmd, User &client)
 		return false;
 	}
 
+	if (cmd.key == "JOIN")
+	{
+		handleJoin(cmd, client);
+		return true;
+	}
 	if (cmd.key == "PART")
 	{
 		handlePart(cmd, client);

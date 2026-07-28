@@ -65,6 +65,7 @@ class Server
 		bool nickInUse(const std::string &val, User &client);
 		void handlePing(const command &cmd, User &client);
 		void handlePart(const command &cmd, User &client);
+		void handleJoin(const command &cmd, User &client);
 		void handlePrivMsg(const command &cmd, User &client);
 
 		std::string msgPrefix(const User &client);
