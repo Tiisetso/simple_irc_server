@@ -13,8 +13,11 @@
 #include <ctime>
 #include <iostream>
 #include <stdexcept>
+#include <unordered_map>
 
+#include "User.hpp"
 #include "Utilities.hpp"
+#include "Channel.hpp"
 
 #define BACKLOG 20
 #define MAX_MSG_LEN 512
@@ -262,6 +265,49 @@ void Server::queueMessage(User &client, const std::string &message)
 		}
 	}
 }
+
+void Server::broadcastToChannel(const Channel &channel, const std::string &message, const User *excludeUser)
+{
+	const std::set<User *> &users = channel.getUsers();
+
+	for (std::set<User *>::const_iterator it = users.begin(); it != users.end(); it++)
+	{
+		if (excludeUser != nullptr && *it == excludeUser)
+			continue;
+		queueMessage(
+					**it, message);
+	}
+}
+
+void Server::broadcastToUserChannels(User &client, const std::string &message, const User *excludeUser)
+{
+	std::set<User *> alreadySent;
+
+	for (std::unordered_map<std::string, Channel>::iterator channelIt = _channels.begin(); channelIt != _channels.end(); channelIt++)
+	{
+		Channel &channel = channelIt->second;
+
+		if (!channel.isUserInChannel(client))
+			continue;
+
+		const std::set<User *> &users = channel.getUsers();
+
+		for (std::set<User *>::const_iterator userIt = users.begin(); userIt != users.end(); userIt++)
+		{
+			User &user = **userIt;
+
+			if (excludeUser != nullptr && &user == excludeUser)
+				continue;
+			if (alreadySent.count(&user))
+				continue;
+
+			queueMessage(user, message);
+			alreadySent.insert(&user);
+		}
+	}
+
+}
+
 
 bool Server::writeToClient(User &client, pollfd &clientPollfd)
 {

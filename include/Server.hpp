@@ -36,6 +36,8 @@ class Server
 
 		void createSocket();
 		void queueMessage(User &client, const std::string &message);
+		void broadcastToChannel(const Channel &channel, const std::string &message, const User *excludeUser);
+		void broadcastToUserChannels(User &client, const std::string &message, const User *excludeUser);
 
 		void acceptClients();
 		bool readClient(User &client);
