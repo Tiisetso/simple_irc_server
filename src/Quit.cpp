@@ -2,7 +2,8 @@
 
 void Server::handleQuit(const command &cmd, User &client)
 {
-	//TODO: collect users in same channel. No dupes.
-	//TODO: broadcast quit message.
-	//TODO: mark client for deletion.
+	std::string disconnectReason = "Client quit";
+	if (!cmd.vals.empty() && !cmd.vals[0].empty())
+		disconnectReason = cmd.vals[0];
+	client.setShouldDisconnect("Quit: " + disconnectReason);
 }

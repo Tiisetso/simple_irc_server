@@ -195,16 +195,14 @@ bool Server::readClient(User &client)
 		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
 			return true;
 
-		client.setShouldDisconnect(
-			"Recieve failure.");  // TODO: improve message.
+		client.setShouldDisconnect("Receive error.");
 		std::cerr << "Server: Failed to receive: " << client.getFd() << " : "
 				  << std::strerror(errno) << std::endl;
 		return false;
 	}
 	else if (bytesReceived == 0)
 	{
-		client.setShouldDisconnect(
-			"Recieved zero bytes.");  // TODO: improve message.
+		client.setShouldDisconnect("Client closed connection.");
 		std::cout << "Server: Client disconnected" << std::endl;
 		return false;
 	}
@@ -218,8 +216,9 @@ bool Server::readClient(User &client)
 		{
 			if (newlinePos >= MAX_MSG_LEN)
 			{
-				client.setShouldDisconnect(
-					"Message too long.");  // TODO: improve message.
+				client.setShouldDisconnect("Sent message too long (" +
+										   std::to_string(MAX_MSG_LEN) +
+										   " bytes maximum)");
 				std::cerr << "Server: Message too long (" << MAX_MSG_LEN
 						  << " bytes maximum)." << std::endl;
 				return false;
@@ -237,12 +236,15 @@ bool Server::readClient(User &client)
 			std::cout << "Server: Received: " << fullMsg.length()
 					  << " bytes: " << fullMsg << std::endl;
 
+			if (client.getShouldDisconnect())
+				return false;
+
 			newlinePos = client.getReadBuffer().find('\n');
 		}
 		if (client.getReadBuffer().length() >= MAX_MSG_LEN)
 		{
 			client.setShouldDisconnect(
-				"Message too long.");  // TODO: improve message.
+				"Max message size exceeded.");
 			std::cerr << "Server: Message max size exceeded (" << MAX_MSG_LEN
 					  << " bytes maximum)." << std::endl;
 			return false;
@@ -257,10 +259,10 @@ void Server::queueMessage(User &client, const std::string &message)
 		client.getWriteBuffer().size() > MAX_WRITE_BUFFER - message.size())
 	{
 		client.setShouldDisconnect(
-			"Write buffer limit reached");	// TODO: find correct error message.
+			"Write limit reached");
 		std::cerr << "Server: write buffer max size exceeded ("
 				  << MAX_WRITE_BUFFER << " bytes maximum)."
-				  << std::endl;	 // TODO: should add client info.
+				  << std::endl;
 		return;
 	}
 
@@ -369,9 +371,11 @@ void Server::removeClient(std::size_t i)
 	int fd = _pollfds[i].fd;
 	User &user = _users.at(fd);
 
-	std::string disconnectReason;
-	disconnectReason = user.getDisconnectReason();
-	// TODO: broadcast message about disconnection using disconnectReason.
+	if (user.getIsRegistered())
+		broadcastToUserChannels(
+			user, msgFromClient(user, "QUIT", "", user.getDisconnectReason()),
+			&user);
+
 	_pollfds[i] = _pollfds.back();
 	_pollfds.pop_back();
 

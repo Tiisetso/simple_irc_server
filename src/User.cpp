@@ -117,6 +117,8 @@ void User::setIsRegistered(void)
 
 void User::setShouldDisconnect(const std::string &disconnectReason)
 {
+	if (_shouldDisconnect)
+		return;
 	_shouldDisconnect = true;
 	_disconnectReason = disconnectReason;
 }
