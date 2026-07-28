@@ -5,21 +5,31 @@
 
 enum errReplyCode
 {
+	ERR_NOSUCHNICK = 401,
 	ERR_NOSUCHCHANNEL = 403,
+	ERR_CANNOTSENDTOCHAN = 404,
+	ERR_TOOMANYTARGETS = 407,
 	ERR_NOORIGIN = 409,
+	ERR_NORECIPIENT = 411,
+	ERR_NOTEXTTOSEND = 412,
 	ERR_NONICKNAMEGIVEN = 431,
 	ERR_ERRONEUSNICKNAME = 432,
 	ERR_NICKNAMEINUSE = 433,
 	ERR_NOTONCHANNEL = 442,
-	ERR_NOTREGISTERED = 451, 
+	ERR_NOTREGISTERED = 451,
 	ERR_NEEDMOREPARAMS = 461,
 	ERR_ALREADYREGISTERED = 462,
 	ERR_PASSWDMISMATCH = 464,
 };
 
 const std::unordered_map<int, std::string> errReplyMsg = {
+	{ERR_NOSUCHNICK, "No such nick/channel"},
 	{ERR_NOSUCHCHANNEL, "No such channel"},
+	{ERR_CANNOTSENDTOCHAN, "Cannot send to channel"},
+	{ERR_TOOMANYTARGETS, "Too many targets"},
 	{ERR_NOORIGIN, "No origin specified"},
+	{ERR_NORECIPIENT, "No recipient given (PRIVMSG)"},
+	{ERR_NOTEXTTOSEND, "No text to send"},
 	{ERR_NONICKNAMEGIVEN, "No nickname given"},
 	{ERR_ERRONEUSNICKNAME, "Erroneous nickname"},
 	{ERR_NICKNAMEINUSE, "Nickname is already in use"},

@@ -19,7 +19,7 @@ https://beej.us/guide/bgnet/
 - [x] Implement username registration (`USER`).
 - [ ] Ensure the selected reference client can connect without errors.
 - [ ] Support joining channels (`JOIN`).
-- [ ] Support private messages between clients (`PRIVMSG`).
+- [x] Support private messages between clients (`PRIVMSG`).
 - [ ] Broadcast channel messages to every client currently in that channel.
 
 ## Users and channels
