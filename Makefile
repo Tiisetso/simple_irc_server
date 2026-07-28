@@ -31,6 +31,7 @@ $(SRC_DIR)/Part.cpp \
 $(SRC_DIR)/Ping.cpp \
 $(SRC_DIR)/PrivMsg.cpp \
 $(SRC_DIR)/Registration.cpp \
+$(SRC_DIR)/Quit.cpp \
 $(SRC_DIR)/Server.cpp \
 $(SRC_DIR)/User.cpp \
 $(SRC_DIR)/Utilities.cpp \

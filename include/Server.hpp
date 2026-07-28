@@ -68,6 +68,7 @@ class Server
 		void handlePart(const command &cmd, User &client);
 		void handleJoin(const command &cmd, User &client);
 		void handlePrivMsg(const command &cmd, User &client);
+		void handleQuit(const command &cmd, User &client);
 
 		std::string msgPrefix(const User &client);
 		std::string msgReply(const User &client, errReplyCode codeReply,

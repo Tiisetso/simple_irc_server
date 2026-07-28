@@ -470,6 +470,11 @@ bool Server::commandHandler(const command &cmd, User &client)
 		handlePing(cmd, client);
 		return true;
 	}
+	if (cmd.key == "QUIT")
+	{
+		handleQuit(cmd, client);
+		return true;
+	}
 
 	if (!client.getIsRegistered())
 	{
