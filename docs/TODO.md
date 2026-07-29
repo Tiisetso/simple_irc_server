@@ -20,7 +20,7 @@ https://beej.us/guide/bgnet/
 - [ ] Ensure the selected reference client can connect without errors.
 - [x] Support joining channels (`JOIN`).
 - [x] Support private messages between clients (`PRIVMSG`).
-- [ ] Broadcast channel messages to every client currently in that channel.
+- [x] Broadcast channel messages to every client currently in that channel.
 
 ## Users and channels
 

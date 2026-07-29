@@ -45,11 +45,9 @@ void Server::handlePrivMsg(const command &cmd, User &client)
 			{
 				if (channel->isUserInChannel(client))
 				{
-					// TODO: replace with channel broadcast message. For now
-					// echoes msg back to sender.
-					queueMessage(client,
-								 msgFromClient(client, cmd.key,
-											   channel->getName(), msg));
+					const std::string message =
+						msgFromClient(client, cmd.key, channel->getName(), msg);
+					broadcastToChannel(*channel, message, &client);
 				}
 				else
 					queueMessage(client, msgReply(client, ERR_CANNOTSENDTOCHAN,
