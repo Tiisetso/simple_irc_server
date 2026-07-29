@@ -52,6 +52,7 @@ class Server
 		Channel &addChannel(const std::string &name);
 		void removeChannel(const Channel &channel);
 		void removeUserFromAllChannels(User &client);
+		std::size_t countUserChannels(User &client);
 
 		void setNonBlocking(int fd);
 		void loop();

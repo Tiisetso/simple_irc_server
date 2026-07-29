@@ -513,6 +513,20 @@ void Server::removeUserFromAllChannels(User &user)
 	}
 }
 
+std::size_t Server::countUserChannels(User &client)
+{
+	std::size_t count = 0;
+
+	for (std::unordered_map<std::string, Channel>::iterator it =
+			 _channels.begin();
+		 it != _channels.end(); ++it)
+	{
+		if (it->second.isUserInChannel(client))
+			++count;
+	}
+	return count;
+}
+
 Channel &Server::addChannel(const std::string &name)
 {
 	Channel &newChannel = _channels[name];

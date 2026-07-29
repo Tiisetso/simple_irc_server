@@ -5,6 +5,8 @@
 #include "Utilities.hpp"
 #include "Validation.hpp"
 
+#define MAX_CHANNELS_PER_USER 5
+
 static std::string buildNamesList(const Channel &channel)
 {
 	std::ostringstream names;
@@ -54,6 +56,13 @@ void Server::handleJoin(const command &cmd, User &client)
 
 		if (channel->isUserInChannel(client))
 			continue;
+
+		if (countUserChannels(client) >= MAX_CHANNELS_PER_USER)
+		{
+			queueMessage(client,
+						 msgReply(client, ERR_TOOMANYCHANNELS, channelName));
+			continue;
+		}
 
 		if (channel->isInviteOnly() && !channel->isUserInvited(client))
 		{
