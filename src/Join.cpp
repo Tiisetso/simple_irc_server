@@ -63,7 +63,7 @@ void Server::handleJoin(const command &cmd, User &client)
 		}
 
 		std::string key = (i < keyList.size()) ? keyList[i] : "";
-		if (channel->hasKey() && channel->getKey() != keyList[i])
+		if (channel->hasKey() && channel->getKey() != key)
 		{
 			queueMessage(client,
 						 msgReply(client, ERR_BADCHANNELKEY, channelName));
