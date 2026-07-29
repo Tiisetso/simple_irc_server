@@ -464,6 +464,11 @@ bool Server::commandHandler(const command &cmd, User &client)
 		return false;
 	}
 
+	if (cmd.key == "JOIN")
+	{
+		handleJoin(cmd, client);
+		return true;
+	}
 	if (cmd.key == "PART")
 	{
 		handlePart(cmd, client);
@@ -506,6 +511,20 @@ void Server::removeUserFromAllChannels(User &user)
 		else
 			it++;
 	}
+}
+
+std::size_t Server::countUserChannels(User &client)
+{
+	std::size_t count = 0;
+
+	for (std::unordered_map<std::string, Channel>::iterator it =
+			 _channels.begin();
+		 it != _channels.end(); ++it)
+	{
+		if (it->second.isUserInChannel(client))
+			++count;
+	}
+	return count;
 }
 
 Channel &Server::addChannel(const std::string &name)

@@ -52,6 +52,7 @@ class Server
 		Channel &addChannel(const std::string &name);
 		void removeChannel(const Channel &channel);
 		void removeUserFromAllChannels(User &client);
+		std::size_t countUserChannels(User &client);
 
 		void setNonBlocking(int fd);
 		void loop();
@@ -65,6 +66,7 @@ class Server
 		bool nickInUse(const std::string &val, User &client);
 		void handlePing(const command &cmd, User &client);
 		void handlePart(const command &cmd, User &client);
+		void handleJoin(const command &cmd, User &client);
 		void handlePrivMsg(const command &cmd, User &client);
 
 		std::string msgPrefix(const User &client);
