@@ -79,6 +79,13 @@ void Server::handleJoin(const command &cmd, User &client)
 			continue;
 		}
 
+		if (channel->isLimitReached())
+		{
+			queueMessage(client,
+						msgReply(client, ERR_CHANNELISFULL, channelName));
+			continue;
+		}
+
 		const bool firstMember = channel->getUsers().empty();
 		channel->addUser(client);
 		if (firstMember)
