@@ -51,10 +51,8 @@ void Server::handleJoin(const command &cmd, User &client)
 		}
 
 		Channel *channel = getChannel(channelName);
-		if (!channel)
-			channel = &addChannel(channelName);
 
-		if (channel->isUserInChannel(client))
+		if (channel && channel->isUserInChannel(client))
 			continue;
 
 		if (countUserChannels(client) >= MAX_CHANNELS_PER_USER)
@@ -63,6 +61,8 @@ void Server::handleJoin(const command &cmd, User &client)
 						 msgReply(client, ERR_TOOMANYCHANNELS, channelName));
 			continue;
 		}
+		if (!channel)
+			channel = &addChannel(channelName);
 
 		if (channel->isInviteOnly() && !channel->isUserInvited(client))
 		{
@@ -76,13 +76,6 @@ void Server::handleJoin(const command &cmd, User &client)
 		{
 			queueMessage(client,
 						 msgReply(client, ERR_BADCHANNELKEY, channelName));
-			continue;
-		}
-
-		if (channel->isLimitReached())
-		{
-			queueMessage(client,
-						 msgReply(client, ERR_CHANNELISFULL, channelName));
 			continue;
 		}
 
