@@ -31,7 +31,9 @@ void Server::handleJoin(const command &cmd, User &client)
 	}
 
 	std::vector<std::string> channelList = splitStrToVec(cmd.vals[0], ',');
-	std::string key = (cmd.vals.size() > 1) ? cmd.vals[1] : "";
+	std::vector<std::string> keyList;
+	if (cmd.vals.size() > 1)
+		keyList = splitStrToVec(cmd.vals[1], ',');
 
 	for (std::size_t i = 0; i < channelList.size(); ++i)
 	{
@@ -60,7 +62,7 @@ void Server::handleJoin(const command &cmd, User &client)
 			continue;
 		}
 
-		if (channel->hasKey() && channel->getKey() != key)
+		if (channel->hasKey() && channel->getKey() != keyList[i])
 		{
 			queueMessage(client,
 						 msgReply(client, ERR_BADCHANNELKEY, channelName));
