@@ -471,6 +471,11 @@ bool Server::commandHandler(const command &cmd, User &client)
 		handlePrivMsg(cmd, client);
 		return true;
 	}
+	if (cmd.key == "INVITE")
+	{
+    	handleInvite(cmd, client);
+    	return true;
+	}
 
 	return false;
 }
@@ -541,3 +546,4 @@ User *Server::getUser(const std::string &nickName)
 	}
 	return nullptr;
 }
+

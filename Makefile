@@ -23,6 +23,7 @@ OBJ_DIR := obj
 SRCS := \
 $(SRC_DIR)/Cap.cpp \
 $(SRC_DIR)/Channel.cpp \
+$(SRC_DIR)/Invite.cpp \
 $(SRC_DIR)/Join.cpp \
 $(SRC_DIR)/main.cpp \
 $(SRC_DIR)/Message.cpp \
