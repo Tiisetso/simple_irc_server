@@ -2,10 +2,33 @@
 #include "Server.hpp"
 #include <iostream>
 
-void Server::handleUserMode(const command &cmd, User &client)
+//MODE command dispatch and target validation
+//Modestring parsing
+//Implement the five required channel modes
+//Build the successful-change broadcast
+//Add MODE #channel query with 324
+
+void Server::handleUserMode(const command &cmd, User &client, const std::string &target)
 {
-    (void)cmd;
-    (void)client;
+    User *user = getUser(target);
+
+    if (!user || !user->getIsRegistered())
+    {
+        queueMessage(client, msgReply(client, ERR_NOSUCHNICK, target));
+        return;
+    }
+    if (client.getFd() != user->getFd())
+    {
+        queueMessage(client, msgReply(client, ERR_USERSDONTMATCH));
+        return;
+    }
+
+    //User mode not required
+    if (cmd.vals.size() == 1)
+    {
+        queueMessage(client, msgNumeric(client, 221, ":", ""));
+        return;
+    }
 }
 
 void Server::handleChannelMode(const command &cmd, User &client, const std::string &target)
@@ -17,6 +40,8 @@ void Server::handleChannelMode(const command &cmd, User &client, const std::stri
         queueMessage(client, msgReply(client, ERR_NOSUCHCHANNEL, target));
         return;
     }
+
+    // MODE #channel
     if (cmd.vals.size() == 1)
     {
         // TODO: if (cmd.vals.size() == 1) reply with the channel's current modes if channel mode is given.
@@ -24,6 +49,8 @@ void Server::handleChannelMode(const command &cmd, User &client, const std::stri
         //324 329
         return;
     }
+
+    // MODE #channel <modestring>
     if (!channel->isOperator(client))
     {
         queueMessage(client, msgReply(client, ERR_CHANOPRIVSNEEDED, target));
@@ -44,7 +71,7 @@ void Server::handleMode(const command &cmd, User &client)
 
     if (target[0] != '#')
     {
-        handleUserMode(cmd, client);
+        handleUserMode(cmd, client, target);
         return;
     }
 
