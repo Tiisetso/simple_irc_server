@@ -49,14 +49,13 @@ class Server
 		void removeUserFromAllChannels(User &client);
 		std::size_t countUserChannels(User &client);
 
-		void setNonBlocking(int fd);
+		static void setNonBlocking(int fd);
 
 		bool commandHandler(const command &cmd, User &client);
 		void handleCap(const command &cmd, User &client);
 		void handlePass(const command &cmd, User &client);
 		void handleUser(const command &cmd, User &client);
 		void handleNick(const command &cmd, User &client);
-		bool isValidNick(const std::string &val);
 		bool nickInUse(const std::string &val, User &client);
 		void handlePing(const command &cmd, User &client);
 		void handlePart(const command &cmd, User &client);

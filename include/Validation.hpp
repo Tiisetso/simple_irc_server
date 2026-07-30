@@ -4,4 +4,5 @@
 
 bool validPort(const std::string &portString);
 bool validPassword(const std::string &password);
+bool isValidNick(const std::string &val);
 bool isValidChannelName(const std::string &name);
