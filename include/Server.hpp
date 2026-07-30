@@ -69,6 +69,9 @@ class Server
 		void handlePrivMsg(const command &cmd, User &client);
 		void handleQuit(const command &cmd, User &client);
 		void handleInvite(const command &cmd, User &client);
+		void handleMode(const command &cmd, User &client);
+		void handleUserMode(const command &cmd, User &client);
+		void handleChannelMode(const command &cmd, User &client, const std::string &target);
 
 		std::string msgPrefix(const User &client);
 		std::string msgReply(const User &client, errReplyCode codeReply,
