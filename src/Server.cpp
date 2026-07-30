@@ -575,5 +575,8 @@ void Server::signalSetup()
 	sa.sa_handler = handleSignal;
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = 0;
-	sigaction(SIGINT, &sa, nullptr);
+	if (sigaction(SIGINT, &sa, nullptr) == -1)
+		throw std::runtime_error(
+			std::string("Server: Failed to set SIGINT handler: ") +
+			std::strerror(errno));
 }
