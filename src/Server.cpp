@@ -473,8 +473,8 @@ bool Server::commandHandler(const command &cmd, User &client)
 	}
 	if (cmd.key == "INVITE")
 	{
-    	handleInvite(cmd, client);
-    	return true;
+		handleInvite(cmd, client);
+		return true;
 	}
 
 	return false;
@@ -546,4 +546,3 @@ User *Server::getUser(const std::string &nickName)
 	}
 	return nullptr;
 }
-
