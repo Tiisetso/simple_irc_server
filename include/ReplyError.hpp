@@ -53,4 +53,5 @@ const std::unordered_map<int, std::string> errReplyMsg = {
 	{ERR_INVITEONLYCHAN, "Cannot join channel (+i)"},
 	{ERR_BADCHANNELKEY, "Cannot join channel (+k)"},
 	{ERR_BADCHANMASK, "Bad Channel Mask"},
-	{ERR_CHANOPRIVSNEEDED, "You're not a channel operator"}};
+	{ERR_CHANOPRIVSNEEDED, "You're not a channel operator"},
+};
