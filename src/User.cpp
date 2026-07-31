@@ -13,7 +13,8 @@ User::User()
 	  _nickName(),
 	  _userName(),
 	  _realName(),
-	  _host()
+	  _host(),
+	  _disconnectReason()
 {
 }
 
@@ -28,7 +29,8 @@ User::User(int fd)
 	  _nickName(),
 	  _userName(),
 	  _realName(),
-	  _host()
+	  _host(),
+	  _disconnectReason()
 {
 }
 
@@ -66,6 +68,11 @@ bool User::getIsRegistered() const
 bool User::getShouldDisconnect() const
 {
 	return _shouldDisconnect;
+}
+
+const std::string &User::getDisconnectReason() const
+{
+	return _disconnectReason;
 }
 
 bool User::getCapInProgress() const
@@ -108,9 +115,12 @@ void User::setIsRegistered(void)
 	_isRegistered = true;
 }
 
-void User::setShouldDisconnect(void)
+void User::setShouldDisconnect(const std::string &disconnectReason)
 {
+	if (_shouldDisconnect)
+		return;
 	_shouldDisconnect = true;
+	_disconnectReason = disconnectReason;
 }
 
 void User::setCapInProgress(bool value)

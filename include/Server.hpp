@@ -36,12 +36,15 @@ class Server
 
 		void createSocket();
 		void queueMessage(User &client, const std::string &message);
-		void broadcastToChannel(const Channel &channel, const std::string &message, const User *excludeUser);
-		void broadcastToUserChannels(User &client, const std::string &message, const User *excludeUser);
+		void broadcastToChannel(const Channel &channel,
+								const std::string &message,
+								const User *excludeUser);
+		void broadcastToUserChannels(User &client, const std::string &message,
+									 const User *excludeUser);
 
 		void acceptClients();
-		bool readClient(User &client);
-		bool writeToClient(User &client, pollfd &clientPollfd);
+		void readClient(User &client);
+		void writeToClient(User &client, pollfd &clientPollfd);
 		void removeClient(std::size_t i);
 		void registerClient(User &client);
 		void sendWelcome(User &client);
@@ -68,6 +71,7 @@ class Server
 		void handlePart(const command &cmd, User &client);
 		void handleJoin(const command &cmd, User &client);
 		void handlePrivMsg(const command &cmd, User &client);
+		void handleQuit(const command &cmd, User &client);
 
 		std::string msgPrefix(const User &client);
 		std::string msgReply(const User &client, errReplyCode codeReply,

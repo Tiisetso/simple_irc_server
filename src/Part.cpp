@@ -32,7 +32,7 @@ void Server::handlePart(const command &cmd, User &client)
 			if (channel->isUserInChannel(client))
 			{
 				const std::string partMsg =
-					msgFromClient(client, "PART", channelName, reason);
+					msgFromClient(client, "PART", channel->getName(), reason);
 				broadcastToChannel(*channel, partMsg, nullptr);
 				channel->removeUser(client);
 				if (channel->getUsers().empty())

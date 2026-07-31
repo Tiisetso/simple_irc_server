@@ -21,15 +21,17 @@ SRC_DIR := src
 OBJ_DIR := obj
 
 SRCS := \
-$(SRC_DIR)/main.cpp \
+$(SRC_DIR)/Cap.cpp \
 $(SRC_DIR)/Channel.cpp \
 $(SRC_DIR)/Join.cpp \
+$(SRC_DIR)/main.cpp \
 $(SRC_DIR)/Message.cpp \
 $(SRC_DIR)/Nick.cpp \
 $(SRC_DIR)/Parser.cpp \
 $(SRC_DIR)/Part.cpp \
 $(SRC_DIR)/Ping.cpp \
 $(SRC_DIR)/PrivMsg.cpp \
+$(SRC_DIR)/Quit.cpp \
 $(SRC_DIR)/Registration.cpp \
 $(SRC_DIR)/Server.cpp \
 $(SRC_DIR)/User.cpp \

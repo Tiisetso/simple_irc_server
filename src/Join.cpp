@@ -12,8 +12,8 @@ static std::string buildNamesList(const Channel &channel)
 	std::ostringstream names;
 	const std::set<User *> &users = channel.getUsers();
 
-	for (std::set<User *>::const_iterator it = users.begin();
-		 it != users.end(); ++it)
+	for (std::set<User *>::const_iterator it = users.begin(); it != users.end();
+		 ++it)
 	{
 		if (it != users.begin())
 			names << ' ';
@@ -82,7 +82,7 @@ void Server::handleJoin(const command &cmd, User &client)
 		if (channel->isLimitReached())
 		{
 			queueMessage(client,
-						msgReply(client, ERR_CHANNELISFULL, channelName));
+						 msgReply(client, ERR_CHANNELISFULL, channelName));
 			continue;
 		}
 
