@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <iostream>
 
 #include "ReplyError.hpp"
@@ -8,6 +9,29 @@
 // Implement the five required channel modes
 // Build the successful-change broadcast
 // Add MODE #channel query with 324
+
+static void parseMode(const command &cmd, User &client, const std::string &target)
+{
+	char sign = 0;
+	const std::string &modeString = cmd.vals[1];
+
+	if (modeString.empty() || (modeString[0] != '+' && modeString[0] != '-'))
+	{
+		// ERR msg
+		return;
+	}
+
+	for (std::size_t i = 0; i < modeString.size(); i++)
+	{
+		char c = modeString[i];
+
+		if (c == '+' || c == '-')
+		{
+			sign = c;
+			continue;
+		}
+	}
+}
 
 void Server::handleUserMode(const command &cmd, User &client,
 							const std::string &target)
@@ -61,16 +85,8 @@ void Server::handleChannelMode(const command &cmd, User &client,
 		queueMessage(client, msgReply(client, ERR_CHANOPRIVSNEEDED, target));
 		return;
 	}
+	parseMode(cmd, client, target);
 }
-
-/*
-Mode	+ argument	- argument
-i	    none	    none
-t	    none	    none
-k	    key     	none
-l	positive limit 	none
-o	nickname    	nickname
-*/
 
 void Server::handleMode(const command &cmd, User &client)
 {
