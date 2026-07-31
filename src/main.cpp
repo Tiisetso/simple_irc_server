@@ -28,6 +28,7 @@ int main(int ac, char **av)
 	{
 		Server server(port, password);
 		server.createSocket();
+		server.signalSetup();
 		server.loop();
 	}
 	catch (const std::exception &e)
@@ -35,5 +36,6 @@ int main(int ac, char **av)
 		std::cerr << e.what() << std::endl;
 		return (1);
 	}
+	std::cout << "Server: Bye bye." << std::endl;
 	return (EXIT_SUCCESS);
 }
