@@ -66,6 +66,7 @@ class Server
 		void handlePing(const command &cmd, User &client);
 		void handlePart(const command &cmd, User &client);
 		void handleJoin(const command &cmd, User &client);
+		void handleKick(const command &cmd, User &client);
 		void handlePrivMsg(const command &cmd, User &client);
 		void handleQuit(const command &cmd, User &client);
 		void handleInvite(const command &cmd, User &client);
