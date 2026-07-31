@@ -12,12 +12,14 @@
 
 static void parseMode(const command &cmd, User &client, const std::string &target)
 {
-	char sign = 0;
+    char sign = '\0';
+    char mode = '\0';
 	const std::string &modeString = cmd.vals[1];
+    std::size_t argumentIndex = 2;
 
 	if (modeString.empty() || (modeString[0] != '+' && modeString[0] != '-'))
 	{
-		// ERR msg
+		//ERR msg
 		return;
 	}
 
@@ -30,6 +32,27 @@ static void parseMode(const command &cmd, User &client, const std::string &targe
 			sign = c;
 			continue;
 		}
+
+        //supportedMode
+        if (!(c == 'i' || c == 't' || c == 'k' || c == 'o' || c == 'l'))
+        {
+            //unsupported mode
+            return;
+        }
+
+        //mode needs argument
+        mode = c;
+        std::string argument{};
+        if (mode == 'o' || ((mode == 'k' || mode == 'l') && sign == '+'))
+        {
+            if (argumentIndex >= cmd.vals.size())
+            {
+                //missing argument
+                return;
+            }
+            argument = cmd.vals[argumentIndex];
+            argumentIndex++;
+        }
 	}
 }
 
