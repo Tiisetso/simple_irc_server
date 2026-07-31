@@ -15,9 +15,9 @@
 #include <stdexcept>
 #include <unordered_map>
 
+#include "Channel.hpp"
 #include "User.hpp"
 #include "Utilities.hpp"
-#include "Channel.hpp"
 
 #define BACKLOG 20
 #define MAX_MSG_LEN 512
@@ -183,7 +183,7 @@ void Server::createSocket()
 	_pollfds.push_back(serverPollfd);
 }
 
-bool Server::readClient(User &client)
+void Server::readClient(User &client)
 {
 	char buffer[1024];
 	ssize_t bytesReceived{};
@@ -193,16 +193,18 @@ bool Server::readClient(User &client)
 	if (bytesReceived < 0)
 	{
 		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
-			return true;
+			return;
 
+		client.setShouldDisconnect("Receive error.");
 		std::cerr << "Server: Failed to receive: " << client.getFd() << " : "
 				  << std::strerror(errno) << std::endl;
-		return false;
+		return;
 	}
 	else if (bytesReceived == 0)
 	{
+		client.setShouldDisconnect("Client closed connection.");
 		std::cout << "Server: Client disconnected" << std::endl;
-		return false;
+		return;
 	}
 	else
 	{
@@ -214,9 +216,12 @@ bool Server::readClient(User &client)
 		{
 			if (newlinePos >= MAX_MSG_LEN)
 			{
+				client.setShouldDisconnect("Sent message too long (" +
+										   std::to_string(MAX_MSG_LEN) +
+										   " bytes maximum)");
 				std::cerr << "Server: Message too long (" << MAX_MSG_LEN
 						  << " bytes maximum)." << std::endl;
-				return false;
+				return;
 			}
 
 			std::string fullMsg =
@@ -231,16 +236,18 @@ bool Server::readClient(User &client)
 			std::cout << "Server: Received: " << fullMsg.length()
 					  << " bytes: " << fullMsg << std::endl;
 
+			if (client.getShouldDisconnect())
+				return;
+
 			newlinePos = client.getReadBuffer().find('\n');
 		}
 		if (client.getReadBuffer().length() >= MAX_MSG_LEN)
 		{
+			client.setShouldDisconnect("Max message size exceeded.");
 			std::cerr << "Server: Message max size exceeded (" << MAX_MSG_LEN
 					  << " bytes maximum)." << std::endl;
-			return false;
 		}
 	}
-	return true;
 }
 
 void Server::queueMessage(User &client, const std::string &message)
@@ -248,7 +255,7 @@ void Server::queueMessage(User &client, const std::string &message)
 	if (message.size() > MAX_WRITE_BUFFER ||
 		client.getWriteBuffer().size() > MAX_WRITE_BUFFER - message.size())
 	{
-		client.setShouldDisconnect();
+		client.setShouldDisconnect("Write limit reached");
 		std::cerr << "Server: write buffer max size exceeded ("
 				  << MAX_WRITE_BUFFER << " bytes maximum)." << std::endl;
 		return;
@@ -266,24 +273,29 @@ void Server::queueMessage(User &client, const std::string &message)
 	}
 }
 
-void Server::broadcastToChannel(const Channel &channel, const std::string &message, const User *excludeUser)
+void Server::broadcastToChannel(const Channel &channel,
+								const std::string &message,
+								const User *excludeUser)
 {
 	const std::set<User *> &users = channel.getUsers();
 
-	for (std::set<User *>::const_iterator it = users.begin(); it != users.end(); it++)
+	for (std::set<User *>::const_iterator it = users.begin(); it != users.end();
+		 it++)
 	{
 		if (excludeUser != nullptr && *it == excludeUser)
 			continue;
-		queueMessage(
-					**it, message);
+		queueMessage(**it, message);
 	}
 }
 
-void Server::broadcastToUserChannels(User &client, const std::string &message, const User *excludeUser)
+void Server::broadcastToUserChannels(User &client, const std::string &message,
+									 const User *excludeUser)
 {
 	std::set<User *> alreadySent;
 
-	for (std::unordered_map<std::string, Channel>::iterator channelIt = _channels.begin(); channelIt != _channels.end(); channelIt++)
+	for (std::unordered_map<std::string, Channel>::iterator channelIt =
+			 _channels.begin();
+		 channelIt != _channels.end(); channelIt++)
 	{
 		Channel &channel = channelIt->second;
 
@@ -292,7 +304,8 @@ void Server::broadcastToUserChannels(User &client, const std::string &message, c
 
 		const std::set<User *> &users = channel.getUsers();
 
-		for (std::set<User *>::const_iterator userIt = users.begin(); userIt != users.end(); userIt++)
+		for (std::set<User *>::const_iterator userIt = users.begin();
+			 userIt != users.end(); userIt++)
 		{
 			User &user = **userIt;
 
@@ -305,18 +318,16 @@ void Server::broadcastToUserChannels(User &client, const std::string &message, c
 			alreadySent.insert(&user);
 		}
 	}
-
 }
 
-
-bool Server::writeToClient(User &client, pollfd &clientPollfd)
+void Server::writeToClient(User &client, pollfd &clientPollfd)
 {
 	std::string &writeBuffer = client.getWriteBuffer();
 
 	if (writeBuffer.empty())
 	{
 		clientPollfd.events &= ~POLLOUT;
-		return true;
+		return;
 	}
 
 	ssize_t bytesSent =
@@ -325,19 +336,18 @@ bool Server::writeToClient(User &client, pollfd &clientPollfd)
 	if (bytesSent < 0)
 	{
 		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
-			return true;
+			return;
 
+		client.setShouldDisconnect("Failed to send.");
 		std::cerr << "Server: Failed to send: " << client.getFd() << " : "
 				  << std::strerror(errno) << std::endl;
-		return false;
+		return;
 	}
 
 	writeBuffer.erase(0, bytesSent);
 
 	if (writeBuffer.empty())
 		clientPollfd.events &= ~POLLOUT;
-
-	return true;
 }
 
 void Server::setNonBlocking(int fd)
@@ -353,6 +363,11 @@ void Server::removeClient(std::size_t i)
 	int fd = _pollfds[i].fd;
 	User &user = _users.at(fd);
 
+	if (user.getIsRegistered())
+		broadcastToUserChannels(
+			user, msgFromClient(user, "QUIT", "", user.getDisconnectReason()),
+			&user);
+
 	_pollfds[i] = _pollfds.back();
 	_pollfds.pop_back();
 
@@ -362,36 +377,15 @@ void Server::removeClient(std::size_t i)
 	std::cout << "Server: Removed client at fd: " << fd << std::endl;
 }
 
-void Server::handleCap(const command &cmd, User &client)
-{
-	if (client.getIsRegistered())
-		return;
-
-	if (!cmd.vals.empty() && cmd.vals[0] == "LS")
-	{
-		client.setCapInProgress(true);
-		queueMessage(client, msgCap(client));
-		return;
-	}
-	if (!cmd.vals.empty() && cmd.vals[0] == "END")
-	{
-		client.setCapInProgress(false);
-		registerClient(client);
-		return;
-	}
-}
-
 void Server::loop()
 {
 	while (true)
 	{
 		int ready = poll(_pollfds.data(), _pollfds.size(), -1);
-
 		if (ready == -1)
 		{
 			if (errno == EINTR)
 				continue;
-
 			throw std::runtime_error(std::string("Server: Poll failed: ") +
 									 std::strerror(errno));
 		}
@@ -402,27 +396,20 @@ void Server::loop()
 		for (std::size_t i = 1; i < _pollfds.size();)
 		{
 			int fd = _pollfds[i].fd;
-			short events = _pollfds[i].revents;
-			bool keepClient = true;
+			short reventsClient = _pollfds[i].revents;
+			User &client = _users.at(fd);
 
-			if (events & POLLIN)
-			{
-				User &client = _users.at(fd);
-				keepClient = readClient(client);
-			}
-			if (keepClient && (events & POLLOUT))
-			{
-				User &client = _users.at(fd);
-				keepClient = writeToClient(client, _pollfds[i]);
-			}
+			if (reventsClient & POLLIN)
+				readClient(client);
 
-			if (_users.at(fd).getShouldDisconnect())
-				keepClient = false;
+			if (!client.getShouldDisconnect() && (reventsClient & POLLOUT))
+				writeToClient(client, _pollfds[i]);
 
-			if (events & (POLLERR | POLLHUP | POLLNVAL))
-				keepClient = false;
+			if ((reventsClient & (POLLERR | POLLHUP | POLLNVAL)) &&
+				!(reventsClient & POLLIN))
+				client.setShouldDisconnect("Connection closed");
 
-			if (!keepClient)
+			if (client.getShouldDisconnect())
 				removeClient(i);
 			else
 				i++;
@@ -455,6 +442,11 @@ bool Server::commandHandler(const command &cmd, User &client)
 	if (cmd.key == "PING")
 	{
 		handlePing(cmd, client);
+		return true;
+	}
+	if (cmd.key == "QUIT")
+	{
+		handleQuit(cmd, client);
 		return true;
 	}
 

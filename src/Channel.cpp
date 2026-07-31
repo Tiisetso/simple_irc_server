@@ -129,6 +129,7 @@ void Channel::removeUser(User &user)
 {
 	_users.erase(&user);
 	_operators.erase(&user);
+	_invitedUsers.erase(&user);
 }
 
 bool Channel::isUserInChannel(User &user) const
