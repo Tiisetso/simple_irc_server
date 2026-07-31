@@ -26,6 +26,7 @@ class Server
 		std::string _password;
 		std::string _version = "ircserv-0.1";
 		std::string _createdAt;
+		void handleInvite(const command &cmd, User &client);
 
 		void queueMessage(User &client, const std::string &message);
 		void broadcastToChannel(const Channel &channel,

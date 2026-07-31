@@ -17,6 +17,7 @@ enum errReplyCode
 	ERR_ERRONEUSNICKNAME = 432,
 	ERR_NICKNAMEINUSE = 433,
 	ERR_NOTONCHANNEL = 442,
+	ERR_USERONCHANNEL = 443,
 	ERR_NOTREGISTERED = 451,
 	ERR_NEEDMOREPARAMS = 461,
 	ERR_ALREADYREGISTERED = 462,
@@ -24,7 +25,8 @@ enum errReplyCode
 	ERR_CHANNELISFULL = 471,
 	ERR_INVITEONLYCHAN = 473,
 	ERR_BADCHANNELKEY = 475,
-	ERR_BADCHANMASK = 476
+	ERR_BADCHANMASK = 476,
+	ERR_CHANOPRIVSNEEDED = 482
 };
 
 const std::unordered_map<int, std::string> errReplyMsg = {
@@ -40,6 +42,7 @@ const std::unordered_map<int, std::string> errReplyMsg = {
 	{ERR_ERRONEUSNICKNAME, "Erroneous nickname"},
 	{ERR_NICKNAMEINUSE, "Nickname is already in use"},
 	{ERR_NOTONCHANNEL, "You're not on that channel"},
+	{ERR_USERONCHANNEL, "is already on channel"},
 	{ERR_NEEDMOREPARAMS, "Not enough parameters"},
 	{ERR_ALREADYREGISTERED, "You may not reregister"},
 	{ERR_PASSWDMISMATCH, "Password incorrect"},
@@ -47,4 +50,6 @@ const std::unordered_map<int, std::string> errReplyMsg = {
 	{ERR_CHANNELISFULL, "Cannot join channel (+l)"},
 	{ERR_INVITEONLYCHAN, "Cannot join channel (+i)"},
 	{ERR_BADCHANNELKEY, "Cannot join channel (+k)"},
-	{ERR_BADCHANMASK, "Bad Channel Mask"}};
+	{ERR_BADCHANMASK, "Bad Channel Mask"},
+	{ERR_CHANOPRIVSNEEDED, "You're not channel operator"},
+};
