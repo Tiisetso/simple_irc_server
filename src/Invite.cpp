@@ -12,7 +12,7 @@ void Server::handleInvite(const command &cmd, User &client)
 	User *invitee = getUser(nickName);
 	if (!invitee || !invitee->getIsRegistered())
 	{
-		queueMessage(client, msgReply(client, ERR_NOSUCHNICK, cmd.key));
+		queueMessage(client, msgReply(client, ERR_NOSUCHNICK, nickName));
 		return;
 	}
 
