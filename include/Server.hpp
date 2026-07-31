@@ -27,14 +27,6 @@ class Server
 		std::string _version = "ircserv-0.1";
 		std::string _createdAt;
 
-	public:
-		Server() = delete;
-		Server(const std::string &port, const std::string &password);
-		Server(const Server &other) = delete;
-		Server &operator=(const Server &other) = delete;
-		~Server();
-
-		void createSocket();
 		void queueMessage(User &client, const std::string &message);
 		void broadcastToChannel(const Channel &channel,
 								const std::string &message,
@@ -57,15 +49,13 @@ class Server
 		void removeUserFromAllChannels(User &client);
 		std::size_t countUserChannels(User &client);
 
-		void setNonBlocking(int fd);
-		void loop();
+		static void setNonBlocking(int fd);
 
 		bool commandHandler(const command &cmd, User &client);
 		void handleCap(const command &cmd, User &client);
 		void handlePass(const command &cmd, User &client);
 		void handleUser(const command &cmd, User &client);
 		void handleNick(const command &cmd, User &client);
-		bool isValidNick(const std::string &val);
 		bool nickInUse(const std::string &val, User &client);
 		void handlePing(const command &cmd, User &client);
 		void handlePart(const command &cmd, User &client);
@@ -86,4 +76,14 @@ class Server
 							   const std::string &middle,
 							   const std::string &trailing);
 		std::string msgCap(const User &client);
+
+	public:
+		Server() = delete;
+		Server(const std::string &port, const std::string &password);
+		Server(const Server &other) = delete;
+		Server &operator=(const Server &other) = delete;
+		~Server();
+
+		void createSocket();
+		void loop();
 };
