@@ -67,6 +67,10 @@ class Server
 		void handlePart(const command &cmd, User &client);
 		void handleJoin(const command &cmd, User &client);
 		void handleKick(const command &cmd, User &client);
+		void kickSingleUserFromChannel(User &kicker,
+									   const std::string &channelName,
+									   const std::string &targetNick,
+									   const std::string &reason);
 		void handlePrivMsg(const command &cmd, User &client);
 		void handleQuit(const command &cmd, User &client);
 		void handleInvite(const command &cmd, User &client);
