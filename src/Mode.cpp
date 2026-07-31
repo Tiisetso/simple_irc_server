@@ -1,25 +1,24 @@
 #include <cstddef>
 #include <iostream>
+#include <string>
 
+#include "Channel.hpp"
 #include "ReplyError.hpp"
 #include "Server.hpp"
 
-// MODE command dispatch and target validation
-// Modestring parsing
-// Implement the five required channel modes
-// Build the successful-change broadcast
-// Add MODE #channel query with 324
-
-static void parseMode(const command &cmd, User &client, const std::string &target)
+void Server::parseChannelMode(const command &cmd, User &client,
+							  Channel &channel)
 {
-    char sign = '\0';
-    char mode = '\0';
+    (void)channel;
+
+	char sign = '\0';
+	char mode = '\0';
 	const std::string &modeString = cmd.vals[1];
-    std::size_t argumentIndex = 2;
+	std::size_t argumentIndex = 2;
 
 	if (modeString.empty() || (modeString[0] != '+' && modeString[0] != '-'))
 	{
-		//ERR msg
+		queueMessage(client, msgReply(client, ERR_UNKNOWNMODE, modeString));
 		return;
 	}
 
@@ -33,26 +32,49 @@ static void parseMode(const command &cmd, User &client, const std::string &targe
 			continue;
 		}
 
-        //supportedMode
-        if (!(c == 'i' || c == 't' || c == 'k' || c == 'o' || c == 'l'))
-        {
-            //unsupported mode
-            return;
-        }
+		// unsupportedMode
+		if (!(c == 'i' || c == 't' || c == 'k' || c == 'o' || c == 'l'))
+		{
+			std::string modeChar{c};
+			queueMessage(client, msgReply(client, ERR_UNKNOWNMODE, cmd.key + modeChar));
+			return;
+		}
 
-        //mode needs argument
-        mode = c;
-        std::string argument{};
-        if (mode == 'o' || ((mode == 'k' || mode == 'l') && sign == '+'))
-        {
-            if (argumentIndex >= cmd.vals.size())
-            {
-                //missing argument
-                return;
-            }
-            argument = cmd.vals[argumentIndex];
-            argumentIndex++;
-        }
+		// mode needs argument
+		mode = c;
+		std::string argument{};
+		if (mode == 'o' || ((mode == 'k' || mode == 'l') && sign == '+'))
+		{
+			// missing argument
+			if (argumentIndex >= cmd.vals.size())
+			{
+				std::string modeChar{c};
+				queueMessage(client,
+							 msgReply(client, ERR_NEEDMOREPARAMS, modeChar));
+				return;
+			}
+			argument = cmd.vals[argumentIndex];
+			argumentIndex++;
+		}
+
+		switch (mode)
+		{
+			case 'i':
+				//handleModeI(client, channel);
+				break;
+			case 't':
+				//handleModeT(client, channel);
+				break;
+			case 'k':
+				//handlModeK(client, channel, sign, argument);
+				break;
+			case 'o':
+				//handleModeO(client, channel, sign, argument);
+				break;
+			case 'l':
+				//handleModeL(client, channel, sign, argument);
+				break;
+		}
 	}
 }
 
@@ -75,7 +97,7 @@ void Server::handleUserMode(const command &cmd, User &client,
 	// User mode not required
 	if (cmd.vals.size() == 1)
 	{
-		queueMessage(client, msgNumeric(client, 221, ":", ""));
+		queueMessage(client, msgNumeric(client, 221, cmd.key, ""));
 		return;
 	}
 }
@@ -94,11 +116,7 @@ void Server::handleChannelMode(const command &cmd, User &client,
 	// MODE #channel
 	if (cmd.vals.size() == 1)
 	{
-		// TODO: if (cmd.vals.size() == 1) reply with the channel's current
-		// modes if channel mode is given.
-		// queueMessage(client, queueMessage(client, msgNumeric(client, int
-		// code, const std::string &middle, const std::string &trailing))) 324
-		// 329
+		queueMessage(client, msgMode(client, *channel));
 		return;
 	}
 
@@ -108,7 +126,7 @@ void Server::handleChannelMode(const command &cmd, User &client,
 		queueMessage(client, msgReply(client, ERR_CHANOPRIVSNEEDED, target));
 		return;
 	}
-	parseMode(cmd, client, target);
+	parseChannelMode(cmd, client, *channel);
 }
 
 void Server::handleMode(const command &cmd, User &client)

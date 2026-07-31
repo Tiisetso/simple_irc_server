@@ -57,4 +57,6 @@ class Channel
 		void addOperator(User &user);
 		void removeOperator(User &user);
 		bool isOperator(User &user) const;
+
+		std::string getMode() const;
 };
