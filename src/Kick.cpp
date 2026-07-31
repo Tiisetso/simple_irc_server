@@ -30,8 +30,8 @@ void Server::handleKick(const command &cmd, User &client)
 
 	if (!channel->isOperator(client))
 	{
-		queueMessage(client,
-					 msgReply(client, ERR_CHANOPRIVSNEEDED, channel->getName()));
+		queueMessage(
+			client, msgReply(client, ERR_CHANOPRIVSNEEDED, channel->getName()));
 		return;
 	}
 
@@ -44,9 +44,9 @@ void Server::handleKick(const command &cmd, User &client)
 
 	if (!channel->isUserInChannel(*victim))
 	{
-		queueMessage(client,
-					 msgReply(client, ERR_USERNOTINCHANNEL,
-							  victim->getNickName() + " " + channel->getName()));
+		queueMessage(
+			client, msgReply(client, ERR_USERNOTINCHANNEL,
+							 victim->getNickName() + " " + channel->getName()));
 		return;
 	}
 
