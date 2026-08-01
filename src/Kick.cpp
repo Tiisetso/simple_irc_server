@@ -43,22 +43,22 @@ void Server::handleKick(const command &cmd, User &client)
 		if (nick.empty())
 			continue;
 
-		kickSingleUserFromChannel(client, channelName, nick, reason);
+		Channel *currentChannel = getChannel(channelName);
+		if (!currentChannel)
+		{
+			queueMessage(client,
+						 msgReply(client, ERR_NOSUCHCHANNEL, channelName));
+			continue;
+		}
+
+		kickSingleUserFromChannel(client, *currentChannel, nick, reason);
 	}
 }
 
-void Server::kickSingleUserFromChannel(User &kicker,
-									   const std::string &channelName,
+void Server::kickSingleUserFromChannel(User &kicker, Channel &channel,
 									   const std::string &targetNick,
 									   const std::string &reason)
 {
-	Channel *channel = getChannel(channelName);
-	if (!channel)
-	{
-		queueMessage(kicker, msgReply(kicker, ERR_NOSUCHCHANNEL, channelName));
-		return;
-	}
-
 	User *victim = getUser(targetNick);
 	if (!victim)
 	{
@@ -66,20 +66,20 @@ void Server::kickSingleUserFromChannel(User &kicker,
 		return;
 	}
 
-	if (!channel->isUserInChannel(*victim))
+	if (!channel.isUserInChannel(*victim))
 	{
 		queueMessage(
 			kicker, msgReply(kicker, ERR_USERNOTINCHANNEL,
-							 victim->getNickName() + " " + channel->getName()));
+							 victim->getNickName() + " " + channel.getName()));
 		return;
 	}
 
 	const std::string kickParams =
-		channel->getName() + " " + victim->getNickName();
+		channel.getName() + " " + victim->getNickName();
 	const std::string kickMsg =
 		msgFromClient(kicker, "KICK", kickParams, reason);
-	broadcastToChannel(*channel, kickMsg, nullptr);
-	channel->removeUser(*victim);
-	if (channel->getUsers().empty())
-		removeChannel(*channel);
+	broadcastToChannel(channel, kickMsg, nullptr);
+	channel.removeUser(*victim);
+	if (channel.getUsers().empty())
+		removeChannel(channel);
 }
