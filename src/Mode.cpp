@@ -6,10 +6,18 @@
 #include "ReplyError.hpp"
 #include "Server.hpp"
 
+void Server::handleModeI(Channel &channel, char sign)
+{
+	if (sign == '+')
+		channel.setInviteOnly(true);
+	else
+		channel.setInviteOnly(false);
+}
+
 void Server::parseChannelMode(const command &cmd, User &client,
 							  Channel &channel)
 {
-    (void)channel;
+	(void)channel;
 
 	char sign = '\0';
 	char mode = '\0';
@@ -36,7 +44,8 @@ void Server::parseChannelMode(const command &cmd, User &client,
 		if (!(c == 'i' || c == 't' || c == 'k' || c == 'o' || c == 'l'))
 		{
 			std::string modeChar{c};
-			queueMessage(client, msgReply(client, ERR_UNKNOWNMODE, cmd.key + " " + modeChar));
+			queueMessage(client, msgReply(client, ERR_UNKNOWNMODE,
+										  cmd.key + " " + modeChar));
 			return;
 		}
 
@@ -60,19 +69,19 @@ void Server::parseChannelMode(const command &cmd, User &client,
 		switch (mode)
 		{
 			case 'i':
-				//handleModeI(client, channel);
+				handleModeI(channel, sign);
 				break;
 			case 't':
-				//handleModeT(client, channel);
+				// handleModeT(client, channel);
 				break;
 			case 'k':
-				//handlModeK(client, channel, sign, argument);
+				// handlModeK(client, channel, sign, argument);
 				break;
 			case 'o':
-				//handleModeO(client, channel, sign, argument);
+				// handleModeO(client, channel, sign, argument);
 				break;
 			case 'l':
-				//handleModeL(client, channel, sign, argument);
+				// handleModeL(client, channel, sign, argument);
 				break;
 		}
 	}

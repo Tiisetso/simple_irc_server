@@ -76,6 +76,7 @@ class Server
 							   const std::string &target);
 		void parseChannelMode(const command &cmd, User &client,
 							  Channel &channel);
+		void handleModeI(Channel &channel, char sign);
 
 		std::string msgPrefix(const User &client);
 		std::string msgReply(const User &client, errReplyCode codeReply,
