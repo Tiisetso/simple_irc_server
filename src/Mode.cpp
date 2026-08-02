@@ -6,18 +6,23 @@
 #include "ReplyError.hpp"
 #include "Server.hpp"
 
-void Server::handleModeI(Channel &channel, char sign)
+void Server::handleModeI(User &client, Channel &channel, char sign)
 {
 	if (sign == '+')
+	{
 		channel.setInviteOnly(true);
+		broadcastToChannel(channel,msgFromClient(client, "MODE", channel.getName() + " +i "), nullptr);
+	}
 	else
+	{
 		channel.setInviteOnly(false);
+		broadcastToChannel(channel,msgFromClient(client, "MODE", channel.getName() + " -i "), nullptr);
+	}
 }
 
 void Server::parseChannelMode(const command &cmd, User &client,
 							  Channel &channel)
 {
-	(void)channel;
 
 	char sign = '\0';
 	char mode = '\0';
@@ -69,7 +74,7 @@ void Server::parseChannelMode(const command &cmd, User &client,
 		switch (mode)
 		{
 			case 'i':
-				handleModeI(channel, sign);
+				handleModeI(client, channel, sign);
 				break;
 			case 't':
 				// handleModeT(client, channel);
@@ -140,7 +145,6 @@ void Server::handleChannelMode(const command &cmd, User &client,
 
 void Server::handleMode(const command &cmd, User &client)
 {
-	std::cout << "mode handler reached" << std::endl;
 	if (cmd.vals.empty())
 	{
 		queueMessage(client, msgReply(client, ERR_NEEDMOREPARAMS, cmd.key));
