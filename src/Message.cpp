@@ -154,3 +154,4 @@ std::string Server::msgMode(const User &client, const Channel &channel)
 	return ":" + _serverName + " 324 " + client.getNickName() + " " +
 		   channel.getName() + " " + channel.getMode() + "\r\n";
 }
+

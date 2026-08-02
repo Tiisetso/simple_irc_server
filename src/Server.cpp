@@ -478,6 +478,11 @@ bool Server::commandHandler(const command &cmd, User &client)
 		handleJoin(cmd, client);
 		return true;
 	}
+	if (cmd.key == "KICK")
+	{
+		handleKick(cmd, client);
+		return true;
+	}
 	if (cmd.key == "PART")
 	{
 		handlePart(cmd, client);
@@ -495,7 +500,7 @@ bool Server::commandHandler(const command &cmd, User &client)
 	}
 	if (cmd.key == "MODE")
 	{
-		handleMode(cmd,client);
+		handleMode(cmd, client);
 		return (true);
 	}
 
