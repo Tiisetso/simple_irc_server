@@ -495,7 +495,7 @@ bool Server::commandHandler(const command &cmd, User &client)
 	}
 	if (cmd.key == "MODE")
 	{
-		handleMode(cmd,client);
+		handleMode(cmd, client);
 		return (true);
 	}
 

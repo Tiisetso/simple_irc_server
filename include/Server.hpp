@@ -102,5 +102,4 @@ class Server
 		void createSocket();
 		void loop();
 		void signalSetup();
-
 };

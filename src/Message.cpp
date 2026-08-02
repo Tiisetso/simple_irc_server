@@ -151,5 +151,6 @@ std::string Server::msgCap(const User &client)
 
 std::string Server::msgMode(const User &client, const Channel &channel)
 {
-	return 	":" + _serverName + " 324 " + client.getNickName() + " " + channel.getName() + " " + channel.getMode() + "\r\n";
+	return ":" + _serverName + " 324 " + client.getNickName() + " " +
+		   channel.getName() + " " + channel.getMode() + "\r\n";
 }
