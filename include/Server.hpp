@@ -76,6 +76,7 @@ class Server
 							   const std::string &target);
 		void parseChannelMode(const command &cmd, User &client,
 							  Channel &channel);
+		void handleModeK(User &client, Channel &channel, char sign, const std::string &argument);
 
 		std::string msgPrefix(const User &client);
 		std::string msgReply(const User &client, errReplyCode codeReply,
@@ -90,7 +91,7 @@ class Server
 							   const std::string &middle,
 							   const std::string &trailing);
 		std::string msgCap(const User &client);
-		std::string msgMode(const User &client, const Channel &channel);
+		std::string msgMode(const User &client, const Channel &channel, bool isMember);
 
 	public:
 		Server() = delete;
