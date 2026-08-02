@@ -10,9 +10,10 @@ void Server::handleModeK(User &client, Channel &channel, char sign,
 {
 	if (sign == '+')
 	{
-		if (argument.empty() || argument.find(' ') != std::string::npos)
+		// MODE #channel +K :
+		if (argument.empty())
 		{
-			queueMessage(client, msgReply(client, ERR_INVALIDKEY, argument));
+			queueMessage(client, msgReply(client, ERR_INVALIDKEY, channel.getName()));
 			return;
 		}
 
@@ -75,9 +76,8 @@ void Server::parseChannelMode(const command &cmd, User &client,
 			// missing argument
 			if (argumentIndex >= cmd.vals.size())
 			{
-				std::string modeChar{c};
 				queueMessage(client,
-							 msgReply(client, ERR_NEEDMOREPARAMS, modeChar));
+							 msgReply(client, ERR_NEEDMOREPARAMS, cmd.key));
 				return;
 			}
 			argument = cmd.vals[argumentIndex];
