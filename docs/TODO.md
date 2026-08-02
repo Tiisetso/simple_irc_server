@@ -17,7 +17,7 @@ https://beej.us/guide/bgnet/
 - [x] Authenticate clients with the server password.
 - [x] Implement nickname registration (`NICK`).
 - [x] Implement username registration (`USER`).
-- [ ] Ensure the selected reference client can connect without errors.
+- [x] Ensure the selected reference client can connect without errors.
 - [x] Support joining channels (`JOIN`).
 - [x] Support private messages between clients (`PRIVMSG`).
 - [x] Broadcast channel messages to every client currently in that channel.
@@ -30,8 +30,8 @@ https://beej.us/guide/bgnet/
 
 ## Channel operator commands
 
-- [ ] `KICK`: eject a client from a channel.
-- [ ] `INVITE`: invite a client to a channel.
+- [x] `KICK`: eject a client from a channel.
+- [x] `INVITE`: invite a client to a channel.
 - [ ] `TOPIC`: view or change a channel topic.
 - [ ] `MODE`: manage the following channel modes:
   - [ ] `i`: invite-only channel.
