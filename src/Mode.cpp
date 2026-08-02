@@ -65,7 +65,7 @@ void Server::parseChannelMode(const command &cmd, User &client,
 			std::string modeChar{c};
 			queueMessage(client, msgReply(client, ERR_UNKNOWNMODE,
 										  cmd.key + " " + modeChar));
-			return;
+			continue;
 		}
 
 		// mode needs argument
