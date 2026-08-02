@@ -1,5 +1,4 @@
 #include <cstddef>
-#include <iostream>
 #include <string>
 
 #include "Channel.hpp"
@@ -9,6 +8,7 @@
 void Server::parseChannelMode(const command &cmd, User &client,
 							  Channel &channel)
 {
+	(void)channel;
 	char sign = '\0';
 	char mode = '\0';
 	const std::string &modeString = cmd.vals[1];
