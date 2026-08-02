@@ -10,19 +10,22 @@ void Server::handleModeI(User &client, Channel &channel, char sign)
 	if (sign == '+')
 	{
 		channel.setInviteOnly(true);
-		broadcastToChannel(channel,msgFromClient(client, "MODE", channel.getName() + " +i "), nullptr);
+		broadcastToChannel(
+			channel, msgFromClient(client, "MODE", channel.getName() + " +i "),
+			nullptr);
 	}
 	else
 	{
 		channel.setInviteOnly(false);
-		broadcastToChannel(channel,msgFromClient(client, "MODE", channel.getName() + " -i "), nullptr);
+		broadcastToChannel(
+			channel, msgFromClient(client, "MODE", channel.getName() + " -i "),
+			nullptr);
 	}
 }
 
 void Server::parseChannelMode(const command &cmd, User &client,
 							  Channel &channel)
 {
-
 	char sign = '\0';
 	char mode = '\0';
 	const std::string &modeString = cmd.vals[1];
