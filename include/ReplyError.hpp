@@ -29,7 +29,8 @@ enum errReplyCode
 	ERR_BADCHANNELKEY = 475,
 	ERR_BADCHANMASK = 476,
 	ERR_CHANOPRIVSNEEDED = 482,
-	ERR_USERSDONTMATCH = 502
+	ERR_USERSDONTMATCH = 502,
+	ERR_INVALIDMODEPARAM = 696
 };
 
 const std::unordered_map<int, std::string> errReplyMsg = {

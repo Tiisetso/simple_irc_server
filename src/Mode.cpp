@@ -1,9 +1,53 @@
+#include <climits>
 #include <cstddef>
 #include <string>
 
 #include "Channel.hpp"
 #include "ReplyError.hpp"
 #include "Server.hpp"
+
+void Server::handleModeL(User &client, Channel &channel, char sign, const std::string &argument)
+{
+	if (sign == '-')
+	{
+		channel.removeLimit();
+		broadcastToChannel(channel, msgFromClient(client, "MODE", channel.getName() + " -l"), nullptr);
+		return;
+	}
+	if (argument.empty())
+	{
+		queueMessage(client,msgReply(client, ERR_INVALIDMODEPARAM, channel.getName() + " l " + argument));
+		return;
+	}
+
+	for (std::size_t i = 0; i < argument.size(); ++i)
+	{
+		if (argument[i] < '0' || argument[i] > '9')
+		{
+			queueMessage(client,msgReply(client, ERR_INVALIDMODEPARAM, channel.getName() + " l " + argument));
+			return;
+		}
+	}
+
+	try
+	{
+		unsigned long long number = stoull(argument);
+
+		if (number > INT_MAX)
+		{
+			queueMessage(client,msgReply(client, ERR_INVALIDMODEPARAM, channel.getName() + " l " + argument));
+			return;
+		}
+		std::size_t limit = number;
+		channel.setLimit(limit);
+		broadcastToChannel(channel, msgFromClient(client, "MODE", channel.getName() + " +l " + std::to_string(limit)), nullptr);
+	}
+	catch (...)
+	{
+		queueMessage(client,msgReply(client, ERR_INVALIDMODEPARAM, channel.getName() + " l " + argument));
+		return;
+	}
+}
 
 void Server::parseChannelMode(const command &cmd, User &client,
 							  Channel &channel)
@@ -71,7 +115,7 @@ void Server::parseChannelMode(const command &cmd, User &client,
 				// handleModeO(client, channel, sign, argument);
 				break;
 			case 'l':
-				// handleModeL(client, channel, sign, argument);
+				handleModeL(client, channel, sign, argument);
 				break;
 		}
 	}
