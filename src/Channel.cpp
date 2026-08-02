@@ -162,28 +162,29 @@ bool Channel::isOperator(User &user) const
 	return true;
 }
 
-std::string Channel::getMode() const
+std::string Channel::getMode(bool isMember) const
 {
-    std::string modeString{};
-    std::string argument{};
+	std::string modeString{};
+	std::string argument{};
 
-    if (_inviteOnly)
-        modeString += 'i';
-    if (_topicRestricted)
-        modeString += 't';
-    if (_hasKey)
-    {
-        modeString += 'k';
-        argument += " " + _key;
-    }
-    if (_hasLimit)
-    {
-        modeString += 'l';
-        argument += " " + std::to_string(_limit);
-    }
+	if (_inviteOnly)
+		modeString += 'i';
+	if (_topicRestricted)
+		modeString += 't';
+	if (_hasKey)
+	{
+		modeString += 'k';
+		if (isMember)
+			argument += " " + _key;
+	}
+	if (_hasLimit)
+	{
+		modeString += 'l';
+		argument += " " + std::to_string(_limit);
+	}
 
-    if (modeString.empty())
-        return modeString;
+	if (modeString.empty())
+		return modeString;
 
-    return modeString + argument;
+	return modeString + argument;
 }

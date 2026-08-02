@@ -24,7 +24,7 @@ void Server::handleModeK(User &client, Channel &channel, char sign, const std::s
 			return;
 		else
 			channel.removeKey();
-		broadcastToChannel(channel, msgFromClient(client, "MODE", channel.getName() + " -k "), nullptr);
+		broadcastToChannel(channel, msgFromClient(client, "MODE", channel.getName() + " -k"), nullptr);
 	}
 }
 

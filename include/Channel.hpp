@@ -58,5 +58,5 @@ class Channel
 		void removeOperator(User &user);
 		bool isOperator(User &user) const;
 
-		std::string getMode() const;
+		std::string getMode(bool isMember) const;
 };
