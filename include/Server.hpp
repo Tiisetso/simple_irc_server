@@ -97,11 +97,6 @@ class Server
 							   const std::string &trailing);
 		std::string msgCap(const User &client);
 		std::string msgMode(const User &client, const Channel &channel);
-		std::string msgInvalidModeParam(const User &client,
-										const Channel &channel,
-										const std::string &modeChar,
-										const std::string &parameter,
-										const std::string &description);
 
 	public:
 		Server() = delete;
