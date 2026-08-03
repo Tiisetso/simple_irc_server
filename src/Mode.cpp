@@ -38,7 +38,7 @@ void Server::handleModeL(User &client, Channel &channel, char sign,
 	try
 	{
 		// string to unsigned long
-		unsigned long number = stoul(argument);
+		unsigned long number = std::stoul(argument);
 
 		if (number == 0 || number > INT_MAX)
 		{
