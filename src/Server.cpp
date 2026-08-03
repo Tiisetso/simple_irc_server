@@ -22,6 +22,7 @@
 #define BACKLOG 20
 #define MAX_MSG_LEN 512
 #define MAX_WRITE_BUFFER (200 * 1024)
+#define MAX_READ_BUFFER (8 * 1024)
 
 volatile sig_atomic_t Server::_exitServer = 0;
 
@@ -147,8 +148,7 @@ void Server::createSocket()
 		if (_servSockFd == -1)
 			continue;
 		socketyes = 1;
-		std::cout << "Server: Socket created, fd = " << _servSockFd
-				  << "\n";
+		std::cout << "Server: Socket created, fd = " << _servSockFd << "\n";
 
 		int sockopt = 1;
 		if (setsockopt(_servSockFd, SOL_SOCKET, SO_REUSEADDR, &sockopt,
@@ -192,7 +192,7 @@ void Server::createSocket()
 
 void Server::readClient(User &client)
 {
-	char buffer[1024];
+	char buffer[MAX_READ_BUFFER];
 	ssize_t bytesReceived{};
 
 	bytesReceived = recv(client.getFd(), buffer, sizeof(buffer), 0);
@@ -269,15 +269,6 @@ void Server::queueMessage(User &client, const std::string &message)
 	}
 
 	client.getWriteBuffer() += message;
-
-	// for (std::size_t i = 1; i < _pollfds.size(); i++)
-	// {
-	// 	if (_pollfds[i].fd == client.getFd())
-	// 	{
-	// 		_pollfds[i].events |= POLLOUT;
-	// 		return;
-	// 	}
-	// }
 }
 
 void Server::broadcastToChannel(const Channel &channel,
@@ -327,16 +318,9 @@ void Server::broadcastToUserChannels(User &client, const std::string &message,
 	}
 }
 
-// void Server::writeToClient(User &client, pollfd &clientPollfd)
 void Server::writeToClient(User &client)
 {
 	std::string &writeBuffer = client.getWriteBuffer();
-
-	// if (writeBuffer.empty())
-	// {
-	// 	clientPollfd.events &= ~POLLOUT;
-	// 	return;
-	// }
 
 	ssize_t bytesSent =
 		send(client.getFd(), writeBuffer.c_str(), writeBuffer.size(), 0);
@@ -353,9 +337,6 @@ void Server::writeToClient(User &client)
 	}
 
 	writeBuffer.erase(0, bytesSent);
-
-	// if (writeBuffer.empty())
-	// 	clientPollfd.events &= ~POLLOUT;
 }
 
 void Server::setNonBlocking(int fd)
@@ -414,28 +395,31 @@ void Server::loop()
 			short reventsClient = _pollfds[i].revents;
 			User &client = _users.at(fd);
 
-
-			if(client.getWriteBuffer().size() != 0)
-				_pollfds[i].events |= POLLOUT;
-			else
-				_pollfds[i].events &= ~POLLOUT;
-
-
 			if (reventsClient & POLLIN)
 				readClient(client);
 
 			if (!client.getShouldDisconnect() && (reventsClient & POLLOUT))
 				writeToClient(client);
-				// writeToClient(client, _pollfds[i]);
 
 			if ((reventsClient & (POLLERR | POLLHUP | POLLNVAL)) &&
 				!(reventsClient & POLLIN))
 				client.setShouldDisconnect("Connection closed");
 
 			if (client.getShouldDisconnect())
+			{
 				removeClient(i);
+				continue;
+			}
+
+			i++;
+		}
+
+		for (std::size_t i = 1; i < _pollfds.size(); i++)
+		{
+			if (_users.at(_pollfds[i].fd).getWriteBuffer().empty())
+				_pollfds[i].events &= ~POLLOUT;
 			else
-				i++;
+				_pollfds[i].events |= POLLOUT;
 		}
 	}
 	std::time_t uptime = getCurrentTime() - _startedAt;

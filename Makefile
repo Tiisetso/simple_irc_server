@@ -1,7 +1,7 @@
 NAME := ircserv
 
 CXX := c++
-CXXFLAGS := -Wall -Wextra -Werror -std=c++20
+CXXFLAGS := -Wall -Wextra -Werror -std=c++20 -O2
 CPPFLAGS := -MMD -MP -Iinclude
 
 VFLAGS := -g -O0
