@@ -5,11 +5,38 @@
 #include "ReplyError.hpp"
 #include "Server.hpp"
 
-void Server::handleModeO(User &client, Channel &channel, char sign, const std::string argument)
+void Server::handleModeO(User &client, Channel &channel, char sign,
+						 const std::string argument)
 {
-	
+	User *user = getUser(argument) if (!user)
+	{
+		// err cannot find user
+		return;
+	}
+	if (!channel.isUserInChannel(*user))
+	{
+		// err user notinchan
+		return;
+	}
+	if (sign == '-')
+	{
+		if (!channel.isOperator(*user))
+			return;
+		channel.removeOperator(*user);
+		broadcastToChannel(
+			channel, msgFromClient(client, "MODE", channel.getName() + " -o"),
+			nullptr);
+	}
+	if (sign == '+')
+	{
+		if (channel.isOperator(*user))
+			return;
+		channel.addOperator(*user);
+		broadcastToChannel(
+			channel, msgFromClient(client, "MODE", channel.getName() + " +o"),
+			nullptr);
+	}
 }
-
 
 void Server::parseChannelMode(const command &cmd, User &client,
 							  Channel &channel)
