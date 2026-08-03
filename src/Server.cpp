@@ -577,4 +577,8 @@ void Server::signalSetup()
 		throw std::runtime_error(
 			std::string("Server: Failed to set SIGINT handler: ") +
 			std::strerror(errno));
+	if (sigaction(SIGTERM, &sa, nullptr) == -1)
+		throw std::runtime_error(
+			std::string("Server: Failed to set SIGTERM handler: ") +
+			std::strerror(errno));
 }
