@@ -156,7 +156,8 @@ std::string Server::msgMode(const User &client, const Channel &channel)
 }
 
 std::string Server::msgInvalidModeParam(const User &client,
-										const Channel &channel, const std::string &modeChar,
+										const Channel &channel,
+										const std::string &modeChar,
 										const std::string &parameter,
 										const std::string &message)
 {

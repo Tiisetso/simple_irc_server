@@ -6,17 +6,21 @@
 #include "ReplyError.hpp"
 #include "Server.hpp"
 
-void Server::handleModeL(User &client, Channel &channel, char sign, const std::string &argument)
+void Server::handleModeL(User &client, Channel &channel, char sign,
+						 const std::string &argument)
 {
 	if (sign == '-')
 	{
 		channel.removeLimit();
-		broadcastToChannel(channel, msgFromClient(client, "MODE", channel.getName() + " -l"), nullptr);
+		broadcastToChannel(
+			channel, msgFromClient(client, "MODE", channel.getName() + " -l"),
+			nullptr);
 		return;
 	}
 	if (argument.empty())
 	{
-		queueMessage(client, msgInvalidModeParam(client, channel, "l", "*", "empty param"));
+		queueMessage(client, msgInvalidModeParam(client, channel, "l", "*",
+												 "empty param"));
 		return;
 	}
 
@@ -24,28 +28,37 @@ void Server::handleModeL(User &client, Channel &channel, char sign, const std::s
 	{
 		if (argument[i] < '0' || argument[i] > '9')
 		{
-			queueMessage(client,msgInvalidModeParam(client, channel, "l", argument, "invalid limit"));
+			queueMessage(client,
+						 msgInvalidModeParam(client, channel, "l", argument,
+											 "invalid limit"));
 			return;
 		}
 	}
 
 	try
 	{
-		//string to unsigned long
+		// string to unsigned long
 		unsigned long number = stoul(argument);
 
 		if (number == 0 || number > INT_MAX)
 		{
-			queueMessage(client,msgInvalidModeParam(client, channel, "l", argument, "invalid limit"));
+			queueMessage(client,
+						 msgInvalidModeParam(client, channel, "l", argument,
+											 "invalid limit"));
 			return;
 		}
 		std::size_t limit = number;
 		channel.setLimit(limit);
-		broadcastToChannel(channel, msgFromClient(client, "MODE", channel.getName() + " +l " + std::to_string(limit)), nullptr);
+		broadcastToChannel(
+			channel,
+			msgFromClient(client, "MODE",
+						  channel.getName() + " +l " + std::to_string(limit)),
+			nullptr);
 	}
 	catch (...)
 	{
-		queueMessage(client,msgInvalidModeParam(client, channel, "l", argument, "invalid limit"));
+		queueMessage(client, msgInvalidModeParam(client, channel, "l", argument,
+												 "invalid limit"));
 		return;
 	}
 }
