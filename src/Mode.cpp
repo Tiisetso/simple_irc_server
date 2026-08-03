@@ -5,10 +5,15 @@
 #include "ReplyError.hpp"
 #include "Server.hpp"
 
+void Server::handleModeO(User &client, Channel &channel, char sign, const std::string argument)
+{
+	
+}
+
+
 void Server::parseChannelMode(const command &cmd, User &client,
 							  Channel &channel)
 {
-	(void)channel;
 	char sign = '\0';
 	char mode = '\0';
 	const std::string &modeString = cmd.vals[1];
@@ -67,7 +72,7 @@ void Server::parseChannelMode(const command &cmd, User &client,
 				// handleModeK(client, channel, sign, argument);
 				break;
 			case 'o':
-				// handleModeO(client, channel, sign, argument);
+				handleModeO(client, channel, sign, argument);
 				break;
 			case 'l':
 				// handleModeL(client, channel, sign, argument);
