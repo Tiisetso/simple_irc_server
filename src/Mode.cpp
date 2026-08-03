@@ -19,8 +19,9 @@ void Server::handleModeL(User &client, Channel &channel, char sign,
 	}
 	if (argument.empty())
 	{
-		queueMessage(client, msgInvalidModeParam(client, channel, "l", "*",
-												 "empty param"));
+		queueMessage(client, msgNumeric(client, 696,
+										channel.getName() + " l " + argument,
+										"empty mode param"));
 		return;
 	}
 
@@ -28,9 +29,10 @@ void Server::handleModeL(User &client, Channel &channel, char sign,
 	{
 		if (argument[i] < '0' || argument[i] > '9')
 		{
-			queueMessage(client,
-						 msgInvalidModeParam(client, channel, "l", argument,
-											 "invalid limit"));
+			queueMessage(
+				client,
+				msgNumeric(client, 696, channel.getName() + " l " + argument,
+						   "invalid limit"));
 			return;
 		}
 	}
@@ -42,9 +44,10 @@ void Server::handleModeL(User &client, Channel &channel, char sign,
 
 		if (number == 0 || number > INT_MAX)
 		{
-			queueMessage(client,
-						 msgInvalidModeParam(client, channel, "l", argument,
-											 "invalid limit"));
+			queueMessage(
+				client,
+				msgNumeric(client, 696, channel.getName() + " l " + argument,
+						   "invalid limit"));
 			return;
 		}
 		std::size_t limit = number;
@@ -57,8 +60,9 @@ void Server::handleModeL(User &client, Channel &channel, char sign,
 	}
 	catch (...)
 	{
-		queueMessage(client, msgInvalidModeParam(client, channel, "l", argument,
-												 "invalid limit"));
+		queueMessage(client, msgNumeric(client, 696,
+										channel.getName() + " l " + argument,
+										"invalid mode"));
 		return;
 	}
 }
