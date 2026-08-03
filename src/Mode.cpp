@@ -9,7 +9,8 @@ void Server::handleModeO(User &client, Channel &channel, char sign,
 						 const std::string &argument)
 {
 	User *user = getUser(argument);
-	if (!user)
+
+	if (!user || !user->getIsRegistered())
 	{
 		queueMessage(client, msgReply(client, ERR_NOSUCHNICK, argument));
 		return;
