@@ -3,6 +3,8 @@
 #include <poll.h>
 #include <unistd.h>
 
+#include <csignal>
+#include <ctime>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -25,8 +27,11 @@ class Server
 		std::string _port;
 		std::string _password;
 		std::string _version = "ircserv-0.1";
+		std::time_t _startedAt;
 		std::string _createdAt;
-		void handleInvite(const command &cmd, User &client);
+
+		static volatile sig_atomic_t _exitServer;
+		static void handleSignal(int sig);
 
 		void queueMessage(User &client, const std::string &message);
 		void broadcastToChannel(const Channel &channel,
@@ -62,8 +67,13 @@ class Server
 		void handlePing(const command &cmd, User &client);
 		void handlePart(const command &cmd, User &client);
 		void handleJoin(const command &cmd, User &client);
+		void handleKick(const command &cmd, User &client);
+		void kickSingleUserFromChannel(User &kicker, Channel &channel,
+									   const std::string &targetNick,
+									   const std::string &reason);
 		void handlePrivMsg(const command &cmd, User &client);
 		void handleQuit(const command &cmd, User &client);
+		void handleInvite(const command &cmd, User &client);
 
 		std::string msgPrefix(const User &client);
 		std::string msgReply(const User &client, errReplyCode codeReply,
@@ -88,4 +98,5 @@ class Server
 
 		void createSocket();
 		void loop();
+		void signalSetup();
 };

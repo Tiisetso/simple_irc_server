@@ -23,12 +23,18 @@
 #define MAX_MSG_LEN 512
 #define MAX_WRITE_BUFFER (200 * 1024)
 
-static std::string getCurrentDate()
-{
-	std::time_t now = std::time(NULL);
-	if (now == static_cast<std::time_t>(-1))
-		return "1970-01-01";
+volatile sig_atomic_t Server::_exitServer = 0;
 
+static std::time_t getCurrentTime()
+{
+	std::time_t now = std::time(nullptr);
+	if (now == static_cast<std::time_t>(-1))
+		return 0;
+	return now;
+}
+
+static std::string getCurrentDate(std::time_t now)
+{
 	std::tm *timeinfo = std::localtime(&now);
 
 	char buffer[11];
@@ -43,7 +49,8 @@ Server::Server(const std::string &port, const std::string &password)
 	: _servSockFd(-1),
 	  _port(port),
 	  _password(password),
-	  _createdAt(getCurrentDate())
+	  _startedAt(getCurrentTime()),
+	  _createdAt(getCurrentDate(_startedAt))
 {
 }
 
@@ -382,6 +389,13 @@ void Server::loop()
 {
 	while (true)
 	{
+		if (_exitServer)
+		{
+			std::cout << "\nServer: Received signal: " << _exitServer
+					  << std::endl;
+			break;
+		}
+
 		int ready = poll(_pollfds.data(), _pollfds.size(), -1);
 		if (ready == -1)
 		{
@@ -424,6 +438,9 @@ void Server::loop()
 				i++;
 		}
 	}
+	std::time_t uptime = getCurrentTime() - _startedAt;
+	std::cout << "Server: Uptime: " << uptime << " seconds" << std::endl;
+	std::cout << "Server: Exiting..." << std::endl;
 }
 
 bool Server::commandHandler(const command &cmd, User &client)
@@ -468,6 +485,11 @@ bool Server::commandHandler(const command &cmd, User &client)
 	if (cmd.key == "JOIN")
 	{
 		handleJoin(cmd, client);
+		return true;
+	}
+	if (cmd.key == "KICK")
+	{
+		handleKick(cmd, client);
 		return true;
 	}
 	if (cmd.key == "PART")
@@ -554,4 +576,21 @@ User *Server::getUser(const std::string &nickName)
 			return &it->second;
 	}
 	return nullptr;
+}
+
+void Server::handleSignal(int sig)
+{
+	_exitServer = sig;
+}
+
+void Server::signalSetup()
+{
+	struct sigaction sa;
+	sa.sa_handler = handleSignal;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	if (sigaction(SIGINT, &sa, nullptr) == -1)
+		throw std::runtime_error(
+			std::string("Server: Failed to set SIGINT handler: ") +
+			std::strerror(errno));
 }
