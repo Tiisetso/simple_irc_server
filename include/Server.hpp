@@ -80,8 +80,8 @@ class Server
 							   const std::string &target);
 		void parseChannelMode(const command &cmd, User &client,
 							  Channel &channel);
-		void handleModeL(User &client, Channel &channel, char sign, const std::string &argument);
-
+		void handleModeL(User &client, Channel &channel, char sign,
+						 const std::string &argument);
 
 		std::string msgPrefix(const User &client);
 		std::string msgReply(const User &client, errReplyCode codeReply,
@@ -97,6 +97,10 @@ class Server
 							   const std::string &trailing);
 		std::string msgCap(const User &client);
 		std::string msgMode(const User &client, const Channel &channel);
+		std::string msgInvalidModeParam(const User &client,
+										const Channel &channel, const std::string &modeChar,
+										const std::string &parameter,
+										const std::string &description);
 
 	public:
 		Server() = delete;

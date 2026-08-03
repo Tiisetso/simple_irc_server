@@ -154,3 +154,14 @@ std::string Server::msgMode(const User &client, const Channel &channel)
 	return ":" + _serverName + " 324 " + client.getNickName() + " " +
 		   channel.getName() + " " + channel.getMode() + "\r\n";
 }
+
+std::string Server::msgInvalidModeParam(const User &client,
+										const Channel &channel, const std::string &modeChar,
+										const std::string &parameter,
+										const std::string &message)
+{
+	//:<server> 696 <nick> <target> <mode> <parameter> :<description>\r\n
+	return ":" + _serverName + " 696 " + client.getNickName() + " " +
+		   channel.getName() + " " + modeChar + " " + parameter + " :" +
+		   message + "\r\n";
+}
