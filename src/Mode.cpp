@@ -62,7 +62,7 @@ void Server::handleModeL(User &client, Channel &channel, char sign,
 	{
 		queueMessage(client, msgNumeric(client, 696,
 										channel.getName() + " l " + argument,
-										"invalid mode"));
+										"invalid limit"));
 		return;
 	}
 }
