@@ -6,16 +6,19 @@
 #include "Server.hpp"
 
 void Server::handleModeO(User &client, Channel &channel, char sign,
-						 const std::string argument)
+						 const std::string &argument)
 {
-	User *user = getUser(argument) if (!user)
+	User *user = getUser(argument);
+	if (!user)
 	{
-		// err cannot find user
+		queueMessage(client, msgReply(client, ERR_NOSUCHNICK, argument));
 		return;
 	}
 	if (!channel.isUserInChannel(*user))
 	{
-		// err user notinchan
+		queueMessage(client,
+					 msgReply(client, ERR_USERNOTINCHANNEL,
+							  user->getNickName() + " " + channel.getName()));
 		return;
 	}
 	if (sign == '-')
@@ -24,7 +27,9 @@ void Server::handleModeO(User &client, Channel &channel, char sign,
 			return;
 		channel.removeOperator(*user);
 		broadcastToChannel(
-			channel, msgFromClient(client, "MODE", channel.getName() + " -o"),
+			channel,
+			msgFromClient(client, "MODE",
+						  channel.getName() + " -o " + user->getNickName()),
 			nullptr);
 	}
 	if (sign == '+')
@@ -33,7 +38,9 @@ void Server::handleModeO(User &client, Channel &channel, char sign,
 			return;
 		channel.addOperator(*user);
 		broadcastToChannel(
-			channel, msgFromClient(client, "MODE", channel.getName() + " +o"),
+			channel,
+			msgFromClient(client, "MODE",
+						  channel.getName() + " +o " + user->getNickName()),
 			nullptr);
 	}
 }
