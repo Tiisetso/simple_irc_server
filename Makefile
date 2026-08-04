@@ -38,7 +38,8 @@ $(SRC_DIR)/Registration.cpp \
 $(SRC_DIR)/Server.cpp \
 $(SRC_DIR)/User.cpp \
 $(SRC_DIR)/Utilities.cpp \
-$(SRC_DIR)/Validation.cpp
+$(SRC_DIR)/Validation.cpp \
+$(SRC_DIR)/Mode.cpp
 
 OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)

@@ -73,6 +73,13 @@ class Server
 		void handlePrivMsg(const command &cmd, User &client);
 		void handleQuit(const command &cmd, User &client);
 		void handleInvite(const command &cmd, User &client);
+		void handleMode(const command &cmd, User &client);
+		void handleUserMode(const command &cmd, User &client,
+							const std::string &target);
+		void handleChannelMode(const command &cmd, User &client,
+							   const std::string &target);
+		void parseChannelMode(const command &cmd, User &client,
+							  Channel &channel);
 
 		std::string msgPrefix(const User &client);
 		std::string msgReply(const User &client, errReplyCode codeReply,
@@ -87,6 +94,7 @@ class Server
 							   const std::string &middle,
 							   const std::string &trailing);
 		std::string msgCap(const User &client);
+		std::string msgMode(const User &client, const Channel &channel);
 
 	public:
 		Server() = delete;

@@ -491,6 +491,11 @@ bool Server::commandHandler(const command &cmd, User &client)
 		handleInvite(cmd, client);
 		return true;
 	}
+	if (cmd.key == "MODE")
+	{
+		handleMode(cmd, client);
+		return (true);
+	}
 
 	return false;
 }
