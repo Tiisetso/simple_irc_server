@@ -42,7 +42,7 @@ class Server
 
 		void acceptClients();
 		void readClient(User &client);
-		void writeToClient(User &client, pollfd &clientPollfd);
+		void writeToClient(User &client);
 		void removeClient(std::size_t i);
 		void registerClient(User &client);
 		void sendWelcome(User &client);
