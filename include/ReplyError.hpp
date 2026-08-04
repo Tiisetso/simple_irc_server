@@ -29,7 +29,8 @@ enum errReplyCode
 	ERR_BADCHANNELKEY = 475,
 	ERR_BADCHANMASK = 476,
 	ERR_CHANOPRIVSNEEDED = 482,
-	ERR_USERSDONTMATCH = 502
+	ERR_USERSDONTMATCH = 502,
+	ERR_INVALIDKEY = 525
 };
 
 const std::unordered_map<int, std::string> errReplyMsg = {
@@ -57,4 +58,6 @@ const std::unordered_map<int, std::string> errReplyMsg = {
 	{ERR_BADCHANNELKEY, "Cannot join channel (+k)"},
 	{ERR_BADCHANMASK, "Bad Channel Mask"},
 	{ERR_CHANOPRIVSNEEDED, "You're not channel operator"},
-	{ERR_USERSDONTMATCH, "Cant change mode for other users"}};
+	{ERR_USERSDONTMATCH, "Cant change mode for other users"},
+	{ERR_INVALIDKEY, "Key is not well-formed"}};
+

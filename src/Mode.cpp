@@ -67,6 +67,36 @@ void Server::handleModeL(User &client, Channel &channel, char sign,
 	}
 }
 
+void Server::handleModeK(User &client, Channel &channel, char sign,
+						 const std::string &argument)
+{
+	if (sign == '+')
+	{
+		// MODE #channel +K :
+		if (argument.empty())
+		{
+			queueMessage(client, msgReply(client, ERR_INVALIDKEY, channel.getName()));
+			return;
+		}
+
+		channel.setKey(argument);
+		broadcastToChannel(channel,
+						   msgFromClient(client, "MODE",
+										 channel.getName() + " +k " + argument),
+						   nullptr);
+	}
+	if (sign == '-')
+	{
+		if (!channel.hasKey())
+			return;
+		else
+			channel.removeKey();
+		broadcastToChannel(
+			channel, msgFromClient(client, "MODE", channel.getName() + " -k"),
+			nullptr);
+	}
+}
+
 void Server::parseChannelMode(const command &cmd, User &client,
 							  Channel &channel)
 {
@@ -107,7 +137,6 @@ void Server::parseChannelMode(const command &cmd, User &client,
 			// missing argument
 			if (argumentIndex >= cmd.vals.size())
 			{
-				std::string modeChar{c};
 				queueMessage(client,
 							 msgReply(client, ERR_NEEDMOREPARAMS, cmd.key));
 				return;
@@ -125,7 +154,7 @@ void Server::parseChannelMode(const command &cmd, User &client,
 				// handleModeT(client, channel);
 				break;
 			case 'k':
-				// handleModeK(client, channel, sign, argument);
+				handleModeK(client, channel, sign, argument);
 				break;
 			case 'o':
 				// handleModeO(client, channel, sign, argument);
@@ -175,7 +204,8 @@ void Server::handleChannelMode(const command &cmd, User &client,
 	// MODE #channel
 	if (cmd.vals.size() == 1)
 	{
-		queueMessage(client, msgMode(client, *channel));
+		bool isMember = channel->isUserInChannel(client);
+		queueMessage(client, msgMode(client, *channel, isMember));
 		return;
 	}
 
