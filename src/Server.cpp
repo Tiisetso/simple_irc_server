@@ -22,6 +22,7 @@
 #define BACKLOG 20
 #define MAX_MSG_LEN 512
 #define MAX_WRITE_BUFFER (200 * 1024)
+#define MAX_READ_BUFFER (8 * 1024)
 
 volatile sig_atomic_t Server::_exitServer = 0;
 
@@ -119,7 +120,7 @@ void Server::acceptClients()
 			throw;
 		}
 		std::cout << "Server: New client at fd: " << clientfd
-				  << ", address: " << clientAddrStr << std::endl;
+				  << ", address: " << clientAddrStr << "\n";
 	}
 }
 
@@ -147,8 +148,7 @@ void Server::createSocket()
 		if (_servSockFd == -1)
 			continue;
 		socketyes = 1;
-		std::cout << "Server: Socket created, fd = " << _servSockFd
-				  << std::endl;
+		std::cout << "Server: Socket created, fd = " << _servSockFd << "\n";
 
 		int sockopt = 1;
 		if (setsockopt(_servSockFd, SOL_SOCKET, SO_REUSEADDR, &sockopt,
@@ -171,7 +171,7 @@ void Server::createSocket()
 	else if (temp == nullptr)
 		throw std::runtime_error(std::string("Server: Failed to bind: ") +
 								 std::strerror(errno));
-	std::cout << "Server: Bind succeeded" << std::endl;
+	std::cout << "Server: Bind succeeded" << "\n";
 
 	setNonBlocking(_servSockFd);
 
@@ -179,7 +179,7 @@ void Server::createSocket()
 		throw std::runtime_error(std::string("Server: Failed to listen: ") +
 								 std::strerror(errno));
 	std::cout << "Server: Listening for incoming connections on port: " << _port
-			  << std::endl;
+			  << "\n";
 
 	pollfd serverPollfd;
 
@@ -192,7 +192,7 @@ void Server::createSocket()
 
 void Server::readClient(User &client)
 {
-	char buffer[1024];
+	char buffer[MAX_READ_BUFFER];
 	ssize_t bytesReceived{};
 
 	bytesReceived = recv(client.getFd(), buffer, sizeof(buffer), 0);
@@ -204,13 +204,13 @@ void Server::readClient(User &client)
 
 		client.setShouldDisconnect("Receive error.");
 		std::cerr << "Server: Failed to receive: " << client.getFd() << " : "
-				  << std::strerror(errno) << std::endl;
+				  << std::strerror(errno) << "\n";
 		return;
 	}
 	else if (bytesReceived == 0)
 	{
 		client.setShouldDisconnect("Client closed connection.");
-		std::cout << "Server: Client disconnected" << std::endl;
+		std::cout << "Server: Client disconnected" << "\n";
 		return;
 	}
 	else
@@ -227,7 +227,7 @@ void Server::readClient(User &client)
 										   std::to_string(MAX_MSG_LEN) +
 										   " bytes maximum)");
 				std::cerr << "Server: Message too long (" << MAX_MSG_LEN
-						  << " bytes maximum)." << std::endl;
+						  << " bytes maximum)." << "\n";
 				return;
 			}
 
@@ -241,7 +241,7 @@ void Server::readClient(User &client)
 				commandHandler(cmd, client);
 
 			std::cout << "Server: Received: " << fullMsg.length()
-					  << " bytes: " << fullMsg << std::endl;
+					  << " bytes: " << fullMsg << "\n";
 
 			if (client.getShouldDisconnect())
 				return;
@@ -252,7 +252,7 @@ void Server::readClient(User &client)
 		{
 			client.setShouldDisconnect("Max message size exceeded.");
 			std::cerr << "Server: Message max size exceeded (" << MAX_MSG_LEN
-					  << " bytes maximum)." << std::endl;
+					  << " bytes maximum)." << "\n";
 		}
 	}
 }
@@ -264,20 +264,11 @@ void Server::queueMessage(User &client, const std::string &message)
 	{
 		client.setShouldDisconnect("Write limit reached");
 		std::cerr << "Server: write buffer max size exceeded ("
-				  << MAX_WRITE_BUFFER << " bytes maximum)." << std::endl;
+				  << MAX_WRITE_BUFFER << " bytes maximum)." << "\n";
 		return;
 	}
 
 	client.getWriteBuffer() += message;
-
-	for (std::size_t i = 1; i < _pollfds.size(); i++)
-	{
-		if (_pollfds[i].fd == client.getFd())
-		{
-			_pollfds[i].events |= POLLOUT;
-			return;
-		}
-	}
 }
 
 void Server::broadcastToChannel(const Channel &channel,
@@ -327,15 +318,9 @@ void Server::broadcastToUserChannels(User &client, const std::string &message,
 	}
 }
 
-void Server::writeToClient(User &client, pollfd &clientPollfd)
+void Server::writeToClient(User &client)
 {
 	std::string &writeBuffer = client.getWriteBuffer();
-
-	if (writeBuffer.empty())
-	{
-		clientPollfd.events &= ~POLLOUT;
-		return;
-	}
 
 	ssize_t bytesSent =
 		send(client.getFd(), writeBuffer.c_str(), writeBuffer.size(), 0);
@@ -347,14 +332,11 @@ void Server::writeToClient(User &client, pollfd &clientPollfd)
 
 		client.setShouldDisconnect("Failed to send.");
 		std::cerr << "Server: Failed to send: " << client.getFd() << " : "
-				  << std::strerror(errno) << std::endl;
+				  << std::strerror(errno) << "\n";
 		return;
 	}
 
 	writeBuffer.erase(0, bytesSent);
-
-	if (writeBuffer.empty())
-		clientPollfd.events &= ~POLLOUT;
 }
 
 void Server::setNonBlocking(int fd)
@@ -381,7 +363,7 @@ void Server::removeClient(std::size_t i)
 	removeUserFromAllChannels(user);
 	_users.erase(fd);
 
-	std::cout << "Server: Removed client at fd: " << fd << std::endl;
+	std::cout << "Server: Removed client at fd: " << fd << "\n";
 }
 
 void Server::loop()
@@ -417,16 +399,27 @@ void Server::loop()
 				readClient(client);
 
 			if (!client.getShouldDisconnect() && (reventsClient & POLLOUT))
-				writeToClient(client, _pollfds[i]);
+				writeToClient(client);
 
 			if ((reventsClient & (POLLERR | POLLHUP | POLLNVAL)) &&
 				!(reventsClient & POLLIN))
 				client.setShouldDisconnect("Connection closed");
 
 			if (client.getShouldDisconnect())
+			{
 				removeClient(i);
+				continue;
+			}
+
+			i++;
+		}
+
+		for (std::size_t i = 1; i < _pollfds.size(); i++)
+		{
+			if (_users.at(_pollfds[i].fd).getWriteBuffer().empty())
+				_pollfds[i].events &= ~POLLOUT;
 			else
-				i++;
+				_pollfds[i].events |= POLLOUT;
 		}
 	}
 	std::time_t uptime = getCurrentTime() - _startedAt;
@@ -588,5 +581,9 @@ void Server::signalSetup()
 	if (sigaction(SIGINT, &sa, nullptr) == -1)
 		throw std::runtime_error(
 			std::string("Server: Failed to set SIGINT handler: ") +
+			std::strerror(errno));
+	if (sigaction(SIGTERM, &sa, nullptr) == -1)
+		throw std::runtime_error(
+			std::string("Server: Failed to set SIGTERM handler: ") +
 			std::strerror(errno));
 }
