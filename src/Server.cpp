@@ -46,6 +46,14 @@ static std::string getCurrentDate(std::time_t now)
 	return "1970-01-01";
 }
 
+static void setNonBlocking(int fd)
+{
+	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
+		throw std::runtime_error(
+			std::string("Server: non blocking flags set failed: ") +
+			std::strerror(errno));
+}
+
 Server::Server(const std::string &port, const std::string &password)
 	: _servSockFd(-1),
 	  _port(port),
@@ -339,14 +347,6 @@ void Server::writeToClient(User &client)
 	writeBuffer.erase(0, bytesSent);
 }
 
-void Server::setNonBlocking(int fd)
-{
-	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
-		throw std::runtime_error(
-			std::string("Server: non blocking flags set failed: ") +
-			std::strerror(errno));
-}
-
 void Server::removeClient(std::size_t i)
 {
 	int fd = _pollfds[i].fd;
@@ -427,77 +427,38 @@ void Server::loop()
 	std::cout << "Server: Exiting..." << std::endl;
 }
 
-bool Server::commandHandler(const command &cmd, User &client)
+void Server::commandHandler(const command &cmd, User &client)
 {
-	if (cmd.key == "CAP")
+	static const std::unordered_map<std::string, commandType> handlers = {
+		{"CAP", {&Server::handleCap, false}},
+		{"PASS", {&Server::handlePass, false}},
+		{"USER", {&Server::handleUser, false}},
+		{"NICK", {&Server::handleNick, false}},
+		{"PING", {&Server::handlePing, false}},
+		{"QUIT", {&Server::handleQuit, false}},
+		{"JOIN", {&Server::handleJoin, true}},
+		{"KICK", {&Server::handleKick, true}},
+		{"PART", {&Server::handlePart, true}},
+		{"PRIVMSG", {&Server::handlePrivMsg, true}},
+		{"INVITE", {&Server::handleInvite, true}},
+		{"MODE", {&Server::handleMode, true}}};
+
+	std::unordered_map<std::string, commandType>::const_iterator it =
+		handlers.find(cmd.key);
+
+	if (it == handlers.end())
 	{
-		handleCap(cmd, client);
-		return true;
-	}
-	if (cmd.key == "PASS")
-	{
-		handlePass(cmd, client);
-		return true;
-	}
-	if (cmd.key == "USER")
-	{
-		handleUser(cmd, client);
-		return true;
-	}
-	if (cmd.key == "NICK")
-	{
-		handleNick(cmd, client);
-		return true;
-	}
-	if (cmd.key == "PING")
-	{
-		handlePing(cmd, client);
-		return true;
-	}
-	if (cmd.key == "QUIT")
-	{
-		handleQuit(cmd, client);
-		return true;
+		queueMessage(client, msgReply(client, ERR_UNKNOWNCOMMAND, cmd.key));
+		return;
 	}
 
-	if (!client.getIsRegistered())
+	if (it->second.needsRegistration && !client.getIsRegistered())
 	{
 		queueMessage(client, msgReply(client, ERR_NOTREGISTERED));
-		return false;
+		return;
 	}
 
-	if (cmd.key == "JOIN")
-	{
-		handleJoin(cmd, client);
-		return true;
-	}
-	if (cmd.key == "KICK")
-	{
-		handleKick(cmd, client);
-		return true;
-	}
-	if (cmd.key == "PART")
-	{
-		handlePart(cmd, client);
-		return true;
-	}
-	if (cmd.key == "PRIVMSG")
-	{
-		handlePrivMsg(cmd, client);
-		return true;
-	}
-	if (cmd.key == "INVITE")
-	{
-		handleInvite(cmd, client);
-		return true;
-	}
-	if (cmd.key == "MODE")
-	{
-		handleMode(cmd, client);
-		return (true);
-	}
-
-	return false;
+	(this->*it->second.handler)(cmd, client);
 }
 
 Channel *Server::getChannel(const std::string &name)

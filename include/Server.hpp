@@ -54,10 +54,12 @@ class Server
 		void removeChannel(const Channel &channel);
 		void removeUserFromAllChannels(User &client);
 		std::size_t countUserChannels(User &client);
-
-		static void setNonBlocking(int fd);
-
-		bool commandHandler(const command &cmd, User &client);
+		struct commandType
+		{
+				void (Server::*handler)(const command &cmd, User &client);
+				bool needsRegistration;
+		};
+		void commandHandler(const command &cmd, User &client);
 		void handleCap(const command &cmd, User &client);
 		void handlePass(const command &cmd, User &client);
 		void handleUser(const command &cmd, User &client);
