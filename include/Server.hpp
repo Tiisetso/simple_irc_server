@@ -1,7 +1,6 @@
 #pragma once
 
 #include <poll.h>
-#include <unistd.h>
 
 #include <csignal>
 #include <ctime>
