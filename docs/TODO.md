@@ -34,11 +34,11 @@ https://beej.us/guide/bgnet/
 - [x] `INVITE`: invite a client to a channel.
 - [ ] `TOPIC`: view or change a channel topic.
 - [ ] `MODE`: manage the following channel modes:
-  - [ ] `i`: invite-only channel.
+  - [x] `i`: invite-only channel.
   - [ ] `t`: restrict topic changes to channel operators.
-  - [ ] `k`: set or remove the channel key (password).
+  - [x] `k`: set or remove the channel key (password).
   - [ ] `o`: grant or revoke channel-operator privileges.
-  - [ ] `l`: set or remove the user limit.
+  - [x] `l`: set or remove the user limit.
 
 ## Testing
 

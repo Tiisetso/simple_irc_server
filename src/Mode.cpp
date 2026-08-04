@@ -1,3 +1,4 @@
+#include <climits>
 #include <cstddef>
 #include <string>
 
@@ -20,6 +21,67 @@ void Server::handleModeI(User &client, Channel &channel, char sign)
 		broadcastToChannel(
 			channel, msgFromClient(client, "MODE", channel.getName() + " -i "),
 			nullptr);
+	}
+}
+
+void Server::handleModeL(User &client, Channel &channel, char sign,
+						 const std::string &argument)
+{
+	if (sign == '-')
+	{
+		channel.removeLimit();
+		broadcastToChannel(
+			channel, msgFromClient(client, "MODE", channel.getName() + " -l"),
+			nullptr);
+		return;
+	}
+	if (argument.empty())
+	{
+		queueMessage(client, msgNumeric(client, 696,
+										channel.getName() + " l " + argument,
+										"empty mode param"));
+		return;
+	}
+
+	for (std::size_t i = 0; i < argument.size(); ++i)
+	{
+		if (argument[i] < '0' || argument[i] > '9')
+		{
+			queueMessage(
+				client,
+				msgNumeric(client, 696, channel.getName() + " l " + argument,
+						   "invalid limit"));
+			return;
+		}
+	}
+
+	try
+	{
+		// string to unsigned long
+		unsigned long number = std::stoul(argument);
+
+		if (number == 0 || number > INT_MAX)
+		{
+			queueMessage(
+				client,
+				msgNumeric(client, 696, channel.getName() + " l " + argument,
+						   "invalid limit"));
+			return;
+		}
+		std::size_t limit = number;
+		channel.setLimit(limit);
+		broadcastToChannel(
+			channel,
+			msgFromClient(client, "MODE",
+						  channel.getName() + " +l " + std::to_string(limit)),
+			nullptr);
+	}
+	catch (...)
+	{
+		queueMessage(client, msgNumeric(client, 696,
+										channel.getName() + " l " + argument,
+										"invalid limit"));
+		return;
 	}
 }
 
@@ -116,7 +178,7 @@ void Server::parseChannelMode(const command &cmd, User &client,
 				// handleModeO(client, channel, sign, argument);
 				break;
 			case 'l':
-				// handleModeL(client, channel, sign, argument);
+				handleModeL(client, channel, sign, argument);
 				break;
 		}
 	}
