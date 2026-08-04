@@ -6,6 +6,24 @@
 #include "ReplyError.hpp"
 #include "Server.hpp"
 
+void Server::handleModeI(User &client, Channel &channel, char sign)
+{
+	if (sign == '+')
+	{
+		channel.setInviteOnly(true);
+		broadcastToChannel(
+			channel, msgFromClient(client, "MODE", channel.getName() + " +i "),
+			nullptr);
+	}
+	else
+	{
+		channel.setInviteOnly(false);
+		broadcastToChannel(
+			channel, msgFromClient(client, "MODE", channel.getName() + " -i "),
+			nullptr);
+	}
+}
+
 void Server::handleModeL(User &client, Channel &channel, char sign,
 						 const std::string &argument)
 {
@@ -148,7 +166,7 @@ void Server::parseChannelMode(const command &cmd, User &client,
 		switch (mode)
 		{
 			case 'i':
-				// handleModeI(client, channel);
+				handleModeI(client, channel, sign);
 				break;
 			case 't':
 				// handleModeT(client, channel);
