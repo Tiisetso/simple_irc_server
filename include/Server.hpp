@@ -80,6 +80,9 @@ class Server
 							   const std::string &target);
 		void parseChannelMode(const command &cmd, User &client,
 							  Channel &channel);
+		void handleModeL(User &client, Channel &channel, char sign,
+						 const std::string &argument);
+
 		void handleModeK(User &client, Channel &channel, char sign,
 						 const std::string &argument);
 
