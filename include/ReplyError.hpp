@@ -60,3 +60,4 @@ const std::unordered_map<int, std::string> errReplyMsg = {
 	{ERR_CHANOPRIVSNEEDED, "You're not channel operator"},
 	{ERR_USERSDONTMATCH, "Cant change mode for other users"},
 	{ERR_INVALIDKEY, "Key is not well-formed"}};
+

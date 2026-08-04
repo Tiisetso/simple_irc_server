@@ -63,8 +63,7 @@ void Server::parseChannelMode(const command &cmd, User &client,
 		if (!(c == 'i' || c == 't' || c == 'k' || c == 'o' || c == 'l'))
 		{
 			std::string modeChar{c};
-			queueMessage(client, msgReply(client, ERR_UNKNOWNMODE,
-										  cmd.key + " " + modeChar));
+			queueMessage(client, msgReply(client, ERR_UNKNOWNMODE, modeChar));
 			continue;
 		}
 
@@ -149,6 +148,11 @@ void Server::handleChannelMode(const command &cmd, User &client,
 	}
 
 	// MODE #channel <modestring>
+	if (!channel->isUserInChannel(client))
+	{
+		queueMessage(client, msgReply(client, ERR_NOTONCHANNEL, target));
+		return;
+	}
 	if (!channel->isOperator(client))
 	{
 		queueMessage(client, msgReply(client, ERR_CHANOPRIVSNEEDED, target));
