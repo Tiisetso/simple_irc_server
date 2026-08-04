@@ -149,8 +149,10 @@ std::string Server::msgCap(const User &client)
 	return ":" + _serverName + " CAP " + msgTarget(client) + " LS :\r\n";
 }
 
-std::string Server::msgMode(const User &client, const Channel &channel)
+std::string Server::msgMode(const User &client, const Channel &channel,
+							bool isMember)
 {
 	return ":" + _serverName + " 324 " + client.getNickName() + " " +
-		   channel.getName() + " " + channel.getMode() + "\r\n";
+		   channel.getName() + " " + channel.getMode(isMember) + "\r\n";
 }
+

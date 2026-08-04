@@ -162,7 +162,7 @@ bool Channel::isOperator(User &user) const
 	return true;
 }
 
-std::string Channel::getMode() const
+std::string Channel::getMode(bool isMember) const
 {
 	std::string modeString{};
 	std::string argument{};
@@ -174,7 +174,8 @@ std::string Channel::getMode() const
 	if (_hasKey)
 	{
 		modeString += 'k';
-		argument += " " + _key;
+		if (isMember)
+			argument += " " + _key;
 	}
 	if (_hasLimit)
 	{
