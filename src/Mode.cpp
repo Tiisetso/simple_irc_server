@@ -1,3 +1,4 @@
+#include <climits>
 #include <cstddef>
 #include <string>
 
@@ -46,6 +47,115 @@ void Server::handleModeO(User &client, Channel &channel, char sign,
 	}
 }
 
+void Server::handleModeI(User &client, Channel &channel, char sign)
+{
+	if (sign == '+')
+	{
+		channel.setInviteOnly(true);
+		broadcastToChannel(
+			channel, msgFromClient(client, "MODE", channel.getName() + " +i "),
+			nullptr);
+	}
+	else
+	{
+		channel.setInviteOnly(false);
+		broadcastToChannel(
+			channel, msgFromClient(client, "MODE", channel.getName() + " -i "),
+			nullptr);
+	}
+}
+
+void Server::handleModeL(User &client, Channel &channel, char sign,
+						 const std::string &argument)
+{
+	if (sign == '-')
+	{
+		channel.removeLimit();
+		broadcastToChannel(
+			channel, msgFromClient(client, "MODE", channel.getName() + " -l"),
+			nullptr);
+		return;
+	}
+	if (argument.empty())
+	{
+		queueMessage(client, msgNumeric(client, 696,
+										channel.getName() + " l " + argument,
+										"empty mode param"));
+		return;
+	}
+
+	for (std::size_t i = 0; i < argument.size(); ++i)
+	{
+		if (argument[i] < '0' || argument[i] > '9')
+		{
+			queueMessage(
+				client,
+				msgNumeric(client, 696, channel.getName() + " l " + argument,
+						   "invalid limit"));
+			return;
+		}
+	}
+
+	try
+	{
+		// string to unsigned long
+		unsigned long number = std::stoul(argument);
+
+		if (number == 0 || number > INT_MAX)
+		{
+			queueMessage(
+				client,
+				msgNumeric(client, 696, channel.getName() + " l " + argument,
+						   "invalid limit"));
+			return;
+		}
+		std::size_t limit = number;
+		channel.setLimit(limit);
+		broadcastToChannel(
+			channel,
+			msgFromClient(client, "MODE",
+						  channel.getName() + " +l " + std::to_string(limit)),
+			nullptr);
+	}
+	catch (...)
+	{
+		queueMessage(client, msgNumeric(client, 696,
+										channel.getName() + " l " + argument,
+										"invalid limit"));
+		return;
+	}
+}
+
+void Server::handleModeK(User &client, Channel &channel, char sign,
+						 const std::string &argument)
+{
+	if (sign == '+')
+	{
+		// MODE #channel +K :
+		if (argument.empty())
+		{
+			queueMessage(client, msgReply(client, ERR_INVALIDKEY, channel.getName()));
+			return;
+		}
+
+		channel.setKey(argument);
+		broadcastToChannel(channel,
+						   msgFromClient(client, "MODE",
+										 channel.getName() + " +k " + argument),
+						   nullptr);
+	}
+	if (sign == '-')
+	{
+		if (!channel.hasKey())
+			return;
+		else
+			channel.removeKey();
+		broadcastToChannel(
+			channel, msgFromClient(client, "MODE", channel.getName() + " -k"),
+			nullptr);
+	}
+}
+
 void Server::parseChannelMode(const command &cmd, User &client,
 							  Channel &channel)
 {
@@ -86,7 +196,6 @@ void Server::parseChannelMode(const command &cmd, User &client,
 			// missing argument
 			if (argumentIndex >= cmd.vals.size())
 			{
-				std::string modeChar{c};
 				queueMessage(client,
 							 msgReply(client, ERR_NEEDMOREPARAMS, cmd.key));
 				return;
@@ -98,19 +207,19 @@ void Server::parseChannelMode(const command &cmd, User &client,
 		switch (mode)
 		{
 			case 'i':
-				// handleModeI(client, channel);
+				handleModeI(client, channel, sign);
 				break;
 			case 't':
 				// handleModeT(client, channel);
 				break;
 			case 'k':
-				// handleModeK(client, channel, sign, argument);
+				handleModeK(client, channel, sign, argument);
 				break;
 			case 'o':
 				handleModeO(client, channel, sign, argument);
 				break;
 			case 'l':
-				// handleModeL(client, channel, sign, argument);
+				handleModeL(client, channel, sign, argument);
 				break;
 		}
 	}
@@ -154,7 +263,8 @@ void Server::handleChannelMode(const command &cmd, User &client,
 	// MODE #channel
 	if (cmd.vals.size() == 1)
 	{
-		queueMessage(client, msgMode(client, *channel));
+		bool isMember = channel->isUserInChannel(client);
+		queueMessage(client, msgMode(client, *channel, isMember));
 		return;
 	}
 
