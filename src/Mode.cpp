@@ -6,6 +6,47 @@
 #include "ReplyError.hpp"
 #include "Server.hpp"
 
+void Server::handleModeO(User &client, Channel &channel, char sign,
+						 const std::string &argument)
+{
+	User *user = getUser(argument);
+
+	if (!user || !user->getIsRegistered())
+	{
+		queueMessage(client, msgReply(client, ERR_NOSUCHNICK, argument));
+		return;
+	}
+	if (!channel.isUserInChannel(*user))
+	{
+		queueMessage(client,
+					 msgReply(client, ERR_USERNOTINCHANNEL,
+							  user->getNickName() + " " + channel.getName()));
+		return;
+	}
+	if (sign == '-')
+	{
+		if (!channel.isOperator(*user))
+			return;
+		channel.removeOperator(*user);
+		broadcastToChannel(
+			channel,
+			msgFromClient(client, "MODE",
+						  channel.getName() + " -o " + user->getNickName()),
+			nullptr);
+	}
+	if (sign == '+')
+	{
+		if (channel.isOperator(*user))
+			return;
+		channel.addOperator(*user);
+		broadcastToChannel(
+			channel,
+			msgFromClient(client, "MODE",
+						  channel.getName() + " +o " + user->getNickName()),
+			nullptr);
+	}
+}
+
 void Server::handleModeI(User &client, Channel &channel, char sign)
 {
 	if (sign == '+')
@@ -175,7 +216,7 @@ void Server::parseChannelMode(const command &cmd, User &client,
 				handleModeK(client, channel, sign, argument);
 				break;
 			case 'o':
-				// handleModeO(client, channel, sign, argument);
+				handleModeO(client, channel, sign, argument);
 				break;
 			case 'l':
 				handleModeL(client, channel, sign, argument);
