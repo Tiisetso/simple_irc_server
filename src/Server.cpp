@@ -441,6 +441,7 @@ void Server::commandHandler(const command &cmd, User &client)
 		{"PART", {&Server::handlePart, true}},
 		{"PRIVMSG", {&Server::handlePrivMsg, true}},
 		{"INVITE", {&Server::handleInvite, true}},
+		{"TOPIC", {&Server::handleTopic, true}},
 		{"MODE", {&Server::handleMode, true}}};
 
 	std::unordered_map<std::string, commandType>::const_iterator it =
