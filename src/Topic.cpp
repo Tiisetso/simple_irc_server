@@ -25,7 +25,15 @@ void Server::handleTopic(const command &cmd, User &client)
 	}
 
 	if (cmd.vals.size() >= 2)
+	{
+		const std::string &topic = cmd.vals[1];
+		channel->setTopic(topic);
+		const std::string topicMsg = ":" + msgPrefix(client) + " TOPIC " +
+									 channel->getName() + " :" + topic +
+									 "\r\n";
+		broadcastToChannel(*channel, topicMsg, nullptr);
 		return;
+	}
 
 	if (channel->getTopic().empty())
 		queueMessage(client, msgNumeric(client, 331, channel->getName(),
