@@ -13,7 +13,7 @@ def check(reply: str, expected: str) -> None:
         sys.exit(1)
 
 def server_reply(client: socket.socket) -> str:
-    message_bytes: bytes = client.recv(4094)
+    message_bytes: bytes = client.recv(4096)
     message_str: str = message_bytes.decode("utf-8")
     return message_str
 
