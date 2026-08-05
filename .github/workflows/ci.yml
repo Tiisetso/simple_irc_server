@@ -324,7 +324,7 @@ jobs:
           SERVER_PID=$!
           sleep 0.5
 
-          python3 tests/smoke_mode.py
+          python3 .github/tests/smoke_mode.py
           TEST_STATUS=$?
 
           kill "$SERVER_PID"
