@@ -3,9 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches:
-      - main
-      - 134-smoke-test-for-channel-mode
+    branches: main
 
 jobs:
   build:
