@@ -247,6 +247,8 @@ void Server::handleUserMode(const command &cmd, User &client,
 		queueMessage(client, msgNumeric(client, 221, cmd.key, ""));
 		return;
 	}
+
+	queueMessage(client, msgReply(client, ERR_UMODEUNKNOWNFLAG));
 }
 
 void Server::handleChannelMode(const command &cmd, User &client,

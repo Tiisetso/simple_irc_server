@@ -13,6 +13,7 @@ enum errReplyCode
 	ERR_NOORIGIN = 409,
 	ERR_NORECIPIENT = 411,
 	ERR_NOTEXTTOSEND = 412,
+	ERR_UNKNOWNCOMMAND = 421,
 	ERR_NONICKNAMEGIVEN = 431,
 	ERR_ERRONEUSNICKNAME = 432,
 	ERR_NICKNAMEINUSE = 433,
@@ -29,6 +30,7 @@ enum errReplyCode
 	ERR_BADCHANNELKEY = 475,
 	ERR_BADCHANMASK = 476,
 	ERR_CHANOPRIVSNEEDED = 482,
+	ERR_UMODEUNKNOWNFLAG = 501,
 	ERR_USERSDONTMATCH = 502,
 	ERR_INVALIDKEY = 525
 };
@@ -42,6 +44,7 @@ const std::unordered_map<int, std::string> errReplyMsg = {
 	{ERR_NOORIGIN, "No origin specified"},
 	{ERR_NORECIPIENT, "No recipient given (PRIVMSG)"},
 	{ERR_NOTEXTTOSEND, "No text to send"},
+	{ERR_UNKNOWNCOMMAND, "Unknown command"},
 	{ERR_NONICKNAMEGIVEN, "No nickname given"},
 	{ERR_ERRONEUSNICKNAME, "Erroneous nickname"},
 	{ERR_NICKNAMEINUSE, "Nickname is already in use"},
@@ -58,6 +61,6 @@ const std::unordered_map<int, std::string> errReplyMsg = {
 	{ERR_BADCHANNELKEY, "Cannot join channel (+k)"},
 	{ERR_BADCHANMASK, "Bad Channel Mask"},
 	{ERR_CHANOPRIVSNEEDED, "You're not channel operator"},
+	{ERR_UMODEUNKNOWNFLAG, "Unknown MODE flag"},
 	{ERR_USERSDONTMATCH, "Cant change mode for other users"},
 	{ERR_INVALIDKEY, "Key is not well-formed"}};
-
