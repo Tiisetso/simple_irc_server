@@ -1,3 +1,4 @@
+#include "ReplyError.hpp"
 #include "Server.hpp"
 
 void Server::handleInvite(const command &cmd, User &client)

@@ -68,9 +68,9 @@ void Server::kickSingleUserFromChannel(User &kicker, Channel &channel,
 
 	if (!channel.isUserInChannel(*victim))
 	{
-		queueMessage(
-			kicker, msgReply(kicker, ERR_USERNOTINCHANNEL,
-							 victim->getNickName() + " " + channel.getName()));
+		queueMessage(kicker,
+					 msgReply(kicker, ERR_USERNOTINCHANNEL,
+							  victim->getNickName() + " " + channel.getName()));
 		return;
 	}
 
