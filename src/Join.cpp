@@ -96,8 +96,7 @@ void Server::handleJoin(const command &cmd, User &client)
 		broadcastToChannel(*channel, joinMsg, nullptr);
 
 		if (!channel->getTopic().empty())
-			queueMessage(client, msgNumeric(client, 332, channel->getName(),
-											channel->getTopic()));
+			queueTopicReplies(client, *channel);
 
 		const std::string namesList = buildNamesList(*channel);
 		queueMessage(client, msgNumeric(client, 353, "= " + channel->getName(),

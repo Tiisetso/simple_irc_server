@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ctime>
 #include <set>
 #include <string>
 
@@ -10,6 +11,8 @@ class Channel
 	private:
 		std::string _name;
 		std::string _topic;
+		std::string _topicSetBy;
+		std::time_t _topicSetAt;
 		std::string _key;
 		std::size_t _limit;
 
@@ -31,7 +34,10 @@ class Channel
 		void setName(const std::string &name);
 
 		const std::string &getTopic() const;
-		void setTopic(const std::string &topic);
+		const std::string &getTopicSetBy() const;
+		std::time_t getTopicSetAt() const;
+		void setTopic(const std::string &topic, const std::string &setBy,
+					  std::time_t setAt);
 		bool isTopicRestricted() const;
 		void setTopicRestricted(bool flag);
 

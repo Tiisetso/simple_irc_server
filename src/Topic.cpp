@@ -1,5 +1,22 @@
+#include <ctime>
+#include <string>
+
 #include "ReplyError.hpp"
 #include "Server.hpp"
+
+void Server::queueTopicReplies(User &client, const Channel &channel)
+{
+	if (channel.getTopic().empty())
+		return;
+
+	queueMessage(client, msgNumeric(client, 332, channel.getName(),
+									channel.getTopic()));
+	queueMessage(client,
+				 msgNumeric(client, 333,
+							 channel.getName() + " " + channel.getTopicSetBy() +
+								 " " + std::to_string(channel.getTopicSetAt()),
+							 ""));
+}
 
 void Server::handleTopic(const command &cmd, User &client)
 {
@@ -27,7 +44,7 @@ void Server::handleTopic(const command &cmd, User &client)
 	if (cmd.vals.size() >= 2)
 	{
 		const std::string &topic = cmd.vals[1];
-		channel->setTopic(topic);
+		channel->setTopic(topic, client.getNickName(), std::time(nullptr));
 		const std::string topicMsg = ":" + msgPrefix(client) + " TOPIC " +
 									 channel->getName() + " :" + topic +
 									 "\r\n";
@@ -39,6 +56,5 @@ void Server::handleTopic(const command &cmd, User &client)
 		queueMessage(client, msgNumeric(client, 331, channel->getName(),
 										"No topic is set"));
 	else
-		queueMessage(client, msgNumeric(client, 332, channel->getName(),
-										channel->getTopic()));
+		queueTopicReplies(client, *channel);
 }

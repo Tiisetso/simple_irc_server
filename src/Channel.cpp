@@ -5,6 +5,8 @@ Channel::~Channel() {}
 Channel::Channel()
 	: _name(""),
 	  _topic(""),
+	  _topicSetBy(""),
+	  _topicSetAt(0),
 	  _key(""),
 	  _limit(0),
 	  _inviteOnly(false),
@@ -17,6 +19,8 @@ Channel::Channel()
 Channel::Channel(const std::string &name)
 	: _name(name),
 	  _topic(""),
+	  _topicSetBy(""),
+	  _topicSetAt(0),
 	  _key(""),
 	  _limit(0),
 	  _inviteOnly(false),
@@ -41,9 +45,30 @@ const std::string &Channel::getTopic() const
 	return _topic;
 }
 
-void Channel::setTopic(const std::string &topic)
+const std::string &Channel::getTopicSetBy() const
+{
+	return _topicSetBy;
+}
+
+std::time_t Channel::getTopicSetAt() const
+{
+	return _topicSetAt;
+}
+
+void Channel::setTopic(const std::string &topic, const std::string &setBy,
+					   std::time_t setAt)
 {
 	_topic = topic;
+	if (topic.empty())
+	{
+		_topicSetBy.clear();
+		_topicSetAt = 0;
+	}
+	else
+	{
+		_topicSetBy = setBy;
+		_topicSetAt = setAt;
+	}
 }
 
 bool Channel::isTopicRestricted() const
