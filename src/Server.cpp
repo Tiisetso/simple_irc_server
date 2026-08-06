@@ -26,14 +26,6 @@
 
 volatile sig_atomic_t Server::_exitServer = 0;
 
-static std::time_t getCurrentTime()
-{
-	std::time_t now = std::time(nullptr);
-	if (now == static_cast<std::time_t>(-1))
-		return 0;
-	return now;
-}
-
 static std::string getCurrentDate(std::time_t now)
 {
 	std::tm *timeinfo = std::localtime(&now);

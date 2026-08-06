@@ -1,14 +1,11 @@
-#include <ctime>
 #include <string>
 
 #include "ReplyError.hpp"
 #include "Server.hpp"
+#include "Utilities.hpp"
 
 void Server::queueTopicReplies(User &client, const Channel &channel)
 {
-	if (channel.getTopic().empty())
-		return;
-
 	queueMessage(client, msgNumeric(client, 332, channel.getName(),
 									channel.getTopic()));
 	queueMessage(client,
@@ -43,8 +40,15 @@ void Server::handleTopic(const command &cmd, User &client)
 
 	if (cmd.vals.size() >= 2)
 	{
+		if (channel->isTopicRestricted() && !channel->isOperator(client))
+		{
+			queueMessage(client, msgReply(client, ERR_CHANOPRIVSNEEDED,
+										  channel->getName()));
+			return;
+		}
+
 		const std::string &topic = cmd.vals[1];
-		channel->setTopic(topic, client.getNickName(), std::time(nullptr));
+		channel->setTopic(topic, client.getNickName(), getCurrentTime());
 		const std::string topicMsg = ":" + msgPrefix(client) + " TOPIC " +
 									 channel->getName() + " :" + topic +
 									 "\r\n";
