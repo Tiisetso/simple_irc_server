@@ -23,7 +23,7 @@ def send_command(client: socket.socket, command: str) -> None:
 
 
 def register_client(client:socket.socket, client_name: str) -> None:
-        send_command(client, "PASS testpass\r\nNICK " + client_name + " \r\nUSER " + client_name + " 0 * :" + client_name)
+        send_command(client, "PASS testpass\r\nNICK " + client_name + "\r\nUSER " + client_name + " 0 * :" + client_name)
 
 
 with (socket.socket(socket.AF_INET, socket.SOCK_STREAM) as yuan,
@@ -69,7 +69,7 @@ with (socket.socket(socket.AF_INET, socket.SOCK_STREAM) as yuan,
 
     # +i blocks Peter
     send_command(peter, "JOIN #test11 secret")
-    peter_reply = server_reply(peter)
+    peter_reply += server_reply(peter)
 
     check(peter_reply, "473 peter #test11")
 
@@ -98,7 +98,7 @@ with (socket.socket(socket.AF_INET, socket.SOCK_STREAM) as yuan,
     send_command(ghost, "JOIN #test11 secret")
     ghost_reply += server_reply(ghost)
 
-    check(ghost_reply, " 471 ghost")
+    check(ghost_reply, "471 ghost")
 
     # Titi removes multiple modes
     send_command(titi, "MODE #test11 -iolk yuan")
