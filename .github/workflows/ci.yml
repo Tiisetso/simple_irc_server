@@ -3,9 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches:
-      - main
-      - 102-smoke-test-9-cap-ls-cap-end-registration-flow
+    branches: main
 
 jobs:
   build:
@@ -301,3 +299,33 @@ jobs:
 
           echo "$REPLY" | grep -q "JOIN #test10"
           echo "$REPLY" | grep -q " 353 alice "
+
+  smoke_test_11:
+    name: "Test 11: Channel mode iokl"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Download compiled binary
+        uses: actions/download-artifact@v7
+        with:
+          name: ircserv-binary
+
+      - name: Fix binary permissions
+        run: chmod +x ./ircserv
+
+      - name: Run MODE smoke test
+        run: |
+          ./ircserv 16676 testpass > server_mode.log 2>&1 &
+          SERVER_PID=$!
+          sleep 0.5
+
+          python3 .github/tests/smoke_mode.py
+          TEST_STATUS=$?
+
+          kill "$SERVER_PID"
+          wait "$SERVER_PID" 2>/dev/null || true
+
+          exit "$TEST_STATUS"
