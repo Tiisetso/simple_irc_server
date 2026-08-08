@@ -26,6 +26,7 @@ $(SRC_DIR)/Channel.cpp \
 $(SRC_DIR)/Invite.cpp \
 $(SRC_DIR)/Join.cpp \
 $(SRC_DIR)/Kick.cpp \
+$(SRC_DIR)/Topic.cpp \
 $(SRC_DIR)/main.cpp \
 $(SRC_DIR)/Message.cpp \
 $(SRC_DIR)/Nick.cpp \

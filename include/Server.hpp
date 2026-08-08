@@ -33,6 +33,7 @@ class Server
 		static void handleSignal(int sig);
 
 		void queueMessage(User &client, const std::string &message);
+		void queueTopicReplies(User &client, const Channel &channel);
 		void broadcastToChannel(const Channel &channel,
 								const std::string &message,
 								const User *excludeUser);
@@ -74,6 +75,7 @@ class Server
 		void handlePrivMsg(const command &cmd, User &client);
 		void handleQuit(const command &cmd, User &client);
 		void handleInvite(const command &cmd, User &client);
+		void handleTopic(const command &cmd, User &client);
 		void handleMode(const command &cmd, User &client);
 		void handleUserMode(const command &cmd, User &client,
 							const std::string &target);
