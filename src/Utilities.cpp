@@ -1,7 +1,16 @@
 #include "Utilities.hpp"
 
+#include <ctime>
 #include <string>
 #include <vector>
+
+std::time_t getCurrentTime()
+{
+	std::time_t now = std::time(nullptr);
+	if (now == static_cast<std::time_t>(-1))
+		return 0;
+	return now;
+}
 
 bool lowerCaseEqual(const std::string &a, const std::string &b)
 {

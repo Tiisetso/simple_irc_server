@@ -26,14 +26,6 @@
 
 volatile sig_atomic_t Server::_exitServer = 0;
 
-static std::time_t getCurrentTime()
-{
-	std::time_t now = std::time(nullptr);
-	if (now == static_cast<std::time_t>(-1))
-		return 0;
-	return now;
-}
-
 static std::string getCurrentDate(std::time_t now)
 {
 	std::tm *timeinfo = std::localtime(&now);
@@ -441,6 +433,7 @@ void Server::commandHandler(const command &cmd, User &client)
 		{"PART", {&Server::handlePart, true}},
 		{"PRIVMSG", {&Server::handlePrivMsg, true}},
 		{"INVITE", {&Server::handleInvite, true}},
+		{"TOPIC", {&Server::handleTopic, true}},
 		{"MODE", {&Server::handleMode, true}}};
 
 	std::unordered_map<std::string, commandType>::const_iterator it =
