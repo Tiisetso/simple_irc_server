@@ -97,7 +97,7 @@ void Server::handleModeL(User &client, Channel &channel, char sign,
 	if (argument.empty())
 	{
 		queueMessage(client, msgNumeric(client, 696,
-										channel.getName() + " l" + argument,
+										channel.getName() + " l " + argument,
 										"empty mode param"));
 		return;
 	}
@@ -108,7 +108,7 @@ void Server::handleModeL(User &client, Channel &channel, char sign,
 		{
 			queueMessage(
 				client,
-				msgNumeric(client, 696, channel.getName() + " l" + argument,
+				msgNumeric(client, 696, channel.getName() + " l " + argument,
 						   "invalid limit"));
 			return;
 		}
