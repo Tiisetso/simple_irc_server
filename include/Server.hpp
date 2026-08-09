@@ -85,7 +85,8 @@ class Server
 							  Channel &channel);
 		void handleModeO(User &client, Channel &channel, char sign,
 						const std::string &argument);
-		void handleModeI(User &user, Channel &channel, char sign);
+		void handleModeI(User &client, Channel &channel, char sign);
+		void handleModeT(User &client, Channel &channel, char sign);
 		void handleModeL(User &client, Channel &channel, char sign,
 						 const std::string &argument);
 		void handleModeK(User &client, Channel &channel, char sign,

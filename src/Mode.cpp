@@ -53,14 +53,32 @@ void Server::handleModeI(User &client, Channel &channel, char sign)
 	{
 		channel.setInviteOnly(true);
 		broadcastToChannel(
-			channel, msgFromClient(client, "MODE", channel.getName() + " +i "),
+			channel, msgFromClient(client, "MODE", channel.getName() + " +i"),
 			nullptr);
 	}
 	else
 	{
 		channel.setInviteOnly(false);
 		broadcastToChannel(
-			channel, msgFromClient(client, "MODE", channel.getName() + " -i "),
+			channel, msgFromClient(client, "MODE", channel.getName() + " -i"),
+			nullptr);
+	}
+}
+
+void Server::handleModeT(User &client, Channel &channel, char sign)
+{
+	if (sign == '+')
+	{
+		channel.setTopicRestricted(true);
+		broadcastToChannel(
+			channel, msgFromClient(client, "MODE", channel.getName() + " +t"),
+			nullptr);
+	}
+	else
+	{
+		channel.setTopicRestricted(false);
+		broadcastToChannel(
+			channel, msgFromClient(client, "MODE", channel.getName() + " -t"),
 			nullptr);
 	}
 }
@@ -79,7 +97,7 @@ void Server::handleModeL(User &client, Channel &channel, char sign,
 	if (argument.empty())
 	{
 		queueMessage(client, msgNumeric(client, 696,
-										channel.getName() + " l " + argument,
+										channel.getName() + " l" + argument,
 										"empty mode param"));
 		return;
 	}
@@ -90,7 +108,7 @@ void Server::handleModeL(User &client, Channel &channel, char sign,
 		{
 			queueMessage(
 				client,
-				msgNumeric(client, 696, channel.getName() + " l " + argument,
+				msgNumeric(client, 696, channel.getName() + " l" + argument,
 						   "invalid limit"));
 			return;
 		}
@@ -105,7 +123,7 @@ void Server::handleModeL(User &client, Channel &channel, char sign,
 		{
 			queueMessage(
 				client,
-				msgNumeric(client, 696, channel.getName() + " l " + argument,
+				msgNumeric(client, 696, channel.getName() + " l" + argument,
 						   "invalid limit"));
 			return;
 		}
@@ -120,7 +138,7 @@ void Server::handleModeL(User &client, Channel &channel, char sign,
 	catch (...)
 	{
 		queueMessage(client, msgNumeric(client, 696,
-										channel.getName() + " l " + argument,
+										channel.getName() + " l" + argument,
 										"invalid limit"));
 		return;
 	}
@@ -210,7 +228,7 @@ void Server::parseChannelMode(const command &cmd, User &client,
 				handleModeI(client, channel, sign);
 				break;
 			case 't':
-				// handleModeT(client, channel);
+				handleModeT(client, channel, sign);
 				break;
 			case 'k':
 				handleModeK(client, channel, sign, argument);
