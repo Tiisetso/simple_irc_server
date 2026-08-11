@@ -28,59 +28,33 @@ void Server::handleModeO(User &client, Channel &channel, char sign,
 		if (!channel.isOperator(*user))
 			return;
 		channel.removeOperator(*user);
-		broadcastToChannel(
-			channel,
-			msgFromClient(client, "MODE",
-						  channel.getName() + " -o " + user->getNickName()),
-			nullptr);
+		broadcastModeToChannel(client, channel, sign, 'o', user->getNickName());
 	}
 	if (sign == '+')
 	{
 		if (channel.isOperator(*user))
 			return;
 		channel.addOperator(*user);
-		broadcastToChannel(
-			channel,
-			msgFromClient(client, "MODE",
-						  channel.getName() + " +o " + user->getNickName()),
-			nullptr);
+		broadcastModeToChannel(client, channel, sign, 'o', user->getNickName());
 	}
 }
 
 void Server::handleModeI(User &client, Channel &channel, char sign)
 {
 	if (sign == '+')
-	{
 		channel.setInviteOnly(true);
-		broadcastToChannel(
-			channel, msgFromClient(client, "MODE", channel.getName() + " +i"),
-			nullptr);
-	}
 	else
-	{
 		channel.setInviteOnly(false);
-		broadcastToChannel(
-			channel, msgFromClient(client, "MODE", channel.getName() + " -i"),
-			nullptr);
-	}
+	broadcastModeToChannel(client, channel, sign, 'i');
 }
 
 void Server::handleModeT(User &client, Channel &channel, char sign)
 {
 	if (sign == '+')
-	{
 		channel.setTopicRestricted(true);
-		broadcastToChannel(
-			channel, msgFromClient(client, "MODE", channel.getName() + " +t"),
-			nullptr);
-	}
 	else
-	{
 		channel.setTopicRestricted(false);
-		broadcastToChannel(
-			channel, msgFromClient(client, "MODE", channel.getName() + " -t"),
-			nullptr);
-	}
+	broadcastModeToChannel(client, channel, sign, 't');
 }
 
 void Server::handleModeL(User &client, Channel &channel, char sign,
@@ -89,15 +63,12 @@ void Server::handleModeL(User &client, Channel &channel, char sign,
 	if (sign == '-')
 	{
 		channel.removeLimit();
-		broadcastToChannel(
-			channel, msgFromClient(client, "MODE", channel.getName() + " -l"),
-			nullptr);
+		broadcastModeToChannel(client, channel, sign, 'l');
 		return;
 	}
 	if (argument.empty())
 	{
-		queueMessage(client, msgNumeric(client, 696,
-										channel.getName() + " l" + argument,
+		queueMessage(client, msgNumeric(client, 696, channel.getName() + " l",
 										"empty mode param"));
 		return;
 	}
@@ -129,11 +100,8 @@ void Server::handleModeL(User &client, Channel &channel, char sign,
 		}
 		std::size_t limit = number;
 		channel.setLimit(limit);
-		broadcastToChannel(
-			channel,
-			msgFromClient(client, "MODE",
-						  channel.getName() + " +l " + std::to_string(limit)),
-			nullptr);
+		broadcastModeToChannel(client, channel, sign, 'l',
+							   std::to_string(limit));
 	}
 	catch (...)
 	{
@@ -152,15 +120,13 @@ void Server::handleModeK(User &client, Channel &channel, char sign,
 		// MODE #channel +K :
 		if (argument.empty())
 		{
-			queueMessage(client, msgReply(client, ERR_INVALIDKEY, channel.getName()));
+			queueMessage(client,
+						 msgReply(client, ERR_INVALIDKEY, channel.getName()));
 			return;
 		}
 
 		channel.setKey(argument);
-		broadcastToChannel(channel,
-						   msgFromClient(client, "MODE",
-										 channel.getName() + " +k " + argument),
-						   nullptr);
+		broadcastModeToChannel(client, channel, sign, 'k', argument);
 	}
 	if (sign == '-')
 	{
@@ -168,9 +134,7 @@ void Server::handleModeK(User &client, Channel &channel, char sign,
 			return;
 		else
 			channel.removeKey();
-		broadcastToChannel(
-			channel, msgFromClient(client, "MODE", channel.getName() + " -k"),
-			nullptr);
+		broadcastModeToChannel(client, channel, sign, 'k');
 	}
 }
 
@@ -319,4 +283,13 @@ void Server::handleMode(const command &cmd, User &client)
 	}
 
 	handleChannelMode(cmd, client, target);
+}
+
+void Server::broadcastModeToChannel(User &client, Channel &channel, char sign,
+									char mode, const std::string &argument)
+{
+	std::string params = channel.getName() + " " + sign + mode;
+	if (!argument.empty())
+		params += " " + argument;
+	broadcastToChannel(channel, msgFromClient(client, "MODE", params), nullptr);
 }
