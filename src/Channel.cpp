@@ -208,8 +208,5 @@ std::string Channel::getMode(bool isMember) const
 		argument += " " + std::to_string(_limit);
 	}
 
-	if (modeString.empty())
-		return modeString;
-
-	return modeString + argument;
+	return "+" + modeString + argument;
 }

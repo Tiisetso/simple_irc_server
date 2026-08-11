@@ -152,6 +152,6 @@ std::string Server::msgCap(const User &client)
 std::string Server::msgMode(const User &client, const Channel &channel,
 							bool isMember)
 {
-	return ":" + _serverName + " 324 " + client.getNickName() + " " +
-		   channel.getName() + " " + channel.getMode(isMember) + "\r\n";
+	return msgNumeric(client, 324,
+					  channel.getName() + " " + channel.getMode(isMember));
 }

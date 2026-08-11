@@ -65,7 +65,7 @@ with (socket.socket(socket.AF_INET, socket.SOCK_STREAM) as yuan,
     send_command(yuan, "MODE #test11")
     yuan_reply += server_reply(yuan)
 
-    check(yuan_reply, "324 yuan #test11 ikl secret 3")
+    check(yuan_reply, "324 yuan #test11 +ikl secret 3")
 
     # +i blocks Peter
     send_command(peter, "JOIN #test11 secret")

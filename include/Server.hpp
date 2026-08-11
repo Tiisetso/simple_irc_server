@@ -39,6 +39,9 @@ class Server
 								const User *excludeUser);
 		void broadcastToUserChannels(User &client, const std::string &message,
 									 const User *excludeUser);
+		void broadcastModeToChannel(User &client, Channel &channel, char sign,
+									char mode,
+									const std::string &argument = "");
 
 		void acceptClients();
 		void readClient(User &client);
@@ -84,8 +87,9 @@ class Server
 		void parseChannelMode(const command &cmd, User &client,
 							  Channel &channel);
 		void handleModeO(User &client, Channel &channel, char sign,
-						const std::string &argument);
-		void handleModeI(User &user, Channel &channel, char sign);
+						 const std::string &argument);
+		void handleModeI(User &client, Channel &channel, char sign);
+		void handleModeT(User &client, Channel &channel, char sign);
 		void handleModeL(User &client, Channel &channel, char sign,
 						 const std::string &argument);
 		void handleModeK(User &client, Channel &channel, char sign,
@@ -102,7 +106,7 @@ class Server
 								  const std::string &trailing = "");
 		std::string msgNumeric(const User &client, int code,
 							   const std::string &middle,
-							   const std::string &trailing);
+							   const std::string &trailing = "");
 		std::string msgCap(const User &client);
 		std::string msgMode(const User &client, const Channel &channel,
 							bool isMember);
