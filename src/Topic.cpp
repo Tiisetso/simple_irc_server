@@ -6,13 +6,13 @@
 
 void Server::queueTopicReplies(User &client, const Channel &channel)
 {
-	queueMessage(client, msgNumeric(client, 332, channel.getName(),
-									channel.getTopic()));
+	queueMessage(
+		client, msgNumeric(client, 332, channel.getName(), channel.getTopic()));
 	queueMessage(client,
 				 msgNumeric(client, 333,
-							 channel.getName() + " " + channel.getTopicSetBy() +
-								 " " + std::to_string(channel.getTopicSetAt()),
-							 ""));
+							channel.getName() + " " + channel.getTopicSetBy() +
+								" " + std::to_string(channel.getTopicSetAt()),
+							""));
 }
 
 void Server::handleTopic(const command &cmd, User &client)
@@ -50,8 +50,7 @@ void Server::handleTopic(const command &cmd, User &client)
 		const std::string &topic = cmd.vals[1];
 		channel->setTopic(topic, client.getNickName(), getCurrentTime());
 		const std::string topicMsg = ":" + msgPrefix(client) + " TOPIC " +
-									 channel->getName() + " :" + topic +
-									 "\r\n";
+									 channel->getName() + " :" + topic + "\r\n";
 		broadcastToChannel(*channel, topicMsg, nullptr);
 		return;
 	}

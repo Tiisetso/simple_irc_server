@@ -69,7 +69,6 @@ void Server::registerClient(User &client)
 		return;
 	client.setIsRegistered();
 	sendWelcome(client);
-	std::cout << "Client is registered!" << std::endl;
 }
 
 void Server::sendWelcome(User &client)

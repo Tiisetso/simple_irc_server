@@ -34,7 +34,6 @@ void Server::handlePrivMsg(const command &cmd, User &client)
 		if (recipient.empty())
 			continue;
 
-		// TODO: improve this depending on JOIN's implementation.
 		if (recipient[0] == '#')
 		{
 			Channel *channel = getChannel(recipient);
